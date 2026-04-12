@@ -32,12 +32,10 @@ exports.getUsers = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { nombre, correo, rol_id, estado_id } = req.body;
+  const { nombre, correo, rol_id } = req.body;
   try {
-    await db.query(
-      'UPDATE usuario SET nombre = ?, correo = ?, rol_id = ?, estado_id = ? WHERE id_usuario = ?',
-      [nombre, correo, rol_id, estado_id, id]
-    );
+    const sql = `UPDATE usuario SET nombre = '${nombre}', correo = '${correo}', rol_id = ${Number(rol_id)} WHERE id_usuario = ${Number(id)}`;
+    await db.query(sql);
     res.json({ message: "Usuario actualizado con éxito" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -54,3 +52,14 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.reactivarUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Cambiamos el estado a 1 (Activo) para reactivar al usuario
+    await db.query('UPDATE usuario SET estado_id = 1 WHERE id_usuario = ?', [id]);
+    res.json({ message: "Usuario reactivado con éxito" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
