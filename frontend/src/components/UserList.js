@@ -91,6 +91,13 @@ const UserList = () => {
         }
     };
 
+    const handleReactivar = async (id) => {
+        if (window.confirm('¿Reactivar este usuario?')) {
+            await axios.patch(`${API}/api/users/${id}/reactivar`);
+            fetchUsers();
+        }
+    };
+
     const getRolNombre = (rol_id) => {
         if (rol_id === 1) return 'Administrador';
         if (rol_id === 2) return 'Colaborador';
@@ -231,11 +238,13 @@ const UserList = () => {
                                     </td>
                                     <td>
                                         <div className="actions">
-                                            {tabActiva === 'activos' && (
+                                            {tabActiva === 'activos' ? (
                                                 <>
                                                     <button className="btn btn-sm btn-warning" onClick={() => startEdit(user)}>Editar</button>
                                                     <button className="btn btn-sm btn-danger" onClick={() => handleDesactivar(user.id_usuario)}>Desactivar</button>
                                                 </>
+                                            ) : (
+                                                <button className="btn btn-sm btn-primary" onClick={() => handleReactivar(user.id_usuario)}>Reactivar</button>
                                             )}
                                         </div>
                                     </td>
