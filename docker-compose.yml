@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Base de Datos (MySQL 8)
+  db:
+    image: mysql:8
+    container_name: documentosgps-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: documentosgps
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/documentosgps.sql:/docker-entrypoint-initdb.d/setup.sql
+      - db_data:/var/lib/mysql
+
+  # Backend (Node.js + Express)
+  backend:
+    build: ./backend
+    container_name: documentosgps-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=documentosgps
+    depends_on:
+      - db
+
+  # Frontend (React)
+  frontend:
+    build: ./frontend
+    container_name: documentosgps-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
