@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+const API = process.env.REACT_APP_API_URL;
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -11,7 +12,7 @@ const UserList = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/users');
+            const response = await axios.get(`${API}/api/users`);
             setUsers(response.data);
         } catch (error) { console.error(error); }
     };
@@ -38,10 +39,10 @@ const UserList = () => {
         e.preventDefault();
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:3001/api/users/${selectedId}`, formData);
+                await axios.put(`${API}/api/users/${selectedId}`, formData);
                 alert("Usuario actualizado");
             } else {
-                await axios.post('http://localhost:3001/api/users', formData);
+                await axios.post(`${API}/api/users`, formData);
                 alert("Usuario creado");
             }
             cancelEdit();
@@ -57,7 +58,7 @@ const UserList = () => {
 
     const handleDelete = async (id) => {
         if (window.confirm("¿Desactivar usuario?")) {
-            await axios.delete(`http://localhost:3001/api/users/${id}`);
+            await axios.delete(`${API}/api/users/${id}`);
             fetchUsers();
         }
     };

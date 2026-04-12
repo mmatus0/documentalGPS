@@ -8,12 +8,17 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: documentosgps
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3306:3306"
     volumes:
       - ./database/documentosgps.sql:/docker-entrypoint-initdb.d/setup.sql
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Backend (Node.js + Express)
   backend:
@@ -24,10 +29,11 @@ services:
     environment:
       - DB_HOST=db
       - DB_USER=root
-      - DB_PASSWORD=root
+      - DB_PASSWORD=
       - DB_NAME=documentosgps
     depends_on:
-      - db
+      db: 
+        condition: service_healthy
 
   # Frontend (React)
   frontend:
@@ -35,6 +41,8 @@ services:
     container_name: documentosgps-frontend
     ports:
       - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:3001
     depends_on:
       - backend
 
