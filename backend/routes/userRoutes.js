@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 
 router.post('/', userController.createUser);
 router.get('/', userController.getUsers);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 router.patch('/:id/reactivar', userController.reactivarUser);
+
+router.post('/login', authController.login);
 
 module.exports = router;
