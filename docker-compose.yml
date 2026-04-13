@@ -48,22 +48,22 @@ services:
       - documentalgps-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: documentalgps-frontend
-    environment:
-      REACT_APP_API_URL: ${API_URL}
-    ports:
-      - "8032:3000"
-    depends_on:
-      - backend
-    deploy:
-      resources:
-        limits:
-          memory: 300M
-    networks:
-      - documentalgps-network
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+    args:
+      - REACT_APP_API_URL=http://pacheco.chillan.ubiobio.cl:8033
+  container_name: documentalgps-frontend
+  ports:
+    - "8032:3000"
+  depends_on:
+    - backend
+  deploy:
+    resources:
+      limits:
+        memory: 300M
+  networks:
+    - documentalgps-network
 
 volumes:
   db_data:
