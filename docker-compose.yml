@@ -1,50 +1,61 @@
-version: '3.8'
-
 services:
-  # Base de Datos (MySQL 8)
-  db:
-    image: mysql:8
-    container_name: documentosgps-db
-    restart: always
+  database:
+    image: mariadb:10.4
+    container_name: documentalgps-db
     environment:
-      MYSQL_DATABASE: documentosgps
+      MYSQL_ROOT_PASSWORD: ""
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    ports:
-      - "3306:3306"
+      MYSQL_DATABASE: documentosgps
     volumes:
-      - ./database/documentosgps.sql:/docker-entrypoint-initdb.d/setup.sql
-      - db_data:/var/lib/mysql 
+      - db_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Backend (Node.js + Express)
+    networks:
+      - documentalgps-network
+ 
   backend:
-    build: ./backend
-    container_name: documentosgps-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: documentalgps-backend
     ports:
-      - "3001:3001"
+      - "8033:3001"
     environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=
-      - DB_NAME=documentosgps
+      PORT: 3001
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: documentosgps
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
-      db: 
+      database:
         condition: service_healthy
-
-  # Frontend (React)
+    networks:
+      - documentalgps-network
+ 
   frontend:
-    build: ./frontend
-    container_name: documentosgps-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: documentalgps-frontend
     ports:
-      - "3000:3000"
+      - "8032:3000"
     environment:
-      - REACT_APP_API_URL=http://backend:3001
+      REACT_APP_API_URL: ${API_URL}
     depends_on:
       - backend
-
+    networks:
+      - documentalgps-network
+ 
 volumes:
   db_data:
+ 
+networks:
+  documentalgps-network:
+    driver: bridge
+ 
