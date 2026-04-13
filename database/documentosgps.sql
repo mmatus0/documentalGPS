@@ -77,7 +77,8 @@ CREATE TABLE `usuario` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Índices para tablas volcadas
+INSERT INTO `usuario` (`nombre`, `correo`, `contrasenia`, `estado_id`, `rol_id`) VALUES
+('Gonzalo Matus', 'gmatusz@gmail.com', '$2a$10$zCxlwb5x9UrJRjWuYVA19.USE89aA38wJ6H4KrMOCqAO.6OjImRKy', 1, 1);
 --
 
 --
