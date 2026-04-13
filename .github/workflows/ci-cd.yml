@@ -1,0 +1,58 @@
+name: Pipeline (CI/CD)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Probar Frontend (Instalación y Compilación)
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Probar Backend (Instalación)
+        working-directory: ./backend
+        run: |
+          npm ci
+
+  sonarcloud:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Análisis SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy-pacheco:
+    needs: sonarcloud
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recordatorio deploy manual
+        run: |
+          echo "Pipeline OK. Despliega en Pacheco con:"
+          echo "  cd ~/documentalGPS"
+          echo "  git pull origin main"
+          echo "  docker compose up -d --build"
+          echo "  docker image prune -f"
