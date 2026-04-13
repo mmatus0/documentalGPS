@@ -20,7 +20,7 @@ services:
           memory: 300M
     networks:
       - documentalgps-network
- 
+
   backend:
     build:
       context: ./backend
@@ -46,7 +46,7 @@ services:
           memory: 300M
     networks:
       - documentalgps-network
- 
+
   frontend:
     build:
       context: ./frontend
@@ -54,7 +54,6 @@ services:
     container_name: documentalgps-frontend
     environment:
       REACT_APP_API_URL: ${API_URL}
-      NODE_OPTIONS: --max-old-space-size=256
     ports:
       - "8032:3000"
     depends_on:
@@ -65,10 +64,10 @@ services:
           memory: 300M
     networks:
       - documentalgps-network
- 
+
 volumes:
   db_data:
- 
+
 networks:
   documentalgps-network:
     driver: bridge
