@@ -1,64 +1,154 @@
-name: Pipeline Empresarial (CI/CD)
 
+name: Pipeline (CI/CD)
+ 
 on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main", "develop" ]
-
+ 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
+  REGISTRY: ghcr.io
+  REPO_LOWER: mmatus0/documentalgps
+ 
 jobs:
+  # ==========================================
+  # Etapa 1a: Seguridad (codeQL)
+  # ==========================================
+  security-scan:
+    name: Escáner de Vulnerabilidades (CodeQL)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+ 
+      - name: Ejecutar análisis CodeQL
+        uses: github/codeql-action/analyze@v3
+ 
+  # ==========================================
+  # Etapa 1B: Integración continua (Build + Pruebas)
+  # ==========================================
   test-and-build:
+    name: Pruebas de Calidad
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar código
-        uses: actions/checkout@v4
-
-      - name: Preparar Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+ 
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
-
-      - name: Probar Frontend (Instalación y Compilación)
+ 
+      - name: Build Frontend
         working-directory: ./frontend
         run: |
           npm ci
           npm run build
-
-      - name: Probar Backend (Instalación)
+ 
+      - name: Instalar dependencias Backend
         working-directory: ./backend
-        run: |
-          npm ci
-
+        run: npm ci
+ 
+  # ==========================================
+  # Etapa 2: Empaquetación de imágenes GitHub
+  # ==========================================
+  build-and-push-images:
+    name: Empaquetar en GitHub Container Registry
+    needs: [test-and-build, security-scan]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+ 
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Iniciar sesión en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Construir y subir Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/documentalgps-frontend:latest
+          no-cache: true
+ 
+      - name: Construir y subir Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ env.REPO_LOWER }}/documentalgps-backend:latest
+          cache-from: type=registry,ref=ghcr.io/${{ env.REPO_LOWER }}/documentalgps-backend:latest
+          cache-to: type=inline
+ 
+  # ==========================================
+  # Etapa 2B: Analisis de código en SonarCloud
+  # ==========================================
   sonarcloud:
+    name: Análisis SonarCloud
     needs: test-and-build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+ 
       - name: Análisis SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  deploy-pacheco:
-    needs: sonarcloud
+ 
+  # ==========================================
+  # Etapa 3: Despliegue continuo con pacheco (CD)
+  # Deploy automático vía SSH en merge a main
+  # ==========================================
+  deploy-to-pacheco:
+    name: Desplegar en Pacheco
+    needs: [build-and-push-images, sonarcloud]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+ 
     steps:
-      - name: Recordatorio deploy manual
-        run: |
-          echo "Pipeline OK. Despliega en Pacheco con:"
-          echo "  cd ~/documentalGPS"
-          echo "  git pull origin main"
-          echo "  docker compose down"
-          echo "  docker system prune -f"
-          echo "  docker compose up -d --build"
-          echo "  docker image prune -a -f"
+      - name: Conectar y desplegar en Pacheco
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.PACHECO_HOST }}
+          username: ${{ secrets.PACHECO_USERNAME }}
+          key: ${{ secrets.PACHECO_SSH_KEY }}
+          passphrase: ${{ secrets.PACHECO_SSH_PASSPHRASE }}
+          envs: GITHUB_TOKEN
+          script: |
+            cd ~/documentalGPS
+ 
+            git pull origin main
+ 
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+ 
+            docker compose pull
+ 
+            docker compose down
+ 
+            docker system prune -f
+ 
+            docker compose up -d
+ 
+            docker image prune -a -f
