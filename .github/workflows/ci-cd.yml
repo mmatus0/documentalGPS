@@ -134,7 +134,6 @@ jobs:
           host: ${{ secrets.PACHECO_HOST }}
           username: ${{ secrets.PACHECO_USERNAME }}
           key: ${{ secrets.PACHECO_SSH_KEY }}
-          passphrase: ${{ secrets.PACHECO_SSH_PASSPHRASE }}
           envs: GITHUB_TOKEN
           script: |
             cd ~/documentalGPS
