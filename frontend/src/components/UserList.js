@@ -42,9 +42,9 @@ const UserList = () => {
 
     const startEdit = (user) => {
         setIsEditing(true);
-        setSelectedId(user.id_usuario);
+        setSelectedId(user.id);
         setFormData({
-            nombre: user.nombre,
+            nombre: user.nombre_completo,
             correo: user.correo,
             contrasenia: '',
             rol_id: user.rol_id
@@ -114,7 +114,7 @@ const UserList = () => {
         .filter(u => {
             const q = busqueda.toLowerCase();
             return (
-                u.nombre?.toLowerCase().includes(q) ||
+                u.nombre_completo?.toLowerCase().includes(q) ||
                 u.correo?.toLowerCase().includes(q)
             );
         });
@@ -225,8 +225,8 @@ const UserList = () => {
                     <tbody>
                         {usuariosFiltrados.length > 0 ? (
                             usuariosFiltrados.map(user => (
-                                <tr key={user.id_usuario}>
-                                    <td>{user.nombre} </td>
+                                <tr key={user.id}>
+                                    <td>{user.nombre_completo} </td>
                                     <td>{user.correo}</td>
                                     <td><span className={getRolBadge(user.rol_id)}>{getRolNombre(user.rol_id)}</span></td>
                                     <td>
@@ -239,10 +239,10 @@ const UserList = () => {
                                             {tabActiva === 'activos' ? (
                                                 <>
                                                     <button className="btn btn-sm btn-warning" onClick={() => startEdit(user)}>Editar</button>
-                                                    <button className="btn btn-sm btn-danger" onClick={() => handleDesactivar(user.id_usuario)}>Desactivar</button>
+                                                    <button className="btn btn-sm btn-danger" onClick={() => handleDesactivar(user.id)}>Desactivar</button>
                                                 </>
                                             ) : (
-                                                <button className="btn btn-sm btn-primary" onClick={() => handleReactivar(user.id_usuario)}>Reactivar</button>
+                                                <button className="btn btn-sm btn-primary" onClick={() => handleReactivar(user.id)}>Reactivar</button>
                                             )}
                                         </div>
                                     </td>

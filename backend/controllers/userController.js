@@ -9,7 +9,7 @@ exports.createUser = async (req, res) => {
     const hashPassword = await bcrypt.hash(contrasenia, salt);
 
     await db.query(
-      'INSERT INTO usuario (nombre, correo, contrasenia, estado_id, rol_id) VALUES (?, ?, ?, 1, ?)',
+      'INSERT INTO usuario (nombre_completo, correo, contrasenia, estado_id, rol_id) VALUES (?, ?, ?, 1, ?)',
       [nombre, correo, hashPassword, Number(rol_id)]
     );
 
@@ -22,7 +22,7 @@ exports.createUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT id_usuario, nombre, correo, estado_id, rol_id FROM usuario'
+      'SELECT id, rol_id, nombre_completo, correo, estado_id FROM usuario'
     );
     res.json(rows);
   } catch (error) {
@@ -35,7 +35,7 @@ exports.updateUser = async (req, res) => {
   const { nombre, correo, rol_id } = req.body;
   try {
     await db.query(
-      'UPDATE usuario SER nombre = ?, correo = ?, rol_id = ? WHERE id_usuario = ?',
+      'UPDATE usuario SET nombre_completo = ?, correo = ?, rol_id = ? WHERE id = ?',
       [nombre, correo, Number(rol_id), Number(id)]
     )
     res.json({ message: "Usuario actualizado con éxito" });
@@ -48,7 +48,7 @@ exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
     await db.query(
-      'UPDATE usuario SET estado_id = 2 WHERE id_usuario = ?', [id]
+      'UPDATE usuario SET estado_id = 2 WHERE id = ?', [id]
     );
     res.json({ message: "Usuario desactivado con éxito" });
   } catch (error) {
@@ -60,7 +60,7 @@ exports.reactivarUser = async (req, res) => {
   const { id } = req.params;
   try {
     await db.query(
-      'UPDATE usuario SET estado_id = 1 WHERE id_usuario = ?', [id]
+      'UPDATE usuario SET estado_id = 1 WHERE id = ?', [id]
     );
     res.json({ message: "Usuario reactivado con éxito" });
   } catch (error) {
