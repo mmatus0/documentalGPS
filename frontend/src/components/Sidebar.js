@@ -10,7 +10,12 @@ const menu = {
         { label: 'Nuevo Usuario',       vista: 'usuarios-nuevo'   },
       ]
     },
-    { label: 'Mantenedores', vista: 'mantenedores' },
+    {
+      label: 'Mantenedores', vista: 'mantenedores', 
+      subopciones: [
+        { label: 'Contratistas', vista: 'contratistas-listado' },
+      ]
+    },
     { label: 'Expedientes',  vista: 'expedientes'  },
     { label: 'Tareas',       vista: 'tareas'        },
   ],
