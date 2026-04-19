@@ -26,7 +26,7 @@ const UserCreate = ({ onVolver }) => {
         else if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(formData.contrasenia))
             e.contrasenia = 'Mínimo 8 caracteres con letras y números';
         if (formData.confirmar !== formData.contrasenia)
-            e.confirmar = 'Las contraseñas no coinciden';
+            e.confirmar = 'Error! Las contraseñas no coinciden';
         return e;
     };
 

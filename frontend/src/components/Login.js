@@ -53,7 +53,7 @@ const Login = ({ onLogin }) => {
                     {/* Formulario */}
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <label className="form-label small fw-medium">Correo electrónico</label>
+                            <label className="form-label small fw-medium">Correo Electrónico</label>
                             <input
                                 type="email"
                                 name="correo"

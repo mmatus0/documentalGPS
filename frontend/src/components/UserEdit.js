@@ -31,7 +31,7 @@ const UserEdit = ({ usuario, onVolver }) => {
 
     const validarPass = () => {
         const e = {};
-        if (!passData.contrasenia) e.contrasenia = 'Ingresa Nueva Contraseña';
+        if (!passData.contrasenia) e.contrasenia = 'Ingrese Nueva Contraseña';
         else if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(passData.contrasenia)) e.contrasenia = 'Mínimo 8 caracteres con letras y números';
         if (passData.confirmar !== passData.contrasenia) e.confirmar = 'Las contraseñas no coinciden';
         return e;
@@ -71,8 +71,8 @@ const UserEdit = ({ usuario, onVolver }) => {
     };
 
     const modalConfig = modal.tipo === 'datos'
-        ? { titulo: 'Confirmar Edición', mensaje: `¿Está seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar Cambios', variante: 'primary' }
-        : { titulo: 'Cambiar Contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar Contraseña', variante: 'danger' };
+        ? { titulo: 'Confirmar Edición', mensaje: `¿Está seguro de que desea guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar Cambios', variante: 'primary' }
+        : { titulo: 'Cambiar Contraseña', mensaje: 'La contraseña actual será modificada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar Contraseña', variante: 'danger' };
 
     const tabIcono = { 'Datos Generales': 'bi-gear', 'Seguridad': 'bi-lock' };
 

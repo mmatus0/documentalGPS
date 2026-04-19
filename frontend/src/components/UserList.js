@@ -26,7 +26,7 @@ const UserList = ({ onNuevo, onEditar }) => {
         setModal({
             visible:        true,
             titulo:         'Desactivar Usuario',
-            mensaje:        '¿Está seguro que desea desactivar esta cuenta? El usuario no podrá iniciar sesión.',
+            mensaje:        '¿Está seguro que desea desactivar esta cuenta? El usuario no podrá iniciar sesión posteriormente.',
             labelConfirmar: 'Desactivar',
             variante:       'danger',
             onConfirmar:    async () => {
@@ -41,7 +41,7 @@ const UserList = ({ onNuevo, onEditar }) => {
         setModal({
             visible:        true,
             titulo:         'Reactivar Usuario',
-            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver a iniciar sesión.',
+            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver a iniciar sesión posteriormente.',
             labelConfirmar: 'Reactivar',
             variante:       'primary',
             onConfirmar:    async () => {
@@ -78,7 +78,7 @@ const UserList = ({ onNuevo, onEditar }) => {
                     <p className="text-muted small mb-0">Administración de accesos y roles del sistema</p>
                 </div>
                 <button className="btn btn-primary btn-sm" onClick={onNuevo}>
-                    <i className="bi bi-plus-lg me-1" />Nuevo usuario
+                    <i className="bi bi-plus-lg me-1" />Crear Usuario
                 </button>
             </div>
  
