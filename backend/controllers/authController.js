@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: usuario.id, rol_id: usuario.rol_id },
+      { id: Number(usuario.id), rol_id: Number(usuario.rol_id) },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
     );
@@ -32,10 +32,10 @@ exports.login = async (req, res) => {
     res.json({
       token,
       usuario: {
-        id: usuario.id_usuario,
+        id: Number(usuario.id),
         nombre: usuario.nombre_completo,
         correo: usuario.correo,
-        rol_id: usuario.rol_id
+        rol_id: Number(usuario.rol_id)
       }
     });
   } catch (error) {

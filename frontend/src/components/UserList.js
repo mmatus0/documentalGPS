@@ -11,7 +11,7 @@ const UserList = ({ onNuevo, onEditar }) => {
             const response = await axios.get('/api/users');
             setUsers(response.data);
         } catch (error) {
-            console.error(error);
+            console.error('Error al cargar usuarios:', error);
         }
     };
 
@@ -19,15 +19,25 @@ const UserList = ({ onNuevo, onEditar }) => {
 
     const handleDesactivar = async (id) => {
         if (window.confirm('¿Desactivar este usuario?')) {
-            await axios.delete(`/api/users/${id}`);
-            fetchUsers();
+            try {
+                await axios.delete(`/api/users/${id}`);
+                fetchUsers();
+            } catch (error) {
+                alert('Error al desactivar el usuario');
+                console.error(error);
+            }
         }
     };
 
     const handleReactivar = async (id) => {
         if (window.confirm('¿Reactivar este usuario?')) {
-            await axios.patch(`/api/users/${id}/reactivar`);
-            fetchUsers();
+            try {
+                await axios.patch(`/api/users/${id}/reactivar`);
+                fetchUsers();
+            } catch (error) {
+                alert('Error al reactivar el usuario');
+                console.error(error);
+            }
         }
     };
 
