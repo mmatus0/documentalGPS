@@ -61,13 +61,14 @@ const UserCreate = ({ onVolver }) => {
                     <p className="text-muted small mb-0">Registra un nuevo acceso al sistema</p>
                 </div>
                 <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>
-                    ← Volver al listado
+                    <i className="bi bi-arrow-left me-1" />Volver al listado
                 </button>
             </div>
  
             <div className="card border">
+
                 <div className="card-header bg-light d-flex align-items-center gap-3 py-3">
-                    <span style={{ fontSize: 22 }}>👤</span>
+                    <i className="bi bi-person" style={{ fontSize: 22, color: 'var(--primary)' }} />
                     <div>
                         <p className="fw-semibold mb-0 small">Crear Nuevo Perfil de Usuario</p>
                         <p className="text-muted mb-0" style={{ fontSize: 12 }}>Complete la información para registrar un nuevo acceso al sistema.</p>
@@ -77,11 +78,11 @@ const UserCreate = ({ onVolver }) => {
                 <form onSubmit={handleSubmit}>
  
                     <div className="border-bottom">
-
                         <div className="px-4 py-2 bg-light border-bottom">
-                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>ℹ Datos Personales</span>
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>
+                                <i className="bi bi-info-circle me-1" />Datos Personales
+                            </span>
                         </div>
-
                         <div className="row g-3 p-4">
                             <div className="col-12">
                                 <label className="form-label small fw-medium">Nombre Completo</label>
@@ -96,14 +97,14 @@ const UserCreate = ({ onVolver }) => {
                                 {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
                             </div>
                         </div>
-
                     </div>
  
                     <div className="border-bottom">
                         <div className="px-4 py-2 bg-light border-bottom">
-                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>🔒 Seguridad</span>
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>
+                                <i className="bi bi-lock me-1" />Seguridad
+                            </span>
                         </div>
-
                         <div className="row g-3 p-4">
                             <div className="col-md-6">
                                 <label className="form-label small fw-medium">Contraseña</label>
@@ -112,12 +113,11 @@ const UserCreate = ({ onVolver }) => {
                                         className={`form-control ${errors.contrasenia ? 'is-invalid' : ''}`}
                                         placeholder="Mínimo 8 caracteres" value={formData.contrasenia} onChange={handleChange} />
                                     <button type="button" className="input-icon-btn" onClick={() => setMostrarPass(!mostrarPass)}>
-                                        {mostrarPass ? '' : '👁'}
+                                        <i className={`bi ${mostrarPass ? 'bi-eye-slash' : 'bi-eye'}`} />
                                     </button>
                                 </div>
                                 {errors.contrasenia && <div className="text-danger" style={{ fontSize: 12 }}>{errors.contrasenia}</div>}
                             </div>
-
                             <div className="col-md-6">
                                 <label className="form-label small fw-medium">Confirmar Contraseña</label>
                                 <input type="password" name="confirmar"
@@ -130,9 +130,10 @@ const UserCreate = ({ onVolver }) => {
  
                     <div className="border-bottom">
                         <div className="px-4 py-2 bg-light border-bottom">
-                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>⚙ Configuración de Cuenta</span>
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>
+                                <i className="bi bi-gear me-1" />Configuración de Cuenta
+                            </span>
                         </div>
-
                         <div className="row g-3 p-4">
                             <div className="col-md-4">
                                 <label className="form-label small fw-medium">Rol en el Sistema</label>
@@ -143,12 +144,15 @@ const UserCreate = ({ onVolver }) => {
                                 </select>
                             </div>
                         </div>
-
                     </div>
  
+                    {/* Submit */}
                     <div className="d-flex justify-content-center p-4 bg-light">
                         <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
-                            {guardando ? 'Guardando...' : '💾 Crear Usuario'}
+                            {guardando
+                                ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
+                                : <><i className="bi bi-floppy me-2" />Crear Usuario</>
+                            }
                         </button>
                     </div>
  

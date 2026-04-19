@@ -9,12 +9,13 @@ const ICONOS = {
 const ConfirmModal = ({ visible, titulo, mensaje, labelConfirmar = 'Confirmar', variante = 'danger', onConfirmar, onCancelar }) => {
     const icono = ICONOS[variante] || ICONOS.danger;
 
-    return (
+       return (
         <Modal show={visible} onHide={onCancelar} centered size="sm">
             <Modal.Body className="text-center px-4 pt-4 pb-2">
-                <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 16 }}>
-                    {icono.emoji}
-                </div>
+                <i
+                    className={`bi ${icono.icon}`}
+                    style={{ fontSize: 52, color: icono.color, display: 'block', marginBottom: 16 }}
+                />
                 <h5 className="fw-bold mb-2">{titulo}</h5>
                 <p className="text-muted small mb-0">{mensaje}</p>
             </Modal.Body>
@@ -22,10 +23,7 @@ const ConfirmModal = ({ visible, titulo, mensaje, labelConfirmar = 'Confirmar', 
                 <Button variant="outline-secondary" onClick={onCancelar} style={{ minWidth: 120 }}>
                     Cancelar
                 </Button>
-                <Button
-                    onClick={onConfirmar}
-                    style={{ backgroundColor: icono.color, borderColor: icono.color, minWidth: 120 }}
-                >
+                <Button onClick={onConfirmar} style={{ backgroundColor: icono.color, borderColor: icono.color, minWidth: 120 }}>
                     {labelConfirmar}
                 </Button>
             </Modal.Footer>

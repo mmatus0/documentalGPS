@@ -68,29 +68,28 @@ const UserList = ({ onNuevo, onEditar }) => {
             );
         });
 
-    return (
+        return (
         <>
             <Modales {...modal} onCancelar={cerrarModal} />
  
-            {/* Encabezado */}
             <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
                     <h5 className="fw-bold mb-1">Gestión de Usuarios</h5>
                     <p className="text-muted small mb-0">Administración de accesos y roles del sistema</p>
                 </div>
                 <button className="btn btn-primary btn-sm" onClick={onNuevo}>
-                    + Nuevo usuario
+                    <i className="bi bi-plus-lg me-1" />Nuevo usuario
                 </button>
             </div>
  
             <div className="card border">
  
-                <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-0">
-                    <ul className="nav nav-tabs border-0">
+                <div className="d-flex justify-content-between align-items-center px-4 border-bottom">
+                    <ul className="nav nav-tabs border-bottom-0">
                         {['activos', 'inactivos'].map(tab => (
                             <li className="nav-item" key={tab}>
                                 <button
-                                    className={`nav-link border-0 ${tabActiva === tab ? 'active fw-medium' : 'text-muted'}`}
+                                    className={`nav-link border-0 ${tabActiva === tab ? 'active fw-semibold' : 'text-muted'}`}
                                     onClick={() => setTabActiva(tab)}
                                 >
                                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -100,9 +99,9 @@ const UserList = ({ onNuevo, onEditar }) => {
                     </ul>
                     <input
                         type="text"
-                        className="form-control form-control-sm w-auto"
+                        className="form-control form-control-sm"
                         placeholder="Buscar por nombre o correo..."
-                        style={{ minWidth: 240 }}
+                        style={{ maxWidth: 260 }}
                         value={busqueda}
                         onChange={e => setBusqueda(e.target.value)}
                     />
@@ -159,5 +158,4 @@ const UserList = ({ onNuevo, onEditar }) => {
         </>
     );
 };
-
 export default UserList;

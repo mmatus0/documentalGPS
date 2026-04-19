@@ -17,7 +17,6 @@ const UserEdit = ({ usuario, onVolver }) => {
         correo: usuario.correo          || '',
         rol_id: usuario.rol_id          || 2,
     });
-
     const [passData, setPassData] = useState({ contrasenia: '', confirmar: '' });
 
     const handleChange     = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); setErrors({ ...errors, [e.target.name]: '' }); };
@@ -75,6 +74,8 @@ const UserEdit = ({ usuario, onVolver }) => {
         ? { titulo: 'Confirmar edición', mensaje: `¿Estás seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar cambios', variante: 'primary' }
         : { titulo: 'Cambiar contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar contraseña', variante: 'danger' };
 
+    const tabIcono = { 'Datos Generales': 'bi-gear', 'Seguridad': 'bi-lock' };
+
     return (
         <>
             <Modales visible={modal.visible} {...modalConfig} onConfirmar={confirmarGuardado} onCancelar={cerrarModal} />
@@ -86,22 +87,28 @@ const UserEdit = ({ usuario, onVolver }) => {
                     </h5>
                     <p className="text-muted small mb-0">Modifica los datos del perfil seleccionado</p>
                 </div>
-                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>← Volver al listado</button>
+                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>
+                    <i className="bi bi-arrow-left me-1" />Volver al listado
+                </button>
             </div>
 
-            {exito && <div className="alert alert-success py-2 small">✓ {exito}</div>}
+            {exito && (
+                <div className="alert alert-success py-2 small">
+                    <i className="bi bi-check-lg me-1" />{exito}
+                </div>
+            )}
 
             <div className="card border">
 
-                <div className="card-header bg-light px-4 py-0">
-                    <ul className="nav nav-tabs border-0">
+                <div className="px-4 border-bottom">
+                    <ul className="nav nav-tabs border-bottom-0">
                         {TABS.map(tab => (
                             <li className="nav-item" key={tab}>
                                 <button
                                     className={`nav-link border-0 ${tabActiva === tab ? 'active fw-medium' : 'text-muted'}`}
                                     onClick={() => { setTabActiva(tab); setErrors({}); }}
                                 >
-                                    {tab === 'Datos Generales' ? '⚙ ' : '🔒 '}{tab}
+                                    <i className={`bi ${tabIcono[tab]} me-1`} />{tab}
                                 </button>
                             </li>
                         ))}
@@ -142,7 +149,10 @@ const UserEdit = ({ usuario, onVolver }) => {
                         </div>
                         <div className="d-flex justify-content-center p-4 border-top bg-light">
                             <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
-                                {guardando ? 'Guardando...' : '💾 Guardar Cambios'}
+                                {guardando
+                                    ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
+                                    : <><i className="bi bi-floppy me-2" />Guardar Cambios</>
+                                }
                             </button>
                         </div>
                     </form>
@@ -151,8 +161,11 @@ const UserEdit = ({ usuario, onVolver }) => {
                 {tabActiva === 'Seguridad' && (
                     <form onSubmit={handleSubmitPassword}>
                         <div className="px-4 py-2 bg-light border-bottom">
-                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>Cambiar Contraseña</span>
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>
+                                <i className="bi bi-shield-lock me-1" />Cambiar Contraseña
+                            </span>
                         </div>
+
                         <div className="row g-3 p-4">
                             <div className="col-md-6">
                                 <label className="form-label small fw-medium">Nueva Contraseña</label>
@@ -161,12 +174,13 @@ const UserEdit = ({ usuario, onVolver }) => {
                                         className={`form-control ${errors.contrasenia ? 'is-invalid' : ''}`}
                                         placeholder="Mínimo 8 caracteres" value={passData.contrasenia} onChange={handlePassChange} />
                                     <button type="button" className="input-icon-btn" onClick={() => setMostrarPass(!mostrarPass)}>
-                                        {mostrarPass ? '' : '👁'}
+                                        <i className={`bi ${mostrarPass ? 'bi-eye-slash' : 'bi-eye'}`} />
                                     </button>
                                 </div>
                                 <div className="form-text">Mínimo 8 caracteres con letras y números</div>
                                 {errors.contrasenia && <div className="text-danger" style={{ fontSize: 12 }}>{errors.contrasenia}</div>}
                             </div>
+
                             <div className="col-md-6">
                                 <label className="form-label small fw-medium">Confirmar Nueva Contraseña</label>
                                 <input type="password" name="confirmar"
@@ -174,12 +188,18 @@ const UserEdit = ({ usuario, onVolver }) => {
                                     placeholder="Repite la nueva contraseña" value={passData.confirmar} onChange={handlePassChange} />
                                 {errors.confirmar && <div className="invalid-feedback">{errors.confirmar}</div>}
                             </div>
+
                         </div>
+
                         <div className="d-flex justify-content-center p-4 border-top bg-light">
                             <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
-                                {guardando ? 'Guardando...' : '🔒 Actualizar Contraseña'}
+                                {guardando
+                                    ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
+                                    : <><i className="bi bi-lock me-2" />Actualizar Contraseña</>
+                                }
                             </button>
                         </div>
+
                     </form>
                 )}
 
