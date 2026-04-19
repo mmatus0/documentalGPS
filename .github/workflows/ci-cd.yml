@@ -42,20 +42,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
- 
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
- 
+
       - name: Build Frontend
         working-directory: ./frontend
         run: |
           npm install
           npm run build
- 
+
       - name: Instalar dependencias Backend
         working-directory: ./backend
-        run: npm ci
+        run: npm install
+
+      - name: Ejecutar tests Backend
+        working-directory: ./backend
+        run: npm test
+
+      - name: Subir reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage/lcov.info
  
   # ==========================================
   # Etapa 2: Empaquetación de imágenes GitHub
@@ -108,7 +118,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
- 
+
+      - name: Descargar reporte de cobertura
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/coverage
+
       - name: Análisis SonarCloud
         uses: SonarSource/sonarcloud-github-action@v3
         env:
