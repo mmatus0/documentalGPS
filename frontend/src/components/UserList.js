@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const API = process.env.REACT_APP_API_URL;
+import axios from '../services/axiosConfig';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -16,7 +14,7 @@ const UserList = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get(`${API}/api/users`);
+            const response = await axios.get('/api/users');
             setUsers(response.data);
         } catch (error) { console.error(error); }
     };
@@ -70,8 +68,8 @@ const UserList = () => {
         }
         try {
             const url = isEditing
-                ? `${API}/api/users/${selectedId}`
-                : `${API}/api/users`;
+                ? `/api/users/${selectedId}`
+                : `/api/users`;
             const method = isEditing ? 'put' : 'post';
             await axios[method](url, {
                 ...formData,
@@ -86,14 +84,14 @@ const UserList = () => {
 
     const handleDesactivar = async (id) => {
         if (window.confirm('¿Desactivar este usuario?')) {
-            await axios.delete(`${API}/api/users/${id}`);
+            await axios.delete(`/api/users/${id}`);
             fetchUsers();
         }
     };
 
     const handleReactivar = async (id) => {
         if (window.confirm('¿Reactivar este usuario?')) {
-            await axios.patch(`${API}/api/users/${id}/reactivar`);
+            await axios.patch(`/api/users/${id}/reactivar`);
             fetchUsers();
         }
     };
