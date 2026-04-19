@@ -6,7 +6,6 @@
 -- Tiempo de generación: 12-04-2026 a las 16:03:54
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8mb4;
@@ -18,24 +17,39 @@ CREATE DATABASE IF NOT EXISTS documentosgps
 USE documentosgps;
 
 -- ============================================================
+-- TABLA ESTADO (base para todas las entidades)
+-- ============================================================
+
+CREATE TABLE estado (
+  id     INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL
+);
+
+INSERT INTO estado (nombre) VALUES
+  ('Activo'),
+  ('Inactivo');
+
+-- ============================================================
 -- MÓDULO 1: USUARIOS Y ROLES
 -- ============================================================
 
 CREATE TABLE rol (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(50)  NOT NULL,
-  descripcion   VARCHAR(255),
-  estado_activo TINYINT(1)   NOT NULL DEFAULT 1
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(50)  NOT NULL,
+  descripcion VARCHAR(255),
+  estado_id   INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_rol_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 CREATE TABLE usuario (
-  id               INT AUTO_INCREMENT PRIMARY KEY,
-  rol_id           INT          NOT NULL,
-  nombre_completo  VARCHAR(100) NOT NULL,
-  correo           VARCHAR(100) NOT NULL UNIQUE,
-  password_hash    VARCHAR(255) NOT NULL,
-  estado_activo    TINYINT(1)   NOT NULL DEFAULT 1,
-  CONSTRAINT fk_usuario_rol FOREIGN KEY (rol_id) REFERENCES rol(id)
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  rol_id          INT          NOT NULL,
+  nombre_completo VARCHAR(100) NOT NULL,
+  correo          VARCHAR(100) NOT NULL UNIQUE,
+  password_hash   VARCHAR(255) NOT NULL,
+  estado_id       INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_usuario_rol    FOREIGN KEY (rol_id)    REFERENCES rol(id),
+  CONSTRAINT fk_usuario_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 -- ============================================================
@@ -48,55 +62,60 @@ CREATE TABLE contratista (
   rut             VARCHAR(20)  NOT NULL UNIQUE,
   correo_contacto VARCHAR(100),
   telefono        VARCHAR(20),
-  estado_activo   TINYINT(1)  NOT NULL DEFAULT 1
+  estado_id       INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_contratista_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
--- Jerarquía: contratista → area → disciplina
--- Fuente: Reunion1
 CREATE TABLE area (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  contratista_id  INT          NOT NULL,
-  proceso_id      INT,
-  nombre          VARCHAR(150) NOT NULL,
-  estado_activo   TINYINT(1)  NOT NULL DEFAULT 1,
-  CONSTRAINT fk_area_contratista FOREIGN KEY (contratista_id) REFERENCES contratista(id)
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  contratista_id INT          NOT NULL,
+  proceso_id     INT,
+  nombre         VARCHAR(150) NOT NULL,
+  estado_id      INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_area_contratista FOREIGN KEY (contratista_id) REFERENCES contratista(id),
+  CONSTRAINT fk_area_estado      FOREIGN KEY (estado_id)      REFERENCES estado(id)
 );
 
 CREATE TABLE disciplina (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  area_id       INT          NOT NULL,
-  nombre        VARCHAR(150) NOT NULL,
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1,
-  CONSTRAINT fk_disciplina_area FOREIGN KEY (area_id) REFERENCES area(id)
+  id        INT AUTO_INCREMENT PRIMARY KEY,
+  area_id   INT          NOT NULL,
+  nombre    VARCHAR(150) NOT NULL,
+  estado_id INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_disciplina_area   FOREIGN KEY (area_id)   REFERENCES area(id),
+  CONSTRAINT fk_disciplina_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 CREATE TABLE categoria (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(100) NOT NULL,
-  descripcion   VARCHAR(255),
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  descripcion VARCHAR(255),
+  estado_id   INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_categoria_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 CREATE TABLE subtipo (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  categoria_id  INT         NOT NULL,
-  nombre        VARCHAR(100) NOT NULL,
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1,
-  CONSTRAINT fk_subtipo_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id)
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  categoria_id INT          NOT NULL,
+  nombre       VARCHAR(100) NOT NULL,
+  estado_id    INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_subtipo_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(id),
+  CONSTRAINT fk_subtipo_estado    FOREIGN KEY (estado_id)    REFERENCES estado(id)
 );
 
 CREATE TABLE tipo_documento (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(100) NOT NULL,
-  descripcion   VARCHAR(255),
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  descripcion VARCHAR(255),
+  estado_id   INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_tipodoc_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 CREATE TABLE tipo_colaboracion (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(100) NOT NULL,
-  descripcion   VARCHAR(255),
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  descripcion VARCHAR(255),
+  estado_id   INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_tipocolab_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 -- ============================================================
@@ -104,10 +123,11 @@ CREATE TABLE tipo_colaboracion (
 -- ============================================================
 
 CREATE TABLE proceso (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  nombre        VARCHAR(150) NOT NULL,
-  descripcion   VARCHAR(255),
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(150) NOT NULL,
+  descripcion VARCHAR(255),
+  estado_id   INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_proceso_estado FOREIGN KEY (estado_id) REFERENCES estado(id)
 );
 
 ALTER TABLE area
@@ -115,14 +135,14 @@ ALTER TABLE area
 
 CREATE TABLE etapa (
   id                 INT AUTO_INCREMENT PRIMARY KEY,
-  proceso_id         INT         NOT NULL,
-  revisor_id         INT         NOT NULL,
-  aprobador_id       INT         NOT NULL,
+  proceso_id         INT          NOT NULL,
+  revisor_id         INT          NOT NULL,
+  aprobador_id       INT          NOT NULL,
   titulo             VARCHAR(150) NOT NULL,
-  secuencia          INT         NOT NULL,
-  dias_revision      INT         NOT NULL DEFAULT 5,
-  dias_aprobacion    INT         NOT NULL DEFAULT 5,
-  requiere_aprobador TINYINT(1)  NOT NULL DEFAULT 1,
+  secuencia          INT          NOT NULL,
+  dias_revision      INT          NOT NULL DEFAULT 5,
+  dias_aprobacion    INT          NOT NULL DEFAULT 5,
+  requiere_aprobador TINYINT(1)   NOT NULL DEFAULT 1,
   CONSTRAINT fk_etapa_proceso   FOREIGN KEY (proceso_id)   REFERENCES proceso(id),
   CONSTRAINT fk_etapa_revisor   FOREIGN KEY (revisor_id)   REFERENCES usuario(id),
   CONSTRAINT fk_etapa_aprobador FOREIGN KEY (aprobador_id) REFERENCES usuario(id)
@@ -133,23 +153,24 @@ CREATE TABLE etapa (
 -- ============================================================
 
 CREATE TABLE area_usuario (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  area_id       INT         NOT NULL,
-  usuario_id    INT         NOT NULL,
-  rol_en_area   ENUM('Colaborador','Lector') NOT NULL,
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  area_id     INT NOT NULL,
+  usuario_id  INT NOT NULL,
+  rol_en_area ENUM('Colaborador','Lector') NOT NULL,
   CONSTRAINT fk_areusu_area    FOREIGN KEY (area_id)    REFERENCES area(id),
   CONSTRAINT fk_areusu_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
   UNIQUE KEY uq_area_usuario (area_id, usuario_id)
 );
 
 CREATE TABLE proyecto (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  contratista_id  INT         NOT NULL,
-  nombre          VARCHAR(150) NOT NULL,
-  descripcion     TEXT,
-  fecha_inicio    DATE,
-  estado_activo   TINYINT(1)  NOT NULL DEFAULT 1,
-  CONSTRAINT fk_proyecto_contratista FOREIGN KEY (contratista_id) REFERENCES contratista(id)
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  contratista_id INT          NOT NULL,
+  nombre         VARCHAR(150) NOT NULL,
+  descripcion    TEXT,
+  fecha_inicio   DATE,
+  estado_id      INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_proyecto_contratista FOREIGN KEY (contratista_id) REFERENCES contratista(id),
+  CONSTRAINT fk_proyecto_estado      FOREIGN KEY (estado_id)      REFERENCES estado(id)
 );
 
 CREATE TABLE proyecto_area (
@@ -166,29 +187,29 @@ CREATE TABLE proyecto_area (
 -- ============================================================
 
 CREATE TABLE expediente (
-  id               INT AUTO_INCREMENT PRIMARY KEY,
-  area_id          INT          NOT NULL,
-  disciplina_id    INT,
-  tipo_doc_id      INT          NOT NULL,
-  categoria_id     INT          NOT NULL,
-  subtipo_id       INT,
-  creado_por       INT          NOT NULL,
-  correlativo      VARCHAR(30)  NOT NULL UNIQUE,
-  nombre           VARCHAR(255) NOT NULL,
-  materia          VARCHAR(255),
-  emisor           VARCHAR(150),
-  origen           ENUM('Externo','Interno') NOT NULL DEFAULT 'Externo',
-  reservado        TINYINT(1)   NOT NULL DEFAULT 0,
-  fecha_documento  DATE,
-  fecha_ingreso    DATE         NOT NULL,
-  estado           ENUM('Borrador','Derivado','En Revisión','En Colaboración','En Aprobación','Terminado')
-                   NOT NULL DEFAULT 'Borrador',
-  CONSTRAINT fk_exp_area         FOREIGN KEY (area_id)       REFERENCES area(id),
-  CONSTRAINT fk_exp_disciplina   FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
-  CONSTRAINT fk_exp_tipo_doc     FOREIGN KEY (tipo_doc_id)   REFERENCES tipo_documento(id),
-  CONSTRAINT fk_exp_categoria    FOREIGN KEY (categoria_id)  REFERENCES categoria(id),
-  CONSTRAINT fk_exp_subtipo      FOREIGN KEY (subtipo_id)    REFERENCES subtipo(id),
-  CONSTRAINT fk_exp_creado_por   FOREIGN KEY (creado_por)    REFERENCES usuario(id)
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  area_id         INT          NOT NULL,
+  disciplina_id   INT,
+  tipo_doc_id     INT          NOT NULL,
+  categoria_id    INT          NOT NULL,
+  subtipo_id      INT,
+  creado_por      INT          NOT NULL,
+  correlativo     VARCHAR(30)  NOT NULL UNIQUE,
+  nombre          VARCHAR(255) NOT NULL,
+  materia         VARCHAR(255),
+  emisor          VARCHAR(150),
+  origen          ENUM('Externo','Interno') NOT NULL DEFAULT 'Externo',
+  reservado       TINYINT(1)   NOT NULL DEFAULT 0,
+  fecha_documento DATE,
+  fecha_ingreso   DATE         NOT NULL,
+  estado_id       INT          NOT NULL DEFAULT 1,
+  CONSTRAINT fk_exp_area       FOREIGN KEY (area_id)      REFERENCES area(id),
+  CONSTRAINT fk_exp_disciplina FOREIGN KEY (disciplina_id)REFERENCES disciplina(id),
+  CONSTRAINT fk_exp_tipo_doc   FOREIGN KEY (tipo_doc_id)  REFERENCES tipo_documento(id),
+  CONSTRAINT fk_exp_categoria  FOREIGN KEY (categoria_id) REFERENCES categoria(id),
+  CONSTRAINT fk_exp_subtipo    FOREIGN KEY (subtipo_id)   REFERENCES subtipo(id),
+  CONSTRAINT fk_exp_creado_por FOREIGN KEY (creado_por)   REFERENCES usuario(id),
+  CONSTRAINT fk_exp_estado     FOREIGN KEY (estado_id)    REFERENCES estado(id)
 );
 
 CREATE TABLE documento_adjunto (
@@ -205,12 +226,12 @@ CREATE TABLE documento_adjunto (
 
 CREATE TABLE historial_expediente (
   id              INT AUTO_INCREMENT PRIMARY KEY,
-  expediente_id   INT          NOT NULL,
-  usuario_id      INT          NOT NULL,
+  expediente_id   INT         NOT NULL,
+  usuario_id      INT         NOT NULL,
   estado_anterior VARCHAR(50),
-  estado_nuevo    VARCHAR(50)  NOT NULL,
+  estado_nuevo    VARCHAR(50) NOT NULL,
   comentario      TEXT,
-  fecha           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fecha           DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_hist_expediente FOREIGN KEY (expediente_id) REFERENCES expediente(id),
   CONSTRAINT fk_hist_usuario    FOREIGN KEY (usuario_id)    REFERENCES usuario(id)
 );
@@ -227,23 +248,25 @@ CREATE TABLE tarea (
   tarea_padre_id    INT,
   tipo_colab_id     INT,
   tipo              ENUM('Revision','Aprobacion','Colaboracion') NOT NULL,
-  estado            ENUM('Pendiente','En Progreso','Completada','Rechazada') NOT NULL DEFAULT 'Pendiente',
+  estado_id         INT          NOT NULL DEFAULT 1,
   fecha_vencimiento DATE,
   CONSTRAINT fk_tarea_expediente FOREIGN KEY (expediente_id)  REFERENCES expediente(id),
   CONSTRAINT fk_tarea_etapa      FOREIGN KEY (etapa_id)       REFERENCES etapa(id),
   CONSTRAINT fk_tarea_asignado   FOREIGN KEY (asignado_a)     REFERENCES usuario(id),
   CONSTRAINT fk_tarea_padre      FOREIGN KEY (tarea_padre_id) REFERENCES tarea(id),
-  CONSTRAINT fk_tarea_tipo_colab FOREIGN KEY (tipo_colab_id)  REFERENCES tipo_colaboracion(id)
+  CONSTRAINT fk_tarea_tipo_colab FOREIGN KEY (tipo_colab_id)  REFERENCES tipo_colaboracion(id),
+  CONSTRAINT fk_tarea_estado     FOREIGN KEY (estado_id)      REFERENCES estado(id)
 );
 
 CREATE TABLE visador (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  usuario_id    INT         NOT NULL,
-  area_id       INT         NOT NULL,
-  cargo         VARCHAR(100),
-  estado_activo TINYINT(1)  NOT NULL DEFAULT 1,
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT          NOT NULL,
+  area_id    INT          NOT NULL,
+  cargo      VARCHAR(100),
+  estado_id  INT          NOT NULL DEFAULT 1,
   CONSTRAINT fk_visador_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-  CONSTRAINT fk_visador_area    FOREIGN KEY (area_id)    REFERENCES area(id)
+  CONSTRAINT fk_visador_area    FOREIGN KEY (area_id)    REFERENCES area(id),
+  CONSTRAINT fk_visador_estado  FOREIGN KEY (estado_id)  REFERENCES estado(id)
 );
 
 -- ============================================================
@@ -260,5 +283,5 @@ INSERT INTO tipo_colaboracion (nombre, descripcion) VALUES
   ('Revisión legal',   'Revisión desde el área legal'),
   ('Visto bueno',      'Aprobación informal de un área relacionada');
 
-INSERT INTO usuario (rol_id, nombre_completo, correo, password_hash, estado_activo) VALUES
-  (1, 'Gonzalo Matus', 'gmatusz@gmail.com', '$2a$10$zCxlwb5x9UrJRjWuYVA19.USE89aA38wJ6H4KrMOCqAO.6OjImRKy', 1);
+INSERT INTO usuario (rol_id, nombre_completo, correo, password_hash, estado_id) VALUES
+  (1, 'Gonzalo Matus', 'gmatusz@gmail.com', '$2a$10$Ck5yqiQq2JWFHECmDJ7BBeWNyEIn08wjuqsx/gcr3U.3lsc3JkTBm', 1);
