@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
-import ConfirmModal from './ConfirmModal';
+import Modales from './Modales';
 
 const UserList = ({ onNuevo, onEditar }) => {
     const [users,      setUsers]      = useState([]);
@@ -121,7 +121,7 @@ const UserList = ({ onNuevo, onEditar }) => {
                         >
                             Inactivos
                         </button>
-                        
+
                     </div>
                     <input
                         type="text"
