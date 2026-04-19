@@ -2,20 +2,20 @@ import React from 'react';
 
 const menu = {
     1: [
-    { icon: '⊞', label: 'Dashboard', vista: 'dashboard' },
-    { icon: '👥', label: 'Gestión de Usuarios', vista: 'usuarios' },
-    { icon: '⚙️', label: 'Mantenedores', vista: 'mantenedores' },
-    { icon: '📁', label: 'Expedientes', vista: 'expedientes' },
-    { icon: '✓', label: 'Tareas', vista: 'tareas' },
+    { label: 'Dashboard', vista: 'dashboard' },
+    { label: 'Gestión de Usuarios', vista: 'usuarios' },
+    { label: 'Mantenedores', vista: 'mantenedores' },
+    { label: 'Expedientes', vista: 'expedientes' },
+    { label: 'Tareas', vista: 'tareas' },
     ],
     2: [
-        { icon: '⊞', label: 'Dashboard', vista: 'dashboard' },
-        { icon: '📁', label: 'Expedientes', vista: 'expedientes' },
-        { icon: '✓', label: 'Tareas', vista: 'tareas' },
+        { label: 'Dashboard', vista: 'dashboard' },
+        { label: 'Expedientes', vista: 'expedientes' },
+        { label: 'Tareas', vista: 'tareas' },
     ],
     3: [
-        { icon: '⊞', label: 'Dashboard', vista: 'dashboard' },
-        { icon: '📁', label: 'Expedientes', vista: 'expedientes' },
+        { label: 'Dashboard', vista: 'dashboard' },
+        { label: 'Expedientes', vista: 'expedientes' },
     ],
 };
 
