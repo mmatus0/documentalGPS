@@ -66,7 +66,7 @@ const ContratistaCreate = ({ onVolver }) => {
                                 <label className="form-label fw-medium">RUT <span className="text-danger">*</span></label>
                                 <input type="text" name="rut"
                                     className={`form-control ${errors.rut ? 'is-invalid' : ''}`}
-                                    placeholder="Ej: 76.123.456-7"
+                                    placeholder="Ej: 77777777-7"
                                     value={formData.rut} onChange={handleChange} />
                                 {errors.rut && <div className="invalid-feedback">{errors.rut}</div>}
                                 <div className="form-text">El RUT debe ser único en sistema</div>
@@ -75,7 +75,7 @@ const ContratistaCreate = ({ onVolver }) => {
                             <div className="col-md-6">
                                 <label className="form-label fw-medium">Teléfono</label>
                                 <input type="text" name="telefono" className="form-control"
-                                    placeholder="Ej: +56 9 1234 5678"
+                                    placeholder="Ej: +912345678"
                                     value={formData.telefono} onChange={handleChange} />
                             </div>
 
