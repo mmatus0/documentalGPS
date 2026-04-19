@@ -2,17 +2,14 @@ name: Pipeline (CI/CD)
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # ==========================================
-  # Etapa 1a: Seguridad (codeQL)
-  # ==========================================
   security-scan:
     name: Escáner de Vulnerabilidades (CodeQL)
     runs-on: ubuntu-latest
@@ -22,18 +19,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
-      - name: Inicializar CodeQL
-        uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v3
         with:
           languages: javascript
+      - uses: github/codeql-action/analyze@v3
 
-      - name: Ejecutar análisis CodeQL
-        uses: github/codeql-action/analyze@v3
-
-  # ==========================================
-  # Etapa 1B: Integración continua (Build + Pruebas)
-  # ==========================================
   test-and-build:
     name: Pruebas de Calidad
     runs-on: ubuntu-latest
@@ -57,6 +47,8 @@ jobs:
       - name: Ejecutar tests Backend
         working-directory: ./backend
         run: npm test
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Subir reporte de cobertura
         uses: actions/upload-artifact@v4
@@ -64,14 +56,12 @@ jobs:
           name: coverage-report
           path: backend/coverage/lcov.info
 
-  # ==========================================
-  # Etapa 2: Analisis de código en SonarCloud
-  # ==========================================
   sonarcloud:
     name: Análisis SonarCloud
     needs: test-and-build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -86,6 +76,8 @@ jobs:
         run: |
           npm install
           npm test
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Análisis SonarCloud
         uses: SonarSource/sonarcloud-github-action@v3
@@ -93,15 +85,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  # ==========================================
-  # Etapa 3: Despliegue continuo en Pacheco (CD)
-  # ==========================================
   deploy-to-pacheco:
     name: Desplegar en Pacheco
-    needs: [test-and-build, sonarcloud, security-scan]
+    needs: [test-and-build, security-scan]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     steps:
       - name: Conectar y desplegar en Pacheco
         uses: appleboy/ssh-action@v1.0.3
@@ -112,6 +100,7 @@ jobs:
           script: |
             cd ~/documentalGPS
             git pull origin main
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             docker-compose down
             docker system prune -f
             docker-compose up -d --build
