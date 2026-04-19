@@ -7,6 +7,6 @@ router.post('/', userController.createUser);
 router.get('/', userController.getUsers);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
-router.patch('/:id/reactivar', vertificarToken, soloAdmin, userController.reactivarUser);
+router.patch('/:id/reactivar', verificarToken, soloAdmin, userController.reactivarUser);
 
 module.exports = router;

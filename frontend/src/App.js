@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Login from './components/Login';
+import Layout from './components/Layout';
 import UserList from './components/UserList';
 import './styles.css';
 
@@ -9,8 +10,11 @@ function App() {
     return guardado ? JSON.parse(guardado) : null;
   });
 
+  const [vistaActual, setVistaActual] = useState('dashboard');
+
   const handleLogin = (usuarioData) => {
     setUsuario(usuarioData);
+    setVistaActual('dashboard');
   };
 
   const handleLogout = () => {
@@ -24,24 +28,14 @@ function App() {
   }
 
   return (
-    <div>
-      <header className="app-header">
-        <div className="brand">
-          <div className="brand-mark">GD</div>
-          <div>
-            <div className="brand-name">Documental GPS</div>
-            <div className="brand-sub">Sistema de Gestión Documental</div>
-          </div>
-        </div>
-        <div className="header-user">
-          <span className="header-username">Hola, {usuario.nombre}</span>
-          <button className="btn-logout" onClick={handleLogout}>Cerrar sesión</button>
-        </div>
-      </header>
-      <div className="page-container">
-        <UserList />
-      </div>
-    </div>
+    <Layout
+      usuario={usuario}
+      vistaActual={vistaActual}
+      onNavegar={setVistaActual}
+      onLogout={handleLogout}
+    >
+      <UserList />
+    </Layout>
   );
 }
 

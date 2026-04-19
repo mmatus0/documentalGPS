@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-const API = process.env.REACT_APP_API_URL;
-
 const axiosInstance = axios.create({
-    baseURL: API,
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -15,7 +13,7 @@ axiosInstance.interceptors.request.use((config) => {
     return config;
 });
 
-axiosInstance.interceptors.responde.use(
+axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if(error.response?.status === 401){

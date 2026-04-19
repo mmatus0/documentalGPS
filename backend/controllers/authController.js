@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
   const { correo, contrasenia } = req.body;
+
   try {
     const [rows] = await db.query(
       'SELECT * FROM usuario WHERE correo = ? AND estado_id = 1',
@@ -16,7 +17,7 @@ exports.login = async (req, res) => {
     }
 
     const usuario = rows[0];
-    const passwordValida = await bcrypt.compare(contrasenia, usuario.contrasenia);
+    const passwordValida = await bcrypt.compare(contrasenia, usuario.password_hash);
 
     if (!passwordValida) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
@@ -32,7 +33,7 @@ exports.login = async (req, res) => {
       token,
       usuario: {
         id: usuario.id_usuario,
-        nombre: usuario.nombre,
+        nombre: usuario.nombre_completo,
         correo: usuario.correo,
         rol_id: usuario.rol_id
       }

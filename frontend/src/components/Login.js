@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import axios from '../services/axiosConfig';
 
-const API = process.env.REACT_APP_API_URL;
-
 const Login = ({ onLogin }) => {
     const [formData, setFormData] = useState({ correo: '', contrasenia: '' });
     const [error, setError] = useState('');
@@ -21,7 +19,7 @@ const Login = ({ onLogin }) => {
         }
         setCargando(true);
         try {
-            const response = await axios.post(`${API}/api/auth/login`, formData);
+            const response = await axios.post('/api/auth/login', formData);
             const { token, usuario } = response.data;
             localStorage.setItem('token', token);
             localStorage.setItem('usuario', JSON.stringify(usuario));
