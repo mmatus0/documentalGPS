@@ -39,15 +39,15 @@ const ContratistaCreate = ({ onVolver }) => {
 
     return (
         <>
-            <div className="d-flex align-items-center gap-3 mb-4">
-                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>← Volver</button>
+            <div className="d-flex justify-content-between align-items-start mb-5">
                 <div>
                     <h4 className="fw-bold mb-0">Nuevo Contratista</h4>
                     <p className="text-muted small mb-0">Rellene los datos de empresa contratista</p>
                 </div>
+                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>← Volver</button>
             </div>
 
-            <div className="card border-0 shadow-sm" style={{ maxWidth: 720 }}>
+            <div className="card border-10 shadow-sm" style={{ maxWidth: 1100 }}>
                 <div className="card-body p-4">
                     {apiError && <div className="alert alert-danger py-2 small">{apiError}</div>}
                     <form onSubmit={handleSubmit}>
