@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-exports.getContratistas = async(res, req) => {
+exports.getContratistas = async(req, res) => {
     try{
         const [rows] = await db.query(
             `SELECT c.id, c.nombre, c.rut, c.correo_electronico, c.telefono, c.estado_id, e.nombre AS estado

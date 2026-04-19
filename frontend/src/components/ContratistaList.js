@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
-import ConfirmModal from './Modales';
+import Modales from './Modales';
 
 const ContratistaList = ({ onNuevo, onEditar }) => {
     const [contratistas, setContratistas] = useState([]);
@@ -141,7 +141,7 @@ const ContratistaList = ({ onNuevo, onEditar }) => {
                 </div>
             </div>
 
-            <ConfirmModal {...modal} onCancelar={cerrarModal} />
+            <Modales {...modal} onCancelar={cerrarModal} />
         </>
     );
 };
