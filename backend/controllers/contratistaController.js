@@ -1,9 +1,10 @@
 const db = require('../config/db');
 
 exports.getContratistas = async(req, res) => {
+   
     try{
         const [rows] = await db.query(
-            `SELECT c.id, c.nombre, c.rut, c.correo_electronico, c.telefono, c.estado_id, e.nombre AS estado
+            `SELECT c.id, c.nombre, c.rut, c.correo_contacto, c.telefono, c.estado_id, e.nombre AS estado
             FROM contratista c
             INNER JOIN estado e ON c.estado_id = e.id
             ORDER BY c.nombre`
