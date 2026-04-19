@@ -41,7 +41,7 @@ const UserList = ({ onNuevo, onEditar }) => {
         setModal({
             visible:        true,
             titulo:         'Reactivar Usuario',
-            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver iniciar sesión.',
+            mensaje:        '¿Desea reactivar la cuenta? El usuario podrá volver iniciar sesión.',
             labelConfirmar: 'Reactivar',
             variante:       'primary',
             onConfirmar:    async () => {

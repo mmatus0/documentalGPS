@@ -71,7 +71,7 @@ const UserEdit = ({ usuario, onVolver }) => {
     };
 
     const modalConfig = modal.tipo === 'datos'
-        ? { titulo: 'Confirmar Edición', mensaje: `¿Estás seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar Cambios', variante: 'primary' }
+        ? { titulo: 'Confirmar Edición', mensaje: `¿Está seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar Cambios', variante: 'primary' }
         : { titulo: 'Cambiar Contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar Contraseña', variante: 'danger' };
 
     const tabIcono = { 'Datos Generales': 'bi-gear', 'Seguridad': 'bi-lock' };

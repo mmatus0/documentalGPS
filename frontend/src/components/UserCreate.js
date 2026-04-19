@@ -61,7 +61,7 @@ const UserCreate = ({ onVolver }) => {
                     <p className="text-muted small mb-0">Registra un nuevo acceso al sistema</p>
                 </div>
                 <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>
-                    <i className="bi bi-arrow-left me-1" />Volver al listado
+                    <i className="bi bi-arrow-left me-1" />Volver al Listado
                 </button>
             </div>
  
@@ -136,7 +136,7 @@ const UserCreate = ({ onVolver }) => {
                         </div>
                         <div className="row g-3 p-4">
                             <div className="col-md-4">
-                                <label className="form-label small fw-medium">Rol en el Sistema</label>
+                                <label className="form-label small fw-medium">Rol en Sistema</label>
                                 <select name="rol_id" className="form-select" value={formData.rol_id} onChange={handleChange}>
                                     <option value={1}>Administrador</option>
                                     <option value={2}>Colaborador</option>
