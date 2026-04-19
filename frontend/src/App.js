@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Login from './components/Login';
-import Layout from './components/Layout';
-import UserList from './components/UserList';
+import Login        from './components/Login';
+import Layout       from './components/Layout';
+import UsuariosPage from './components/UsuariosPage';
 import './styles.css';
 
 function App() {
@@ -27,6 +27,38 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  const esVistaUsuarios = [
+    'usuarios',
+    'usuarios-listado',
+    'usuarios-nuevo',
+    'usuarios-editar',
+  ].includes(vistaActual);
+
+  const renderVista = () => {
+    if (esVistaUsuarios) {
+      return (
+        <UsuariosPage
+          vistaActual={vistaActual}
+          onNavegar={setVistaActual}
+        />
+      );
+    }
+
+    switch (vistaActual) {
+      // Próximos módulos — agregar aquí
+      case 'mantenedores':
+      case 'expedientes':
+      case 'tareas':
+      case 'dashboard':
+      default:
+        return (
+          <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
+            Selecciona una opción del menú
+          </div>
+        );
+    }
+  };
+
   return (
     <Layout
       usuario={usuario}
@@ -34,7 +66,7 @@ function App() {
       onNavegar={setVistaActual}
       onLogout={handleLogout}
     >
-      <UserList />
+      {renderVista()}
     </Layout>
   );
 }
