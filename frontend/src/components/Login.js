@@ -33,44 +33,55 @@ const Login = ({ onLogin }) => {
 
     return (
         <div className="login-wrapper">
-            <div className="login-card">
-                <div className="login-header">
-                    <div className="login-brand-mark">GD</div>
-                    <h1 className="login-title">DocumentalGPS</h1>
-                    <p className="login-subtitle">Sistema de Gestión Documental</p>
+            <div className="card shadow-sm" style={{ width: '100%', maxWidth: 420 }}>
+                <div className="card-body p-5">
+ 
+                    {/* Brand */}
+                    <div className="text-center mb-4">
+                        <div className="login-brand-mark">GD</div>
+                        <h1 className="h4 fw-bold mb-1">DocumentalGPS</h1>
+                        <p className="text-muted small">Sistema de Gestión Documental</p>
+                    </div>
+ 
+                    {/* Error */}
+                    {error && (
+                        <div className="alert alert-danger py-2 small" role="alert">
+                            {error}
+                        </div>
+                    )}
+ 
+                    {/* Formulario */}
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <label className="form-label small fw-medium">Correo electrónico</label>
+                            <input
+                                type="email"
+                                name="correo"
+                                className="form-control"
+                                placeholder="usuario@correo.com"
+                                value={formData.correo}
+                                onChange={handleChange}
+                                autoComplete="email"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="form-label small fw-medium">Contraseña</label>
+                            <input
+                                type="password"
+                                name="contrasenia"
+                                className="form-control"
+                                placeholder="Tu contraseña"
+                                value={formData.contrasenia}
+                                onChange={handleChange}
+                                autoComplete="current-password"
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-primary w-100" disabled={cargando}>
+                            {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                        </button>
+                    </form>
+ 
                 </div>
-                <form onSubmit={handleSubmit} className="login-form">
-                    {error && <div className="login-error">{error}</div>}
-                    <div className="field">
-                        <label>Correo electrónico</label>
-                        <input
-                            type="email"
-                            name="correo"
-                            placeholder="usuario@correo.com"
-                            value={formData.correo}
-                            onChange={handleChange}
-                            autoComplete="email"
-                        />
-                    </div>
-                    <div className="field">
-                        <label>Contraseña</label>
-                        <input
-                            type="password"
-                            name="contrasenia"
-                            placeholder="Tu contraseña"
-                            value={formData.contrasenia}
-                            onChange={handleChange}
-                            autoComplete="current-password"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="btn btn-primary login-btn"
-                        disabled={cargando}
-                    >
-                        {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                    </button>
-                </form>
             </div>
         </div>
     );

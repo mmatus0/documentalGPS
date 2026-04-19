@@ -1,30 +1,35 @@
 import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
 
-const ConfirmModal = ({ visible, titulo, mensaje, labelConfirmar = 'Confirmar', 
-                        variante = 'danger', onConfirmar, onCancelar }) => {
-                            
-    if (!visible){
-        return null; 
-    }
+const ICONOS = {
+    danger:  { emoji: '🗑️', color: '#dc2626' },
+    primary: { emoji: '✅', color: '#0f766e' },
+};
 
-    const btnClass = variante === 'primary' ? 'btn btn-primary' : `btn btn-${variante}`;
+const ConfirmModal = ({ visible, titulo, mensaje, labelConfirmar = 'Confirmar', variante = 'danger', onConfirmar, onCancelar }) => {
+    const icono = ICONOS[variante] || ICONOS.danger;
 
     return (
-        <div className="modal-overlay" onClick={onCancelar}>
-            <div className="modal-card" onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <span className="modal-titulo">{titulo}</span>
-                    <button className="modal-close" onClick={onCancelar}>✕</button>
+        <Modal show={visible} onHide={onCancelar} centered size="sm">
+            <Modal.Body className="text-center px-4 pt-4 pb-2">
+                <div style={{ fontSize: 52, lineHeight: 1, marginBottom: 16 }}>
+                    {icono.emoji}
                 </div>
-                <div className="modal-body">
-                    <p className="modal-mensaje">{mensaje}</p>
-                </div>
-                <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={onCancelar}>Cancelar</button>
-                    <button className={btnClass} onClick={onConfirmar}>{labelConfirmar}</button>
-                </div>
-            </div>
-        </div>
+                <h5 className="fw-bold mb-2">{titulo}</h5>
+                <p className="text-muted small mb-0">{mensaje}</p>
+            </Modal.Body>
+            <Modal.Footer className="border-0 justify-content-center pb-4 gap-2">
+                <Button variant="outline-secondary" onClick={onCancelar} style={{ minWidth: 120 }}>
+                    Cancelar
+                </Button>
+                <Button
+                    onClick={onConfirmar}
+                    style={{ backgroundColor: icono.color, borderColor: icono.color, minWidth: 120 }}
+                >
+                    {labelConfirmar}
+                </Button>
+            </Modal.Footer>
+        </Modal>
     );
 };
 

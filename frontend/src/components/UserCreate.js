@@ -33,7 +33,9 @@ const UserCreate = ({ onVolver }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const errores = validar();
-        if (Object.keys(errores).length > 0) { setErrors(errores); return; }
+        if (Object.keys(errores).length > 0) { 
+            setErrors(errores); return; 
+        }
 
         try {
             setGuardando(true);
@@ -53,128 +55,107 @@ const UserCreate = ({ onVolver }) => {
 
     return (
         <>
-            {/* Encabezado */}
-            <div className="page-title-row">
+            <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <p className="page-title">Gestión de Usuarios</p>
-                    <p className="page-subtitle">Registra un nuevo acceso al sistema</p>
+                    <h5 className="fw-bold mb-1">Gestión de Usuarios</h5>
+                    <p className="text-muted small mb-0">Registra un nuevo acceso al sistema</p>
                 </div>
-                <button className="btn btn-secondary" onClick={onVolver}>
+                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>
                     ← Volver al listado
                 </button>
             </div>
-
-            <div className="panel">
-                {/* Header de la card */}
-                <div className="panel-header">
-                    <span className="panel-icon">👤</span>
+ 
+            <div className="card border">
+                <div className="card-header bg-light d-flex align-items-center gap-3 py-3">
+                    <span style={{ fontSize: 22 }}>👤</span>
                     <div>
-                        <p className="panel-header-title">Crear Nuevo Perfil de Usuario</p>
-                        <p className="panel-header-sub">Complete la información para registrar un nuevo acceso al sistema.</p>
+                        <p className="fw-semibold mb-0 small">Crear Nuevo Perfil de Usuario</p>
+                        <p className="text-muted mb-0" style={{ fontSize: 12 }}>Complete la información para registrar un nuevo acceso al sistema.</p>
                     </div>
                 </div>
-
+ 
                 <form onSubmit={handleSubmit}>
+ 
+                    <div className="border-bottom">
 
-                    {/* Sección: Datos Personales */}
-                    <div className="form-section">
-                        <div className="form-section-title">
-                            <span>ℹ</span> Datos Personales
+                        <div className="px-4 py-2 bg-light border-bottom">
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>ℹ Datos Personales</span>
                         </div>
-                        <div className="form-section-body">
-                            <div className="field field-full">
-                                <label>Nombre Completo</label>
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    placeholder="Ej: Juan Pérez"
-                                    value={formData.nombre}
-                                    onChange={handleChange}
-                                />
-                                {errors.nombre && <span className="field-error">{errors.nombre}</span>}
+
+                        <div className="row g-3 p-4">
+                            <div className="col-12">
+                                <label className="form-label small fw-medium">Nombre Completo</label>
+                                <input type="text" name="nombre" className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+                                    placeholder="Ej: Juan Pérez" value={formData.nombre} onChange={handleChange} />
+                                {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
                             </div>
-                            <div className="field">
-                                <label>Correo Electrónico</label>
-                                <input
-                                    type="email"
-                                    name="correo"
-                                    placeholder="juan@ejemplo.com"
-                                    value={formData.correo}
-                                    onChange={handleChange}
-                                />
-                                {errors.correo && <span className="field-error">{errors.correo}</span>}
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Correo Electrónico</label>
+                                <input type="email" name="correo" className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
+                                    placeholder="juan@ejemplo.com" value={formData.correo} onChange={handleChange} />
+                                {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
                             </div>
                         </div>
+
                     </div>
-
-                    {/* Sección: Seguridad */}
-                    <div className="form-section">
-                        <div className="form-section-title">
-                            <span>🔒</span> Seguridad
+ 
+                    <div className="border-bottom">
+                        <div className="px-4 py-2 bg-light border-bottom">
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>🔒 Seguridad</span>
                         </div>
-                        <div className="form-section-body">
-                            <div className="field">
-                                <label>Contraseña</label>
+
+                        <div className="row g-3 p-4">
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Contraseña</label>
                                 <div className="input-with-icon">
-                                    <input
-                                        type={mostrarPass ? 'text' : 'password'}
-                                        name="contrasenia"
-                                        placeholder="Mínimo 8 caracteres"
-                                        value={formData.contrasenia}
-                                        onChange={handleChange}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="input-icon-btn"
-                                        onClick={() => setMostrarPass(!mostrarPass)}
-                                    >
-                                        {mostrarPass ? '🙈' : '👁'}
+                                    <input type={mostrarPass ? 'text' : 'password'} name="contrasenia"
+                                        className={`form-control ${errors.contrasenia ? 'is-invalid' : ''}`}
+                                        placeholder="Mínimo 8 caracteres" value={formData.contrasenia} onChange={handleChange} />
+                                    <button type="button" className="input-icon-btn" onClick={() => setMostrarPass(!mostrarPass)}>
+                                        {mostrarPass ? '' : '👁'}
                                     </button>
                                 </div>
-                                {errors.contrasenia && <span className="field-error">{errors.contrasenia}</span>}
+                                {errors.contrasenia && <div className="text-danger" style={{ fontSize: 12 }}>{errors.contrasenia}</div>}
                             </div>
-                            <div className="field">
-                                <label>Confirmar Contraseña</label>
-                                <input
-                                    type="password"
-                                    name="confirmar"
-                                    placeholder="Repite la contraseña"
-                                    value={formData.confirmar}
-                                    onChange={handleChange}
-                                />
-                                {errors.confirmar && <span className="field-error">{errors.confirmar}</span>}
+
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Confirmar Contraseña</label>
+                                <input type="password" name="confirmar"
+                                    className={`form-control ${errors.confirmar ? 'is-invalid' : ''}`}
+                                    placeholder="Repite la contraseña" value={formData.confirmar} onChange={handleChange} />
+                                {errors.confirmar && <div className="invalid-feedback">{errors.confirmar}</div>}
                             </div>
                         </div>
                     </div>
-
-                    {/* Sección: Configuración de Cuenta */}
-                    <div className="form-section">
-                        <div className="form-section-title">
-                            <span>⚙</span> Configuración de Cuenta
+ 
+                    <div className="border-bottom">
+                        <div className="px-4 py-2 bg-light border-bottom">
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>⚙ Configuración de Cuenta</span>
                         </div>
-                        <div className="form-section-body">
-                            <div className="field">
-                                <label>Rol en el Sistema</label>
-                                <select name="rol_id" value={formData.rol_id} onChange={handleChange}>
+
+                        <div className="row g-3 p-4">
+                            <div className="col-md-4">
+                                <label className="form-label small fw-medium">Rol en el Sistema</label>
+                                <select name="rol_id" className="form-select" value={formData.rol_id} onChange={handleChange}>
                                     <option value={1}>Administrador</option>
                                     <option value={2}>Colaborador</option>
                                     <option value={3}>Lector</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Footer con botón */}
-                    <div className="form-submit-row">
-                        <button type="submit" className="btn btn-primary btn-lg" disabled={guardando}>
+                    </div>
+ 
+                    <div className="d-flex justify-content-center p-4 bg-light">
+                        <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
                             {guardando ? 'Guardando...' : '💾 Crear Usuario'}
                         </button>
                     </div>
-
+ 
                 </form>
             </div>
         </>
     );
 };
-
+ 
 export default UserCreate;

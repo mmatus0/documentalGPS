@@ -6,16 +6,8 @@ const UserList = ({ onNuevo, onEditar }) => {
     const [users,      setUsers]      = useState([]);
     const [tabActiva,  setTabActiva]  = useState('activos');
     const [busqueda,   setBusqueda]   = useState('');
-
-    // Contiene los estados de la modal
-    const [modal, setModal] = useState({
-        visible:        false,
-        titulo:         '',
-        mensaje:        '',
-        labelConfirmar: '',
-        variante:       'danger',
-        onConfirmar:    null,
-    });
+    const [modal,     setModal]     = useState({ visible: false, titulo: '', 
+        mensaje: '', labelConfirmar: '', variante: 'danger', onConfirmar: null });
 
     const fetchUsers = async () => {
         try {
@@ -60,17 +52,10 @@ const UserList = ({ onNuevo, onEditar }) => {
         });
     };
 
-    const getRolNombre = (rol_id) => {
-        if (rol_id === 1) return 'Administrador';
-        if (rol_id === 2) return 'Colaborador';
-        if (rol_id === 3) return 'Lector';
-        return 'Desconocido';
-    };
-
-    const getRolBadge = (rol_id) => {
-        if (rol_id === 1) return 'badge badge-admin';
-        if (rol_id === 2) return 'badge badge-colaborador';
-        return 'badge badge-lector';
+    const rolBadge = (rol_id) => {
+        const map = { 1: ['primary', 'Administrador'], 2: ['success', 'Colaborador'], 3: ['secondary', 'Lector'] };
+        const [color, label] = map[rol_id] || ['secondary', 'Desconocido'];
+        return <span className={`badge bg-${color}`}>{label}</span>;
     };
 
     const usuariosFiltrados = users
@@ -85,117 +70,91 @@ const UserList = ({ onNuevo, onEditar }) => {
 
     return (
         <>
-            <Modales
-                visible={modal.visible}
-                titulo={modal.titulo}
-                mensaje={modal.mensaje}
-                labelConfirmar={modal.labelConfirmar}
-                variante={modal.variante}
-                onConfirmar={modal.onConfirmar}
-                onCancelar={cerrarModal}
-            />
-
-            <div className="page-title-row">
+            <Modales {...modal} onCancelar={cerrarModal} />
+ 
+            {/* Encabezado */}
+            <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <p className="page-title">Gestión de Usuarios</p>
-                    <p className="page-subtitle">Administración de accesos y roles del sistema</p>
+                    <h5 className="fw-bold mb-1">Gestión de Usuarios</h5>
+                    <p className="text-muted small mb-0">Administración de accesos y roles del sistema</p>
                 </div>
-                <button className="btn btn-primary" onClick={onNuevo}>
-                    + Nuevo Usuario
+                <button className="btn btn-primary btn-sm" onClick={onNuevo}>
+                    + Nuevo usuario
                 </button>
             </div>
-
-            <div className="panel">
-                <div className="panel-toolbar">
-                    <div className="tabs">
-                        <button
-                            className={`tab-btn ${tabActiva === 'activos' ? 'active' : ''}`}
-                            onClick={() => setTabActiva('activos')}
-                        >
-                            Activos
-                        </button>
-
-                        <button
-                            className={`tab-btn ${tabActiva === 'inactivos' ? 'active' : ''}`}
-                            onClick={() => setTabActiva('inactivos')}
-                        >
-                            Inactivos
-                        </button>
-
-                    </div>
+ 
+            <div className="card border">
+ 
+                <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-0">
+                    <ul className="nav nav-tabs border-0">
+                        {['activos', 'inactivos'].map(tab => (
+                            <li className="nav-item" key={tab}>
+                                <button
+                                    className={`nav-link border-0 ${tabActiva === tab ? 'active fw-medium' : 'text-muted'}`}
+                                    onClick={() => setTabActiva(tab)}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                     <input
                         type="text"
-                        className="search-input"
+                        className="form-control form-control-sm w-auto"
                         placeholder="Buscar por nombre o correo..."
+                        style={{ minWidth: 240 }}
                         value={busqueda}
                         onChange={e => setBusqueda(e.target.value)}
                     />
                 </div>
-
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {usuariosFiltrados.length > 0 ? (
-                            usuariosFiltrados.map(user => (
+ 
+                {/* Tabla */}
+                <div className="table-responsive">
+                    <table className="table table-hover align-middle mb-0">
+                        <thead className="table-light">
+                            <tr>
+                                <th className="small text-muted fw-semibold">Nombre</th>
+                                <th className="small text-muted fw-semibold">Correo</th>
+                                <th className="small text-muted fw-semibold">Rol</th>
+                                <th className="small text-muted fw-semibold">Estado</th>
+                                <th className="small text-muted fw-semibold">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {usuariosFiltrados.length > 0 ? usuariosFiltrados.map(user => (
                                 <tr key={user.id}>
-                                    <td>{user.nombre_completo}</td>
-                                    <td>{user.correo}</td>
+                                    <td className="small fw-medium">{user.nombre_completo}</td>
+                                    <td className="small text-muted">{user.correo}</td>
+                                    <td>{rolBadge(user.rol_id)}</td>
                                     <td>
-                                        <span className={getRolBadge(user.rol_id)}>
-                                            {getRolNombre(user.rol_id)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`badge ${user.estado_id === 1 ? 'badge-activo' : 'badge-inactivo'}`}>
+                                        <span className={`badge ${user.estado_id === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
                                             {user.estado_id === 1 ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="actions">
+                                        <div className="d-flex gap-2">
                                             {tabActiva === 'activos' ? (
                                                 <>
-                                                    <button
-                                                        className="btn btn-sm btn-warning"
-                                                        onClick={() => onEditar(user)}
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-danger"
-                                                        onClick={() => handleDesactivar(user.id)}
-                                                    >
-                                                        Desactivar
-                                                    </button>
+                                                    <button className="btn btn-outline-warning btn-sm" onClick={() => onEditar(user)}>Editar</button>
+                                                    <button className="btn btn-outline-danger btn-sm"  onClick={() => handleDesactivar(user.id)}>Desactivar</button>
                                                 </>
                                             ) : (
-                                                <button
-                                                    className="btn btn-sm btn-primary"
-                                                    onClick={() => handleReactivar(user.id)}
-                                                >
-                                                    Reactivar
-                                                </button>
+                                                <button className="btn btn-outline-primary btn-sm" onClick={() => handleReactivar(user.id)}>Reactivar</button>
                                             )}
                                         </div>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="5" className="empty-state">
-                                    No se encontraron usuarios
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center text-muted py-5 small">
+                                        No se encontraron usuarios
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+ 
             </div>
         </>
     );

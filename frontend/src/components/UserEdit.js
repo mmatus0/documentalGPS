@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from '../services/axiosConfig';
+import Modales from './Modales';
 
 const TABS = ['Datos Generales', 'Seguridad'];
 
@@ -9,27 +10,18 @@ const UserEdit = ({ usuario, onVolver }) => {
     const [mostrarPass, setMostrarPass] = useState(false);
     const [errors,      setErrors]      = useState({});
     const [exito,       setExito]       = useState('');
+    const [modal,       setModal]       = useState({ visible: false, tipo: null });
 
     const [formData, setFormData] = useState({
-        nombre:    usuario.nombre_completo || '',
-        correo:    usuario.correo          || '',
-        rol_id:    usuario.rol_id          || 2,
+        nombre: usuario.nombre_completo || '',
+        correo: usuario.correo          || '',
+        rol_id: usuario.rol_id          || 2,
     });
 
-    const [passData, setPassData] = useState({
-        contrasenia: '',
-        confirmar:   '',
-    });
+    const [passData, setPassData] = useState({ contrasenia: '', confirmar: '' });
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setErrors({ ...errors, [e.target.name]: '' });
-    };
-
-    const handlePassChange = (e) => {
-        setPassData({ ...passData, [e.target.name]: e.target.value });
-        setErrors({ ...errors, [e.target.name]: '' });
-    };
+    const handleChange     = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); setErrors({ ...errors, [e.target.name]: '' }); };
+    const handlePassChange = (e) => { setPassData({ ...passData, [e.target.name]: e.target.value }); setErrors({ ...errors, [e.target.name]: '' }); };
 
     const validarDatos = () => {
         const e = {};
@@ -40,207 +32,157 @@ const UserEdit = ({ usuario, onVolver }) => {
 
     const validarPass = () => {
         const e = {};
-        if (!passData.contrasenia)
-            e.contrasenia = 'Ingresa la nueva contraseña';
-        else if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(passData.contrasenia))
-            e.contrasenia = 'Mínimo 8 caracteres con letras y números';
-        if (passData.confirmar !== passData.contrasenia)
-            e.confirmar = 'Las contraseñas no coinciden';
+        if (!passData.contrasenia) e.contrasenia = 'Ingresa la nueva contraseña';
+        else if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(passData.contrasenia)) e.contrasenia = 'Mínimo 8 caracteres con letras y números';
+        if (passData.confirmar !== passData.contrasenia) e.confirmar = 'Las contraseñas no coinciden';
         return e;
     };
 
-    const guardarDatos = async (e) => {
+    const handleSubmitDatos = (e) => {
         e.preventDefault();
         const errores = validarDatos();
         if (Object.keys(errores).length > 0) { setErrors(errores); return; }
-
-        try {
-            setGuardando(true);
-            await axios.put(`/api/users/${usuario.id}`, {
-                nombre: formData.nombre,
-                correo: formData.correo,
-                rol_id: Number(formData.rol_id),
-            });
-            setExito('Datos actualizados correctamente');
-            setTimeout(() => setExito(''), 3000);
-        } catch (error) {
-            alert('Error al actualizar el usuario');
-        } finally {
-            setGuardando(false);
-        }
+        setModal({ visible: true, tipo: 'datos' });
     };
 
-    const guardarPassword = async (e) => {
+    const handleSubmitPassword = (e) => {
         e.preventDefault();
         const errores = validarPass();
         if (Object.keys(errores).length > 0) { setErrors(errores); return; }
+        setModal({ visible: true, tipo: 'password' });
+    };
 
+    const cerrarModal = () => setModal({ visible: false, tipo: null });
+
+    const confirmarGuardado = async () => {
+        cerrarModal();
         try {
             setGuardando(true);
-            await axios.put(`/api/users/${usuario.id}`, {
-                nombre: formData.nombre,
-                correo: formData.correo,
-                rol_id: Number(formData.rol_id),
-                contrasenia: passData.contrasenia,
-            });
-            setPassData({ contrasenia: '', confirmar: '' });
-            setExito('Contraseña actualizada correctamente');
+            if (modal.tipo === 'datos') {
+                await axios.put(`/api/users/${usuario.id}`, { nombre: formData.nombre, correo: formData.correo, rol_id: Number(formData.rol_id) });
+                setExito('Datos actualizados correctamente');
+            } else {
+                await axios.put(`/api/users/${usuario.id}`, { nombre: formData.nombre, correo: formData.correo, rol_id: Number(formData.rol_id), contrasenia: passData.contrasenia });
+                setPassData({ contrasenia: '', confirmar: '' });
+                setExito('Contraseña actualizada correctamente');
+            }
             setTimeout(() => setExito(''), 3000);
-        } catch (error) {
-            alert('Error al actualizar la contraseña');
-        } finally {
-            setGuardando(false);
-        }
+        } catch { alert('Error al actualizar el usuario'); }
+        finally { setGuardando(false); }
     };
 
-    const getRolNombre = (rol_id) => {
-        if (rol_id === 1) return 'Administrador';
-        if (rol_id === 2) return 'Colaborador';
-        return 'Lector';
-    };
+    const modalConfig = modal.tipo === 'datos'
+        ? { titulo: 'Confirmar edición', mensaje: `¿Estás seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar cambios', variante: 'primary' }
+        : { titulo: 'Cambiar contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar contraseña', variante: 'danger' };
 
     return (
         <>
-            {/* Encabezado */}
-            <div className="page-title-row">
+            <Modales visible={modal.visible} {...modalConfig} onConfirmar={confirmarGuardado} onCancelar={cerrarModal} />
+
+            <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <p className="page-title">
+                    <h5 className="fw-bold mb-1">
                         Editar Usuario: <span style={{ color: 'var(--primary)' }}>{usuario.nombre_completo}</span>
-                    </p>
-                    <p className="page-subtitle">Modifica los datos del perfil seleccionado</p>
+                    </h5>
+                    <p className="text-muted small mb-0">Modifica los datos del perfil seleccionado</p>
                 </div>
-                <button className="btn btn-secondary" onClick={onVolver}>
-                    ← Volver al listado
-                </button>
+                <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>← Volver al listado</button>
             </div>
 
-            {/* Mensaje de éxito */}
-            {exito && (
-                <div className="alert-success">
-                    ✓ {exito}
-                </div>
-            )}
+            {exito && <div className="alert alert-success py-2 small">✓ {exito}</div>}
 
-            <div className="panel">
-                {/* Tabs */}
-                <div className="panel-tabs">
-                    {TABS.map(tab => (
-                        <button
-                            key={tab}
-                            className={`panel-tab-btn ${tabActiva === tab ? 'active' : ''}`}
-                            onClick={() => { setTabActiva(tab); setErrors({}); }}
-                        >
-                            {tab === 'Datos Generales' && '⚙ '}
-                            {tab === 'Seguridad'       && '🔒 '}
-                            {tab}
-                        </button>
-                    ))}
+            <div className="card border">
+
+                <div className="card-header bg-light px-4 py-0">
+                    <ul className="nav nav-tabs border-0">
+                        {TABS.map(tab => (
+                            <li className="nav-item" key={tab}>
+                                <button
+                                    className={`nav-link border-0 ${tabActiva === tab ? 'active fw-medium' : 'text-muted'}`}
+                                    onClick={() => { setTabActiva(tab); setErrors({}); }}
+                                >
+                                    {tab === 'Datos Generales' ? '⚙ ' : '🔒 '}{tab}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                {/* Tab: Datos Generales */}
                 {tabActiva === 'Datos Generales' && (
-                    <form onSubmit={guardarDatos}>
-                        <div className="form-section">
-                            <div className="form-section-body">
-                                <div className="field field-full">
-                                    <label>Nombre Completo</label>
-                                    <input
-                                        type="text"
-                                        name="nombre"
-                                        value={formData.nombre}
-                                        onChange={handleChange}
-                                        placeholder="Ej: Juan Pérez"
-                                    />
-                                    {errors.nombre && <span className="field-error">{errors.nombre}</span>}
-                                </div>
-                                <div className="field">
-                                    <label>Correo Electrónico</label>
-                                    <input
-                                        type="email"
-                                        name="correo"
-                                        value={formData.correo}
-                                        onChange={handleChange}
-                                        placeholder="juan@ejemplo.com"
-                                    />
-                                    {errors.correo && <span className="field-error">{errors.correo}</span>}
-                                </div>
-                                <div className="field">
-                                    <label>Rol en el Sistema</label>
-                                    <select name="rol_id" value={formData.rol_id} onChange={handleChange}>
-                                        <option value={1}>Administrador</option>
-                                        <option value={2}>Colaborador</option>
-                                        <option value={3}>Lector</option>
-                                    </select>
-                                </div>
-                                <div className="field">
-                                    <label>Estado actual</label>
-                                    <div className="field-readonly">
-                                        <span className={`badge ${usuario.estado_id === 1 ? 'badge-activo' : 'badge-inactivo'}`}>
-                                            {usuario.estado_id === 1 ? 'Activo' : 'Inactivo'}
-                                        </span>
-                                    </div>
+                    <form onSubmit={handleSubmitDatos}>
+                        <div className="row g-3 p-4">
+                            <div className="col-12">
+                                <label className="form-label small fw-medium">Nombre Completo</label>
+                                <input type="text" name="nombre" className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+                                    placeholder="Ej: Juan Pérez" value={formData.nombre} onChange={handleChange} />
+                                {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+                            </div>
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Correo Electrónico</label>
+                                <input type="email" name="correo" className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
+                                    placeholder="juan@ejemplo.com" value={formData.correo} onChange={handleChange} />
+                                {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label small fw-medium">Rol en el Sistema</label>
+                                <select name="rol_id" className="form-select" value={formData.rol_id} onChange={handleChange}>
+                                    <option value={1}>Administrador</option>
+                                    <option value={2}>Colaborador</option>
+                                    <option value={3}>Lector</option>
+                                </select>
+                            </div>
+                            <div className="col-md-2">
+                                <label className="form-label small fw-medium">Estado</label>
+                                <div className="pt-1">
+                                    <span className={`badge ${usuario.estado_id === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
+                                        {usuario.estado_id === 1 ? 'Activo' : 'Inactivo'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="form-submit-row">
-                            <button type="submit" className="btn btn-primary btn-lg" disabled={guardando}>
+                        <div className="d-flex justify-content-center p-4 border-top bg-light">
+                            <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
                                 {guardando ? 'Guardando...' : '💾 Guardar Cambios'}
                             </button>
                         </div>
                     </form>
                 )}
 
-                {/* Tab: Seguridad */}
                 {tabActiva === 'Seguridad' && (
-                    <form onSubmit={guardarPassword}>
-                        <div className="form-section">
-                            <div className="form-section-title" style={{ color: 'var(--primary)' }}>
-                                Cambiar Contraseña
+                    <form onSubmit={handleSubmitPassword}>
+                        <div className="px-4 py-2 bg-light border-bottom">
+                            <span className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.06em' }}>Cambiar Contraseña</span>
+                        </div>
+                        <div className="row g-3 p-4">
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Nueva Contraseña</label>
+                                <div className="input-with-icon">
+                                    <input type={mostrarPass ? 'text' : 'password'} name="contrasenia"
+                                        className={`form-control ${errors.contrasenia ? 'is-invalid' : ''}`}
+                                        placeholder="Mínimo 8 caracteres" value={passData.contrasenia} onChange={handlePassChange} />
+                                    <button type="button" className="input-icon-btn" onClick={() => setMostrarPass(!mostrarPass)}>
+                                        {mostrarPass ? '' : '👁'}
+                                    </button>
+                                </div>
+                                <div className="form-text">Mínimo 8 caracteres con letras y números</div>
+                                {errors.contrasenia && <div className="text-danger" style={{ fontSize: 12 }}>{errors.contrasenia}</div>}
                             </div>
-                            <div className="form-section-body">
-                                <div className="field">
-                                    <label>Nueva Contraseña</label>
-                                    <div className="input-with-icon">
-                                        <input
-                                            type={mostrarPass ? 'text' : 'password'}
-                                            name="contrasenia"
-                                            placeholder="Dejar en blanco para no cambiar"
-                                            value={passData.contrasenia}
-                                            onChange={handlePassChange}
-                                        />
-                                        <button
-                                            type="button"
-                                            className="input-icon-btn"
-                                            onClick={() => setMostrarPass(!mostrarPass)}
-                                        >
-                                            {mostrarPass ? '🙈' : '👁'}
-                                        </button>
-                                    </div>
-                                    <span className="field-hint">Mínimo 8 caracteres</span>
-                                    {errors.contrasenia && <span className="field-error">{errors.contrasenia}</span>}
-                                </div>
-                                <div className="field">
-                                    <label>Confirmar Nueva Contraseña</label>
-                                    <input
-                                        type="password"
-                                        name="confirmar"
-                                        placeholder="Repite la nueva contraseña"
-                                        value={passData.confirmar}
-                                        onChange={handlePassChange}
-                                    />
-                                    {errors.confirmar && <span className="field-error">{errors.confirmar}</span>}
-                                </div>
+                            <div className="col-md-6">
+                                <label className="form-label small fw-medium">Confirmar Nueva Contraseña</label>
+                                <input type="password" name="confirmar"
+                                    className={`form-control ${errors.confirmar ? 'is-invalid' : ''}`}
+                                    placeholder="Repite la nueva contraseña" value={passData.confirmar} onChange={handlePassChange} />
+                                {errors.confirmar && <div className="invalid-feedback">{errors.confirmar}</div>}
                             </div>
                         </div>
-
-                        <div className="form-submit-row">
-                            <button type="submit" className="btn btn-primary btn-lg" disabled={guardando}>
+                        <div className="d-flex justify-content-center p-4 border-top bg-light">
+                            <button type="submit" className="btn btn-primary px-5" disabled={guardando}>
                                 {guardando ? 'Guardando...' : '🔒 Actualizar Contraseña'}
                             </button>
                         </div>
                     </form>
                 )}
+
             </div>
         </>
     );

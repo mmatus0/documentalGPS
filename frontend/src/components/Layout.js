@@ -6,12 +6,11 @@ const Layout = ({ usuario, vistaActual, onNavegar, onLogout, children }) => {
 
   return (
     <div className="app-wrapper">
+ 
+      {/* Topbar */}
       <header className="app-header">
         <div className="brand">
-          <button
-            className="btn-toggle-sidebar"
-            onClick={() => setSidebarAbierto(!sidebarAbierto)}
-          >
+          <button className="btn-toggle-sidebar" onClick={() => setSidebarAbierto(!sidebarAbierto)}>
             ☰
           </button>
           <div className="brand-mark">GD</div>
@@ -20,19 +19,16 @@ const Layout = ({ usuario, vistaActual, onNavegar, onLogout, children }) => {
             <div className="brand-sub">Sistema de Gestión Documental</div>
           </div>
         </div>
-        <div className="header-user">
+        <div className="d-flex align-items-center gap-3">
           <span className="header-username">Hola, {usuario.nombre}</span>
-          <button className="btn-logout" onClick={onLogout}>Cerrar sesión</button>
+          <button className="btn-logout" onClick={onLogout}>Cerrar Sesión</button>
         </div>
       </header>
-
+ 
+      {/* Body */}
       <div className="app-body">
         {sidebarAbierto && (
-          <Sidebar
-            usuario={usuario}
-            vistaActual={vistaActual}
-            onNavegar={onNavegar}
-          />
+          <Sidebar usuario={usuario} vistaActual={vistaActual} onNavegar={onNavegar} />
         )}
         <main className="main-content">
           <div className="page-container">
@@ -40,6 +36,7 @@ const Layout = ({ usuario, vistaActual, onNavegar, onLogout, children }) => {
           </div>
         </main>
       </div>
+ 
     </div>
   );
 };
