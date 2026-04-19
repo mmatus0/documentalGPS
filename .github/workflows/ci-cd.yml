@@ -142,12 +142,12 @@ jobs:
  
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
  
-            docker compose pull
- 
-            docker compose down
- 
+            docker-compose pull
+
+            docker-compose down
+
             docker system prune -f
- 
-            docker compose up -d
- 
+
+            docker-compose up -d
+            
             docker image prune -a -f
