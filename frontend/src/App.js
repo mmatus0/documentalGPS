@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import Login        from './components/Login';
 import Layout       from './components/Layout';
 import UsuariosPage from './components/UsuariosPage';
+import ContratistaPage from './components/ContratistaPage';
 import './styles.css';
 
+const VISTAS_USUARIOS     = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
+const VISTAS_CONTRATISTAS = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
+
 function App() {
+
   const [usuario, setUsuario] = useState(() => {
     const guardado = localStorage.getItem('usuario');
     return guardado ? JSON.parse(guardado) : null;
@@ -27,26 +32,14 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
-  const esVistaUsuarios = [
-    'usuarios',
-    'usuarios-listado',
-    'usuarios-nuevo',
-    'usuarios-editar',
-  ].includes(vistaActual);
-
   const renderVista = () => {
-    if (esVistaUsuarios) {
-      return (
-        <UsuariosPage
-          vistaActual={vistaActual}
-          onNavegar={setVistaActual}
-        />
-      );
-    }
+    if (VISTAS_USUARIOS.includes(vistaActual))
+      return <UsuariosPage vistaActual={vistaActual} onNavegar={setVistaActual} />;
+
+    if (VISTAS_CONTRATISTAS.includes(vistaActual))
+      return <ContratistaPage vistaActual={vistaActual} onNavegar={setVistaActual} />;
 
     switch (vistaActual) {
-      // Próximos módulos — agregar aquí
-      case 'mantenedores':
       case 'expedientes':
       case 'tareas':
       case 'dashboard':
