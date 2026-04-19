@@ -8,7 +8,7 @@ exports.createUser = async (req, res) => {
     const hashPassword = await bcrypt.hash(contrasenia, salt);
 
     await db.query(
-      'INSERT INTO usuario (nombre_completo, correo, contrasenia, estado_id, rol_id) VALUES (?, ?, ?, 1, ?)',
+      'INSERT INTO usuario (nombre_completo, correo, password_hash, estado_id, rol_id) VALUES (?, ?, ?, 1, ?)',
       [nombre, correo, hashPassword, Number(rol_id)]
     );
 
@@ -35,16 +35,16 @@ exports.updateUser = async (req, res) => {
 
   try {
     if (contrasenia && contrasenia.trim() !== '') {
-      // Actualizar también la contraseña
+      
       const salt         = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(contrasenia, salt);
 
       await db.query(
-        'UPDATE usuario SET nombre_completo = ?, correo = ?, rol_id = ?, contrasenia = ? WHERE id = ?',
+        'UPDATE usuario SET nombre_completo = ?, correo = ?, rol_id = ?, password_hash = ? WHERE id = ?',
         [nombre, correo, Number(rol_id), hashPassword, Number(id)]
       );
     } else {
-      // Solo actualizar datos generales
+    
       await db.query(
         'UPDATE usuario SET nombre_completo = ?, correo = ?, rol_id = ? WHERE id = ?',
         [nombre, correo, Number(rol_id), Number(id)]
