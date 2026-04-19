@@ -25,7 +25,7 @@ const UserList = ({ onNuevo, onEditar }) => {
     const handleDesactivar = async (id) => {
         setModal({
             visible:        true,
-            titulo:         'Desactivar usuario',
+            titulo:         'Desactivar Usuario',
             mensaje:        '¿Está seguro que desea desactivar esta cuenta? El usuario no podrá iniciar sesión.',
             labelConfirmar: 'Desactivar',
             variante:       'danger',
@@ -40,7 +40,7 @@ const UserList = ({ onNuevo, onEditar }) => {
     const handleReactivar = (id) => {
         setModal({
             visible:        true,
-            titulo:         'Reactivar usuario',
+            titulo:         'Reactivar Usuario',
             mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver iniciar sesión.',
             labelConfirmar: 'Reactivar',
             variante:       'primary',

@@ -31,7 +31,7 @@ const UserEdit = ({ usuario, onVolver }) => {
 
     const validarPass = () => {
         const e = {};
-        if (!passData.contrasenia) e.contrasenia = 'Ingresa la nueva contraseña';
+        if (!passData.contrasenia) e.contrasenia = 'Ingresa Nueva Contraseña';
         else if (!/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/.test(passData.contrasenia)) e.contrasenia = 'Mínimo 8 caracteres con letras y números';
         if (passData.confirmar !== passData.contrasenia) e.confirmar = 'Las contraseñas no coinciden';
         return e;
@@ -59,11 +59,11 @@ const UserEdit = ({ usuario, onVolver }) => {
             setGuardando(true);
             if (modal.tipo === 'datos') {
                 await axios.put(`/api/users/${usuario.id}`, { nombre: formData.nombre, correo: formData.correo, rol_id: Number(formData.rol_id) });
-                setExito('Datos actualizados correctamente');
+                setExito('Datos actualizados correctamente!');
             } else {
                 await axios.put(`/api/users/${usuario.id}`, { nombre: formData.nombre, correo: formData.correo, rol_id: Number(formData.rol_id), contrasenia: passData.contrasenia });
                 setPassData({ contrasenia: '', confirmar: '' });
-                setExito('Contraseña actualizada correctamente');
+                setExito('Contraseña actualizada correctamente!');
             }
             setTimeout(() => setExito(''), 3000);
         } catch { alert('Error al actualizar el usuario'); }
@@ -71,8 +71,8 @@ const UserEdit = ({ usuario, onVolver }) => {
     };
 
     const modalConfig = modal.tipo === 'datos'
-        ? { titulo: 'Confirmar edición', mensaje: `¿Estás seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar cambios', variante: 'primary' }
-        : { titulo: 'Cambiar contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar contraseña', variante: 'danger' };
+        ? { titulo: 'Confirmar Edición', mensaje: `¿Estás seguro de que deseas guardar los cambios de ${formData.nombre}?`, labelConfirmar: 'Guardar Cambios', variante: 'primary' }
+        : { titulo: 'Cambiar Contraseña', mensaje: 'La contraseña actual será reemplazada. Esta acción no se puede deshacer.', labelConfirmar: 'Actualizar Contraseña', variante: 'danger' };
 
     const tabIcono = { 'Datos Generales': 'bi-gear', 'Seguridad': 'bi-lock' };
 
@@ -88,7 +88,7 @@ const UserEdit = ({ usuario, onVolver }) => {
                     <p className="text-muted small mb-0">Modifica los datos del perfil seleccionado</p>
                 </div>
                 <button className="btn btn-outline-secondary btn-sm" onClick={onVolver}>
-                    <i className="bi bi-arrow-left me-1" />Volver al listado
+                    <i className="bi bi-arrow-left me-1" />Volver al Listado
                 </button>
             </div>
 
