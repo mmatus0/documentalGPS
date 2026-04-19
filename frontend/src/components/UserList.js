@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
+import ConfirmModal from './ConfirmModal';
 
 const UserList = ({ onNuevo, onEditar }) => {
     const [users,      setUsers]      = useState([]);
     const [tabActiva,  setTabActiva]  = useState('activos');
     const [busqueda,   setBusqueda]   = useState('');
+
+    // Contiene los estados de la modal
+    const [modal, setModal] = useState({
+        visible:        false,
+        titulo:         '',
+        mensaje:        '',
+        labelConfirmar: '',
+        variante:       'danger',
+        onConfirmar:    null,
+    });
 
     const fetchUsers = async () => {
         try {
@@ -17,28 +28,36 @@ const UserList = ({ onNuevo, onEditar }) => {
 
     useEffect(() => { fetchUsers(); }, []);
 
+    const cerrarModal = () => setModal(m => ({ ...m, visible: false }));
+
     const handleDesactivar = async (id) => {
-        if (window.confirm('¿Desactivar este usuario?')) {
-            try {
+        setModal({
+            visible:        true,
+            titulo:         'Desactivar usuario',
+            mensaje:        '¿Está seguro que desea desactivar esta cuenta? El usuario no podrá iniciar sesión.',
+            labelConfirmar: 'Desactivar',
+            variante:       'danger',
+            onConfirmar:    async () => {
                 await axios.delete(`/api/users/${id}`);
+                cerrarModal();
                 fetchUsers();
-            } catch (error) {
-                alert('Error al desactivar el usuario');
-                console.error(error);
-            }
-        }
+            },
+        });
     };
 
-    const handleReactivar = async (id) => {
-        if (window.confirm('¿Reactivar este usuario?')) {
-            try {
+    const handleReactivar = (id) => {
+        setModal({
+            visible:        true,
+            titulo:         'Reactivar usuario',
+            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver iniciar sesión.',
+            labelConfirmar: 'Reactivar',
+            variante:       'primary',
+            onConfirmar:    async () => {
                 await axios.patch(`/api/users/${id}/reactivar`);
+                cerrarModal();
                 fetchUsers();
-            } catch (error) {
-                alert('Error al reactivar el usuario');
-                console.error(error);
-            }
-        }
+            },
+        });
     };
 
     const getRolNombre = (rol_id) => {
@@ -66,13 +85,23 @@ const UserList = ({ onNuevo, onEditar }) => {
 
     return (
         <>
+            <ConfirmModal
+                visible={modal.visible}
+                titulo={modal.titulo}
+                mensaje={modal.mensaje}
+                labelConfirmar={modal.labelConfirmar}
+                variante={modal.variante}
+                onConfirmar={modal.onConfirmar}
+                onCancelar={cerrarModal}
+            />
+
             <div className="page-title-row">
                 <div>
                     <p className="page-title">Gestión de Usuarios</p>
                     <p className="page-subtitle">Administración de accesos y roles del sistema</p>
                 </div>
                 <button className="btn btn-primary" onClick={onNuevo}>
-                    + Nuevo usuario
+                    + Nuevo Usuario
                 </button>
             </div>
 
@@ -85,12 +114,14 @@ const UserList = ({ onNuevo, onEditar }) => {
                         >
                             Activos
                         </button>
+
                         <button
                             className={`tab-btn ${tabActiva === 'inactivos' ? 'active' : ''}`}
                             onClick={() => setTabActiva('inactivos')}
                         >
                             Inactivos
                         </button>
+                        
                     </div>
                     <input
                         type="text"
