@@ -119,11 +119,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Descargar reporte de cobertura
-        uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: coverage-report
-          path: backend/coverage
+          node-version: '18'
+
+      - name: Instalar dependencias y generar cobertura
+        working-directory: ./backend
+        run: |
+          npm install
+          npm test
 
       - name: Análisis SonarCloud
         uses: SonarSource/sonarcloud-github-action@v3
