@@ -50,7 +50,7 @@ jobs:
       - name: Build Frontend
         working-directory: ./frontend
         run: |
-          npm ci
+          npm install
           npm run build
  
       - name: Instalar dependencias Backend
