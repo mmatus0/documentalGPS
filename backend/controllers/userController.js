@@ -9,8 +9,8 @@ exports.createUser = async (req, res) => {
     const hashPassword = await bcrypt.hash(contrasenia, salt);
 
     await db.query(
-      'INSERT INTO usuario (nombre, correo, contrasenia, estado_id, rol_id) VALUES (?, ?, ?, ?, ?)',
-      [nombre, correo, hashPassword, 1, rol_id]
+      'INSERT INTO usuario (nombre, correo, contrasenia, estado_id, rol_id) VALUES (?, ?, ?, 1, ?)',
+      [nombre, correo, hashPassword, Number(rol_id)]
     );
 
     res.status(201).json({ message: "Usuario creado con éxito" });
@@ -34,8 +34,10 @@ exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const { nombre, correo, rol_id } = req.body;
   try {
-    const sql = `UPDATE usuario SET nombre = '${nombre}', correo = '${correo}', rol_id = ${Number(rol_id)} WHERE id_usuario = ${Number(id)}`;
-    await db.query(sql);
+    await db.query(
+      'UPDATE usuario SER nombre = ?, correo = ?, rol_id = ? WHERE id_usuario = ?',
+      [nombre, correo, Number(rol_id), Number(id)]
+    )
     res.json({ message: "Usuario actualizado con éxito" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -45,8 +47,9 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
-    // Cambiamos el estado a 2 (Inactivo) en lugar de hacer DELETE
-    await db.query('UPDATE usuario SET estado_id = 2 WHERE id_usuario = ?', [id]);
+    await db.query(
+      'UPDATE usuario SET estado_id = 2 WHERE id_usuario = ?', [id]
+    );
     res.json({ message: "Usuario desactivado con éxito" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -56,8 +59,9 @@ exports.deleteUser = async (req, res) => {
 exports.reactivarUser = async (req, res) => {
   const { id } = req.params;
   try {
-    // Cambiamos el estado a 1 (Activo) para reactivar al usuario
-    await db.query('UPDATE usuario SET estado_id = 1 WHERE id_usuario = ?', [id]);
+    await db.query(
+      'UPDATE usuario SET estado_id = 1 WHERE id_usuario = ?', [id]
+    );
     res.json({ message: "Usuario reactivado con éxito" });
   } catch (error) {
     res.status(500).json({ error: error.message });
