@@ -85,7 +85,7 @@ const UserList = ({ onNuevo, onEditar }) => {
 
     return (
         <>
-            <ConfirmModal
+            <Modales
                 visible={modal.visible}
                 titulo={modal.titulo}
                 mensaje={modal.mensaje}
