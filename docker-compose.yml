@@ -33,7 +33,7 @@ services:
       DB_USER: root
       DB_PASSWORD: ""
       DB_NAME: documentosgps
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: secreto123local
       NODE_OPTIONS: --max-old-space-size=256
     ports:
       - "8033:3001"
@@ -52,10 +52,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_URL=http://pacheco.chillan.ubiobio.cl:8033
+        - REACT_APP_API_URL=http://localhost:8033
     container_name: documentalgps-frontend
     ports:
-      - "8032:3000"
+      - "8032:80"
     depends_on:
       - backend
     deploy:
