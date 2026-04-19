@@ -1,4 +1,4 @@
-process.env.JWT_SECRET = 'secret_test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_' + Math.random().toString(36);
 const jwt = require('jsonwebtoken');
 const { verificarToken, soloAdmin } = require('../middleware/authMiddleware');
 
@@ -20,7 +20,7 @@ describe('verificarToken', () => {
   });
 
   it('debe aceptar token válido', () => {
-    const token = jwt.sign({ id: 1, rol_id: 1 }, 'secret_test');
+    const token = jwt.sign({ id: 1, rol_id: 1 }, process.env.JWT_SECRET);
     const req = { headers: { authorization: `Bearer ${token}` } };
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     const next = jest.fn();
