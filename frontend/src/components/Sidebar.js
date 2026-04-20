@@ -13,7 +13,8 @@ const menu = {
     {
       label: 'Mantenedores', vista: 'mantenedores', 
       subopciones: [
-        { label: 'Contratistas', vista: 'contratistas-listado' },
+        { label: 'Contratistas',             vista: 'contratistas-listado' },
+        { label: 'Unidades Organizativas',   vista: 'area-usuarios'        },
       ]
     },
     { label: 'Expedientes',  vista: 'expedientes'  },
