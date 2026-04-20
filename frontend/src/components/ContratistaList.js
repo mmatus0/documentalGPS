@@ -63,78 +63,89 @@ const ContratistaList = ({ onNuevo, onEditar }) => {
 
     return (
         <>
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h4 className="fw-bold mb-1">Gestión de Contratistas</h4>
-                    <p className="text-muted small mb-0">
-                        Directorio centralizado de empresas contratistas del sistema
-                    </p>
+                    <h5 className="fw-bold mb-1">Gestión de Contratistas</h5>
+                    <p className="text-muted small mb-0">Directorio centralizado de empresas contratistas del sistema</p>
                 </div>
-                <button className="btn btn-primary" onClick={onNuevo}>
-                    + Nuevo Contratista
+                <button className="btn btn-primary btn-sm" onClick={onNuevo}>
+                    <i className="bi bi-plus-lg me-1" />Nuevo Contratista
                 </button>
             </div>
 
-            <div className="card border-0 shadow-sm">
-                <div className="card-header bg-white border-bottom d-flex justify-content-between align-items-center px-4 py-0">
-                    <ul className="nav nav-tabs border-0">
-                        <li className="nav-item">
-                            <button className={`nav-link ${tabActiva === 'activos' ? 'active' : ''}`} onClick={() => setTabActiva('activos')}>
-                                Activos
-                            </button>
-                        </li>
-                        <li className="nav-item">
-                            <button className={`nav-link ${tabActiva === 'inactivos' ? 'active' : ''}`} onClick={() => setTabActiva('inactivos')}>
-                                Inactivos
-                            </button>
-                        </li>
+            <div className="card border">
+                <div className="d-flex justify-content-between align-items-center px-4 border-bottom">
+                    <ul className="nav nav-tabs border-bottom-0">
+                        {['activos', 'inactivos'].map(tab => (
+                            <li className="nav-item" key={tab}>
+                                <button
+                                    className={`nav-link border-0 ${tabActiva === tab ? 'active fw-semibold' : 'text-muted'}`}
+                                    onClick={() => setTabActiva(tab)}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                </button>
+                            </li>
+                        ))}
                     </ul>
-                    <input type="text" className="form-control form-control-sm" style={{ width: 240 }}
-                        placeholder="Buscar por nombre o RUT..." value={busqueda}
-                        onChange={e => setBusqueda(e.target.value)} />
+                    <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="Buscar por nombre o RUT..."
+                        style={{ maxWidth: 260 }}
+                        value={busqueda}
+                        onChange={e => setBusqueda(e.target.value)}
+                    />
                 </div>
 
-                <div className="card-body p-0">
-                    <table className="table table-hover mb-0">
+                <div className="table-responsive">
+                    <table className="table table-hover align-middle mb-0">
                         <thead className="table-light">
                             <tr>
-                                <th className="ps-4">Razón Social</th>
-                                <th>RUT</th>
-                                <th>Correo de contacto</th>
-                                <th>Teléfono</th>
-                                <th>Estado</th>
-                                <th className="text-end pe-4">Acciones</th>
+                                <th className="small text-muted fw-semibold ps-4">Razón Social</th>
+                                <th className="small text-muted fw-semibold">RUT</th>
+                                <th className="small text-muted fw-semibold">Correo de contacto</th>
+                                <th className="small text-muted fw-semibold">Teléfono</th>
+                                <th className="small text-muted fw-semibold">Estado</th>
+                                <th className="small text-muted fw-semibold text-end pe-4">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {listaFiltrada.length > 0 ? (
                                 listaFiltrada.map(c => (
                                     <tr key={c.id}>
-                                        <td className="ps-4 fw-medium">{c.nombre}</td>
-                                        <td><code className="text-secondary">{c.rut}</code></td>
-                                        <td>{c.correo_contacto || <span className="text-muted">—</span>}</td>
-                                        <td>{c.telefono        || <span className="text-muted">—</span>}</td>
+                                        <td className="ps-4 small fw-medium">{c.nombre}</td>
+                                        <td><code className="text-secondary small">{c.rut}</code></td>
+                                        <td className="small text-muted">{c.correo_contacto || '—'}</td>
+                                        <td className="small text-muted">{c.telefono || '—'}</td>
                                         <td>
-                                            <span className={`badge bg-${c.estado_id === 1 ? 'success' : 'secondary'}`}>
+                                            <span className={`badge ${c.estado_id === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
                                                 {c.estado_id === 1 ? 'Activo' : 'Inactivo'}
                                             </span>
                                         </td>
                                         <td className="text-end pe-4">
                                             {tabActiva === 'activos' ? (
                                                 <div className="d-flex gap-2 justify-content-end">
-                                                    <button className="btn btn-sm btn-outline-secondary" onClick={() => onEditar(c)}>Editar</button>
-                                                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDesactivar(c.id, c.nombre)}>Desactivar</button>
+                                                    <button className="btn btn-sm btn-outline-warning" onClick={() => onEditar(c)}>
+                                                        <i className="bi bi-pencil me-1" />Editar
+                                                    </button>
+                                                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDesactivar(c.id, c.nombre)}>
+                                                        <i className="bi bi-slash-circle me-1" />Desactivar
+                                                    </button>
                                                 </div>
                                             ) : (
-                                                <button className="btn btn-sm btn-outline-primary" onClick={() => handleReactivar(c.id, c.nombre)}>Reactivar</button>
+                                                <button className="btn btn-sm btn-outline-primary" onClick={() => handleReactivar(c.id, c.nombre)}>
+                                                    <i className="bi bi-arrow-clockwise me-1" />Reactivar
+                                                </button>
                                             )}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan="6" className="text-center text-muted py-5">
-                                    {busqueda ? 'No se encontraron contratistas con ese criterio' : `No hay contratistas ${tabActiva}`}
-                                </td></tr>
+                                <tr>
+                                    <td colSpan="6" className="text-center text-muted py-5 small">
+                                        {busqueda ? 'No se encontraron contratistas con ese criterio' : `No hay contratistas ${tabActiva}`}
+                                    </td>
+                                </tr>
                             )}
                         </tbody>
                     </table>
