@@ -1,11 +1,23 @@
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_secret_123';
+
 const request = require('supertest');
 const app = require('../app');
+const jwt = require('jsonwebtoken');
 
 jest.mock('../config/db', () => ({
   query: jest.fn()
 }));
 
 const db = require('../config/db');
+
+// Token de administrador válido para todos los tests
+const adminToken = jwt.sign(
+  { id: 1, rol_id: 1 },
+  process.env.JWT_SECRET,
+  { expiresIn: '1h' }
+);
+
+const authHeader = { Authorization: `Bearer ${adminToken}` };
 
 beforeEach(() => {
   db.query.mockReset();
@@ -19,15 +31,24 @@ describe('GET /api/contratistas', () => {
     db.query.mockResolvedValueOnce([[
       { id: 1, nombre: 'Empresa A', rut: '12345678-9', correo_contacto: 'a@a.com', telefono: '999', estado_id: 1, estado: 'Activo' }
     ]]);
-    const res = await request(app).get('/api/contratistas');
+    const res = await request(app)
+      .get('/api/contratistas')
+      .set(authHeader);
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0]).toHaveProperty('nombre');
   });
 
+  it('debe retornar 401 sin token', async () => {
+    const res = await request(app).get('/api/contratistas');
+    expect(res.statusCode).toBe(401);
+  });
+
   it('debe retornar 500 si falla la base de datos', async () => {
     db.query.mockRejectedValueOnce(new Error('DB error'));
-    const res = await request(app).get('/api/contratistas');
+    const res = await request(app)
+      .get('/api/contratistas')
+      .set(authHeader);
     expect(res.statusCode).toBe(500);
     expect(res.body).toHaveProperty('error');
   });
@@ -41,16 +62,18 @@ describe('POST /api/contratistas', () => {
     db.query.mockResolvedValueOnce([{ insertId: 5 }]);
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: 'Nueva Empresa', rut: '98765432-1', correo_contacto: 'c@c.com', telefono: '123' });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id', 5);
     expect(res.body).toHaveProperty('message');
   });
 
-  it('debe crear contratista sin correo ni teléfono', async () => {
+  it('debe crear contratista sin correo ni telefono', async () => {
     db.query.mockResolvedValueOnce([{ insertId: 6 }]);
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: 'Empresa Sin Contacto', rut: '11111111-1' });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
@@ -59,6 +82,7 @@ describe('POST /api/contratistas', () => {
   it('debe rechazar si falta el nombre', async () => {
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ rut: '12345678-9' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -67,6 +91,7 @@ describe('POST /api/contratistas', () => {
   it('debe rechazar si falta el RUT', async () => {
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: 'Empresa Sin RUT' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -75,6 +100,7 @@ describe('POST /api/contratistas', () => {
   it('debe rechazar si el nombre es solo espacios', async () => {
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: '   ', rut: '12345678-9' });
     expect(res.statusCode).toBe(400);
   });
@@ -85,6 +111,7 @@ describe('POST /api/contratistas', () => {
     db.query.mockRejectedValueOnce(dupError);
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: 'Empresa Dup', rut: '12345678-9' });
     expect(res.statusCode).toBe(409);
     expect(res.body).toHaveProperty('error');
@@ -94,6 +121,7 @@ describe('POST /api/contratistas', () => {
     db.query.mockRejectedValueOnce(new Error('DB error'));
     const res = await request(app)
       .post('/api/contratistas')
+      .set(authHeader)
       .send({ nombre: 'Empresa Error', rut: '99999999-9' });
     expect(res.statusCode).toBe(500);
   });
@@ -107,15 +135,17 @@ describe('PUT /api/contratistas/:id', () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
     const res = await request(app)
       .put('/api/contratistas/1')
+      .set(authHeader)
       .send({ nombre: 'Empresa Editada', correo_contacto: 'nuevo@test.com', telefono: '456' });
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('message');
   });
 
-  it('debe actualizar sin correo ni teléfono', async () => {
+  it('debe actualizar sin correo ni telefono', async () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
     const res = await request(app)
       .put('/api/contratistas/1')
+      .set(authHeader)
       .send({ nombre: 'Solo Nombre' });
     expect(res.statusCode).toBe(200);
   });
@@ -123,6 +153,7 @@ describe('PUT /api/contratistas/:id', () => {
   it('debe rechazar si falta el nombre', async () => {
     const res = await request(app)
       .put('/api/contratistas/1')
+      .set(authHeader)
       .send({ correo_contacto: 'x@x.com' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
@@ -132,6 +163,7 @@ describe('PUT /api/contratistas/:id', () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 0 }]);
     const res = await request(app)
       .put('/api/contratistas/999')
+      .set(authHeader)
       .send({ nombre: 'No Existe' });
     expect(res.statusCode).toBe(404);
     expect(res.body).toHaveProperty('error');
@@ -141,32 +173,39 @@ describe('PUT /api/contratistas/:id', () => {
     db.query.mockRejectedValueOnce(new Error('DB error'));
     const res = await request(app)
       .put('/api/contratistas/1')
+      .set(authHeader)
       .send({ nombre: 'Error DB' });
     expect(res.statusCode).toBe(500);
   });
 });
 
 // ─────────────────────────────────────────────
-// DELETE /api/contratistas/:id  (desactivar)
+// DELETE /api/contratistas/:id
 // ─────────────────────────────────────────────
 describe('DELETE /api/contratistas/:id', () => {
   it('debe desactivar contratista correctamente', async () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-    const res = await request(app).delete('/api/contratistas/1');
+    const res = await request(app)
+      .delete('/api/contratistas/1')
+      .set(authHeader);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('message');
   });
 
-  it('debe retornar 404 si el contratista no existe o ya está inactivo', async () => {
+  it('debe retornar 404 si no existe o ya esta inactivo', async () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 0 }]);
-    const res = await request(app).delete('/api/contratistas/999');
+    const res = await request(app)
+      .delete('/api/contratistas/999')
+      .set(authHeader);
     expect(res.statusCode).toBe(404);
     expect(res.body).toHaveProperty('error');
   });
 
   it('debe retornar 500 si falla la base de datos', async () => {
     db.query.mockRejectedValueOnce(new Error('DB error'));
-    const res = await request(app).delete('/api/contratistas/1');
+    const res = await request(app)
+      .delete('/api/contratistas/1')
+      .set(authHeader);
     expect(res.statusCode).toBe(500);
   });
 });
@@ -177,21 +216,27 @@ describe('DELETE /api/contratistas/:id', () => {
 describe('PATCH /api/contratistas/:id/reactivar', () => {
   it('debe reactivar contratista correctamente', async () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
-    const res = await request(app).patch('/api/contratistas/1/reactivar');
+    const res = await request(app)
+      .patch('/api/contratistas/1/reactivar')
+      .set(authHeader);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('message');
   });
 
-  it('debe retornar 404 si el contratista no existe o ya está activo', async () => {
+  it('debe retornar 404 si no existe o ya esta activo', async () => {
     db.query.mockResolvedValueOnce([{ affectedRows: 0 }]);
-    const res = await request(app).patch('/api/contratistas/999/reactivar');
+    const res = await request(app)
+      .patch('/api/contratistas/999/reactivar')
+      .set(authHeader);
     expect(res.statusCode).toBe(404);
     expect(res.body).toHaveProperty('error');
   });
 
   it('debe retornar 500 si falla la base de datos', async () => {
     db.query.mockRejectedValueOnce(new Error('DB error'));
-    const res = await request(app).patch('/api/contratistas/1/reactivar');
+    const res = await request(app)
+      .patch('/api/contratistas/1/reactivar')
+      .set(authHeader);
     expect(res.statusCode).toBe(500);
   });
 });
