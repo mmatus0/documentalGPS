@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from '../services/axiosConfig';
+import Modales from './Modales';
 
 const ContratistaEdit = ({ contratista, onVolver }) => {
     const [formData,  setFormData]  = useState({
@@ -10,6 +11,8 @@ const ContratistaEdit = ({ contratista, onVolver }) => {
     const [errors,    setErrors]    = useState({});
     const [apiError,  setApiError]  = useState('');
     const [guardando, setGuardando] = useState(false);
+    const [exito,     setExito]     = useState('');
+    const [modal,     setModal]     = useState({ visible: false });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,23 +26,41 @@ const ContratistaEdit = ({ contratista, onVolver }) => {
         return e;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         const errores = validar();
         if (Object.keys(errores).length > 0) { setErrors(errores); return; }
+        setModal({ visible: true });
+    };
+
+    const confirmarGuardado = async () => {
+        setModal({ visible: false });
         try {
             setGuardando(true);
             await axios.put(`/api/contratistas/${contratista.id}`, formData);
-            onVolver();
+            setExito('Contratista actualizado correctamente');
+            setTimeout(() => onVolver(), 1500);
         } catch (error) {
-            setApiError(error.response?.data?.error || 'Error al actualizar');
+            setApiError(error.response?.data?.error || 'Error al actualizar el contratista');
         } finally {
             setGuardando(false);
         }
     };
 
+    const cerrarModal = () => setModal({ visible: false });
+
     return (
         <>
+            <Modales
+                visible={modal.visible}
+                titulo="Confirmar Edición"
+                mensaje={`¿Está seguro que desea guardar los cambios de empresa: "${formData.nombre}"?`}
+                labelConfirmar="Guardar Cambios"
+                variante="primary"
+                onConfirmar={confirmarGuardado}
+                onCancelar={cerrarModal}
+            />
+
             <div className="d-flex justify-content-between align-items-start mb-5">
                 
                 <div>
