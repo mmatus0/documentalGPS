@@ -3,10 +3,12 @@ import Login        from './components/Login';
 import Layout       from './components/Layout';
 import UsuariosPage from './components/UsuariosPage';
 import ContratistaPage from './components/ContratistaPage';
+import AreaUsuarios   from './components/AreaUsuarios';
 import './styles.css';
 
 const VISTAS_USUARIOS     = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
 const VISTAS_CONTRATISTAS = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
+const VISTAS_AREA_USUARIOS = ['area-usuarios'];
 
 function App() {
 
@@ -38,6 +40,9 @@ function App() {
 
     if (VISTAS_CONTRATISTAS.includes(vistaActual))
       return <ContratistaPage vistaActual={vistaActual} onNavegar={setVistaActual} />;
+
+    if (VISTAS_AREA_USUARIOS.includes(vistaActual))
+      return <AreaUsuarios onNavegar={setVistaActual} />;
 
     switch (vistaActual) {
       case 'expedientes':
