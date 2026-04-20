@@ -30,7 +30,7 @@ exports.getAreas = async (req, res) => {
       `SELECT a.id, a.nombre, c.nombre AS contratista_nombre
        FROM area a
        JOIN contratista c ON a.contratista_id = c.id
-       WHERE a.estado_activo = 1
+       WHERE a.estado_id = 1
        ORDER BY c.nombre, a.nombre`
     );
     res.json(rows);
@@ -46,7 +46,7 @@ exports.getUsuariosDisponibles = async (req, res) => {
       `SELECT u.id, u.nombre_completo, u.correo, r.nombre AS rol_global
        FROM usuario u
        JOIN rol r ON u.rol_id = r.id
-       WHERE u.estado_activo = 1
+       WHERE u.estado_id = 1
          AND u.id NOT IN (
            SELECT usuario_id FROM area_usuario WHERE area_id = ?
          )
