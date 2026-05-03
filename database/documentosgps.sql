@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-04-2026 a las 16:03:54
+-- Tiempo de generación: 03-05-2026
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8mb4;
@@ -203,13 +203,13 @@ CREATE TABLE expediente (
   fecha_documento DATE,
   fecha_ingreso   DATE         NOT NULL,
   estado_id       INT          NOT NULL DEFAULT 1,
-  CONSTRAINT fk_exp_area       FOREIGN KEY (area_id)      REFERENCES area(id),
-  CONSTRAINT fk_exp_disciplina FOREIGN KEY (disciplina_id)REFERENCES disciplina(id),
-  CONSTRAINT fk_exp_tipo_doc   FOREIGN KEY (tipo_doc_id)  REFERENCES tipo_documento(id),
-  CONSTRAINT fk_exp_categoria  FOREIGN KEY (categoria_id) REFERENCES categoria(id),
-  CONSTRAINT fk_exp_subtipo    FOREIGN KEY (subtipo_id)   REFERENCES subtipo(id),
-  CONSTRAINT fk_exp_creado_por FOREIGN KEY (creado_por)   REFERENCES usuario(id),
-  CONSTRAINT fk_exp_estado     FOREIGN KEY (estado_id)    REFERENCES estado(id)
+  CONSTRAINT fk_exp_area       FOREIGN KEY (area_id)       REFERENCES area(id),
+  CONSTRAINT fk_exp_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
+  CONSTRAINT fk_exp_tipo_doc   FOREIGN KEY (tipo_doc_id)   REFERENCES tipo_documento(id),
+  CONSTRAINT fk_exp_categoria  FOREIGN KEY (categoria_id)  REFERENCES categoria(id),
+  CONSTRAINT fk_exp_subtipo    FOREIGN KEY (subtipo_id)    REFERENCES subtipo(id),
+  CONSTRAINT fk_exp_creado_por FOREIGN KEY (creado_por)    REFERENCES usuario(id),
+  CONSTRAINT fk_exp_estado     FOREIGN KEY (estado_id)     REFERENCES estado(id)
 );
 
 CREATE TABLE documento_adjunto (
@@ -283,5 +283,34 @@ INSERT INTO tipo_colaboracion (nombre, descripcion) VALUES
   ('Revisión legal',   'Revisión desde el área legal'),
   ('Visto bueno',      'Aprobación informal de un área relacionada');
 
+-- Usuarios 
 INSERT INTO usuario (rol_id, nombre_completo, correo, password_hash, estado_id) VALUES
-  (1, 'Gonzalo Matus', 'gmatusz@gmail.com', '$2a$10$Ck5yqiQq2JWFHECmDJ7BBeWNyEIn08wjuqsx/gcr3U.3lsc3JkTBm', 1);
+  (1, 'Gonzalo Matus',     'gmatusz@gmail.com', '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1),
+  (2, 'Constanza Venegas', 'cony@gmail.com',    '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1),
+  (2, 'Benjamín Castillo', 'benja@gmail.com',   '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1);
+
+-- ============================================================
+-- DATOS DE PRUEBA — Contratistas y Áreas (para HU-06)
+-- ============================================================
+
+INSERT INTO contratista (nombre, rut, correo_contacto, telefono) VALUES
+  ('Agrosana S.A.',    '76.123.456-7', 'contacto@agrosana.cl',    '+56912345678'),
+  ('MegaCorp Ltda.',   '77.234.567-8', 'contacto@megacorp.cl',    '+56923456789'),
+  ('Constructora XYZ', '78.345.678-9', 'contacto@constructora.cl', '+56934567890');
+
+INSERT INTO area (contratista_id, nombre) VALUES
+  (1, 'Ingeniería'),
+  (1, 'Contabilidad'),
+  (1, 'Proyectos'),
+  (2, 'Ingeniería'),
+  (2, 'Recursos Humanos'),
+  (3, 'Obras Civiles'),
+  (3, 'Administración');
+
+INSERT INTO disciplina (area_id, nombre) VALUES
+  (1, 'Movimientos de Tierra'),
+  (1, 'Estudios de Agua'),
+  (1, 'Estudios de Suelo'),
+  (1, 'Metalúrgica'),
+  (4, 'Estructuras'),
+  (4, 'Instalaciones');
