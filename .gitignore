@@ -29,6 +29,8 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
+**/desktop.ini
 
 # Editors
 .vscode/
@@ -43,4 +45,4 @@ Thumbs.db
 *.local
 
 # Test coverage
-backend/coverage/
+**/coverage/
