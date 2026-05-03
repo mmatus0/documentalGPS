@@ -29,7 +29,8 @@ const apiLimiter = rateLimit({
 // ── Rutas públicas (sin token) ─────────────────────────────────────────────
 app.use('/api/auth', authLimiter, createProxyMiddleware({
   target: 'http://ms-auth:3001',
-  changeOrigin: true
+  changeOrigin: true,
+  pathRewrite: { '^/api/auth': '/api/auth' }
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────
