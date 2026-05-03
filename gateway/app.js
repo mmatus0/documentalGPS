@@ -8,7 +8,6 @@ const { verificarToken } = require('./middleware/authMiddleware');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
 // ── Rate limiters ──────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
