@@ -4,6 +4,7 @@ import Layout       from './components/Layout';
 import UsuariosPage from './components/UsuariosPage';
 import ContratistaPage from './components/ContratistaPage';
 import AreaUsuarios   from './components/AreaUsuarios';
+import AreasPage from './components/AreasPage';
 import './styles.css';
 
 const VISTAS_USUARIOS     = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];

@@ -30,26 +30,26 @@ const apiLimiter = rateLimit({
 app.use('/api/auth', authLimiter, createProxyMiddleware({
   target: 'http://ms-auth:3001',
   changeOrigin: true,
-  pathRewrite: (path) => '/api/auth' + path
+  pathRewrite: { '^': '/api/auth' },
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────
 app.use('/api/users', apiLimiter, verificarToken, createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
-  pathRewrite: (path) => '/api/users' + path
+  pathRewrite: { '^': '/api/users' },
 }));
 
 app.use('/api/contratistas', apiLimiter, verificarToken, createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
-  pathRewrite: (path) => '/api/contratistas' + path
+  pathRewrite: { '^': '/api/contratistas' },
 }));
 
 app.use('/api/areas', apiLimiter, verificarToken, createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
-  pathRewrite: (path) => '/api/areas' + path
+  pathRewrite: { '^': '/api/areas' },
 }));
 
 module.exports = app;
