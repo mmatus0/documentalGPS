@@ -1,11 +1,21 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const ctrl = require('../controllers/areaUsuarioController');
 
-router.get('/',              ctrl.getAreas);
-router.get('/:areaId/usuarios',              ctrl.getUsuariosPorArea);
-router.get('/:areaId/usuarios-disponibles',  ctrl.getUsuariosDisponibles);
-router.post('/:areaId/usuarios',             ctrl.asignarUsuario);
-router.delete('/:areaId/usuarios/:asignacionId', ctrl.removerUsuario);
+const areaCRUD = require('../controllers/areaController');
+const areaUsuario = require('../controllers/areaUsuarioController');
+
+router.get('/',                        areaCRUD.getAreas);
+router.post('/',                       areaCRUD.crearArea);
+router.put('/:id',                     areaCRUD.editarArea);
+router.delete('/:id',                  areaCRUD.desactivarArea);
+router.patch('/:id/reactivar',         areaCRUD.reactivarArea);
+
+
+router.get('/',              areaUsuario.getAreas);
+router.get('/:areaId/usuarios',                  areaUsuario.getUsuariosPorArea);
+router.get('/:areaId/usuarios-disponibles',      areaUsuario.getUsuariosDisponibles);
+router.post('/:areaId/usuarios',                 areaUsuario.asignarUsuario);
+router.delete('/:areaId/usuarios/:asignacionId', areaUsuario.removerUsuario);
+
 
 module.exports = router;
