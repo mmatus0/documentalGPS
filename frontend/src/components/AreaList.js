@@ -155,7 +155,7 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId 
                                                         className="btn btn-sm btn-outline-secondary"
                                                         onClick={() => onGestionarUsuarios(a)}
                                                     >
-                                                        <i className="bi bi-people me-1" />Usuarios
+                                                        <i className="bi bi-people me-1" /> Gestionar Usuarios
                                                     </button>
                                                     <button className="btn btn-sm btn-outline-warning" onClick={() => onEditar(a)}>
                                                         <i className="bi bi-pencil me-1" />Editar
