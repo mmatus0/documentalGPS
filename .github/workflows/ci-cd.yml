@@ -1,14 +1,11 @@
 name: Pipeline (CI/CD)
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   security-scan:
     name: Escáner de Vulnerabilidades (CodeQL)
@@ -29,61 +26,63 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-
-      - name: Build Frontend
+      - name: Lint Frontend
         working-directory: ./frontend
+        continue-on-error: true
         run: |
           npm install
-          npm run build
-
-      - name: Instalar dependencias Backend
-        working-directory: ./backend
+          npm run lint
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+      - name: Instalar dependencias ms-auth
+        working-directory: ./ms-auth
         run: npm install
-
-      - name: Ejecutar tests Backend
-        working-directory: ./backend
+      - name: Ejecutar tests ms-auth
+        working-directory: ./ms-auth
         run: npm test
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Subir reporte de cobertura
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: backend/coverage/lcov.info
-
-  sonarcloud:
-    name: Análisis SonarCloud
-    needs: test-and-build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Instalar dependencias y generar cobertura
-        working-directory: ./backend
-        run: |
-          npm install
-          npm test
+      - name: Instalar dependencias ms-mantenedores
+        working-directory: ./ms-mantenedores
+        run: npm install
+      - name: Ejecutar tests ms-mantenedores
+        working-directory: ./ms-mantenedores
+        run: npm test
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Análisis SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v3
+      - name: Instalar dependencias gateway
+        working-directory: ./gateway
+        run: npm install
+      - name: Ejecutar tests gateway
+        working-directory: ./gateway
+        run: npx jest --forceExit --detectOpenHandles
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      - name: Subir cobertura ms-auth a Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ms-auth/coverage/lcov.info
+          flags: ms-auth
+          name: ms-auth
+      - name: Subir cobertura ms-mantenedores a Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ms-mantenedores/coverage/lcov.info
+          flags: ms-mantenedores
+          name: ms-mantenedores
+      - name: Subir cobertura gateway a Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: gateway/coverage/lcov.info
+          flags: gateway
+          name: gateway
 
   deploy-to-pacheco:
     name: Desplegar en Pacheco
@@ -101,7 +100,7 @@ jobs:
             cd ~/documentalGPS
             git pull origin main
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-            docker-compose down
+            docker-compose down --remove-orphans
             docker system prune -f
             docker-compose up -d --build
             docker image prune -a -f

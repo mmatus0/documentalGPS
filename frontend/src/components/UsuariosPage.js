@@ -4,9 +4,7 @@ import UserCreate from './UserCreate';
 import UserEdit   from './UserEdit';
 
 /**
- * UsuariosPage
  * La vista se deriva de vistaActual que viene desde App.js.
- * Así el sidebar siempre manda.
  */
 const UsuariosPage = ({ vistaActual, onNavegar }) => {
     const [usuarioEditar, setUsuarioEditar] = useState(null);

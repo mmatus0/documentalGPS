@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 const menu = {
   1: [
@@ -10,9 +10,15 @@ const menu = {
         { label: 'Nuevo Usuario',       vista: 'usuarios-nuevo'   },
       ]
     },
-    { label: 'Mantenedores', vista: 'mantenedores' },
-    { label: 'Expedientes',  vista: 'expedientes'  },
-    { label: 'Tareas',       vista: 'tareas'        },
+    {
+      label: 'Mantenedores', vista: 'mantenedores',
+      subopciones: [
+        { label: 'Contratistas',           vista: 'contratistas-listado' },
+        { label: 'Unidades Organizativas', vista: 'area-usuarios'        },
+      ]
+    },
+    { label: 'Expedientes', vista: 'expedientes' },
+    { label: 'Tareas',      vista: 'tareas'       },
   ],
   2: [
     { label: 'Dashboard',   vista: 'dashboard'   },
@@ -26,7 +32,7 @@ const menu = {
 };
 
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
-  const opciones = menu[usuario.rol_id] || [];
+  const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
 
   const padreDeVista = useCallback((vista) => {
     const item = opciones.find(
@@ -76,7 +82,6 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
                 </span>
               )}
             </button>
-
             {item.subopciones && expandido === item.vista && (
               <div className="sidebar-subopciones">
                 {item.subopciones.map((sub) => (

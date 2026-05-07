@@ -21,29 +21,66 @@ services:
     networks:
       - documentalgps-network
 
-  backend:
+  ms-auth:
     build:
-      context: ./backend
+      context: ./ms-auth
       dockerfile: Dockerfile
-    container_name: documentalgps-backend
+    container_name: documentalgps-ms-auth
     environment:
       PORT: 3001
       DB_HOST: database
-      DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: ""
       DB_NAME: documentosgps
-      JWT_SECRET: secreto123local
-      NODE_OPTIONS: --max-old-space-size=256
-    ports:
-      - "8033:3001"
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       database:
         condition: service_healthy
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 200M
+    networks:
+      - documentalgps-network
+
+  ms-mantenedores:
+    build:
+      context: ./ms-mantenedores
+      dockerfile: Dockerfile
+    container_name: documentalgps-ms-mantenedores
+    environment:
+      PORT: 3002
+      DB_HOST: database
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: documentosgps
+    depends_on:
+      database:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    networks:
+      - documentalgps-network
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: documentalgps-gateway
+    environment:
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8033:3000"
+    depends_on:
+      - ms-auth
+      - ms-mantenedores
+    deploy:
+      resources:
+        limits:
+          memory: 200M
     networks:
       - documentalgps-network
 
@@ -57,7 +94,7 @@ services:
     ports:
       - "8032:80"
     depends_on:
-      - backend
+      - gateway
     deploy:
       resources:
         limits:

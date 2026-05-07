@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
 import Modales from './Modales';
-
+ 
 const UserList = ({ onNuevo, onEditar }) => {
     const [users,      setUsers]      = useState([]);
     const [tabActiva,  setTabActiva]  = useState('activos');
     const [busqueda,   setBusqueda]   = useState('');
-    const [modal,     setModal]     = useState({ visible: false, titulo: '', 
-        mensaje: '', labelConfirmar: '', variante: 'danger', onConfirmar: null });
-
+    const [modal,      setModal]      = useState({
+        visible: false, titulo: '', mensaje: '',
+        labelConfirmar: '', variante: 'danger', onConfirmar: null,
+    });
+ 
     const fetchUsers = async () => {
         try {
             const response = await axios.get('/api/users');
@@ -17,12 +19,12 @@ const UserList = ({ onNuevo, onEditar }) => {
             console.error('Error al cargar usuarios:', error);
         }
     };
-
+ 
     useEffect(() => { fetchUsers(); }, []);
-
+ 
     const cerrarModal = () => setModal(m => ({ ...m, visible: false }));
-
-    const handleDesactivar = async (id) => {
+ 
+    const handleDesactivar = (id) => {
         setModal({
             visible:        true,
             titulo:         'Desactivar Usuario',
@@ -36,12 +38,12 @@ const UserList = ({ onNuevo, onEditar }) => {
             },
         });
     };
-
+ 
     const handleReactivar = (id) => {
         setModal({
             visible:        true,
             titulo:         'Reactivar Usuario',
-            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver a iniciar sesión posteriormente.',
+            mensaje:        '¿Desea reactivar esta cuenta? El usuario podrá volver a iniciar sesión.',
             labelConfirmar: 'Reactivar',
             variante:       'primary',
             onConfirmar:    async () => {
@@ -51,13 +53,17 @@ const UserList = ({ onNuevo, onEditar }) => {
             },
         });
     };
-
+ 
     const rolBadge = (rol_id) => {
-        const map = { 1: ['primary', 'Administrador'], 2: ['success', 'Colaborador'], 3: ['secondary', 'Lector'] };
+        const map = {
+            1: ['primary',   'Administrador'],
+            2: ['success',   'Colaborador'],
+            3: ['secondary', 'Lector'],
+        };
         const [color, label] = map[rol_id] || ['secondary', 'Desconocido'];
         return <span className={`badge bg-${color}`}>{label}</span>;
     };
-
+ 
     const usuariosFiltrados = users
         .filter(u => tabActiva === 'activos' ? u.estado_id === 1 : u.estado_id === 2)
         .filter(u => {
@@ -67,8 +73,8 @@ const UserList = ({ onNuevo, onEditar }) => {
                 u.correo?.toLowerCase().includes(q)
             );
         });
-
-        return (
+ 
+    return (
         <>
             <Modales {...modal} onCancelar={cerrarModal} />
  
@@ -83,7 +89,6 @@ const UserList = ({ onNuevo, onEditar }) => {
             </div>
  
             <div className="card border">
- 
                 <div className="d-flex justify-content-between align-items-center px-4 border-bottom">
                     <ul className="nav nav-tabs border-bottom-0">
                         {['activos', 'inactivos'].map(tab => (
@@ -107,22 +112,21 @@ const UserList = ({ onNuevo, onEditar }) => {
                     />
                 </div>
  
-                {/* Tabla */}
                 <div className="table-responsive">
                     <table className="table table-hover align-middle mb-0">
                         <thead className="table-light">
                             <tr>
-                                <th className="small text-muted fw-semibold">Nombre</th>
+                                <th className="small text-muted fw-semibold ps-4">Nombre</th>
                                 <th className="small text-muted fw-semibold">Correo</th>
                                 <th className="small text-muted fw-semibold">Rol</th>
                                 <th className="small text-muted fw-semibold">Estado</th>
-                                <th className="small text-muted fw-semibold">Acciones</th>
+                                <th className="small text-muted fw-semibold text-end pe-4">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {usuariosFiltrados.length > 0 ? usuariosFiltrados.map(user => (
                                 <tr key={user.id}>
-                                    <td className="small fw-medium">{user.nombre_completo}</td>
+                                    <td className="ps-4 small fw-medium">{user.nombre_completo}</td>
                                     <td className="small text-muted">{user.correo}</td>
                                     <td>{rolBadge(user.rol_id)}</td>
                                     <td>
@@ -130,15 +134,21 @@ const UserList = ({ onNuevo, onEditar }) => {
                                             {user.estado_id === 1 ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </td>
-                                    <td>
-                                        <div className="d-flex gap-2">
+                                    <td className="text-end pe-4">
+                                        <div className="d-flex gap-2 justify-content-end">
                                             {tabActiva === 'activos' ? (
                                                 <>
-                                                    <button className="btn btn-outline-warning btn-sm" onClick={() => onEditar(user)}>Editar</button>
-                                                    <button className="btn btn-outline-danger btn-sm"  onClick={() => handleDesactivar(user.id)}>Desactivar</button>
+                                                    <button className="btn btn-sm btn-outline-warning" onClick={() => onEditar(user)}>
+                                                        <i className="bi bi-pencil me-1" />Editar
+                                                    </button>
+                                                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDesactivar(user.id)}>
+                                                        <i className="bi bi-slash-circle me-1" />Desactivar
+                                                    </button>
                                                 </>
                                             ) : (
-                                                <button className="btn btn-outline-primary btn-sm" onClick={() => handleReactivar(user.id)}>Reactivar</button>
+                                                <button className="btn btn-sm btn-outline-primary" onClick={() => handleReactivar(user.id)}>
+                                                    <i className="bi bi-arrow-clockwise me-1" />Reactivar
+                                                </button>
                                             )}
                                         </div>
                                     </td>
@@ -153,9 +163,9 @@ const UserList = ({ onNuevo, onEditar }) => {
                         </tbody>
                     </table>
                 </div>
- 
             </div>
         </>
     );
 };
+ 
 export default UserList;

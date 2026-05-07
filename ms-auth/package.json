@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "ms-auth",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,10 +7,6 @@
     "dev": "nodemon index.js",
     "test": "jest --forceExit --detectOpenHandles"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
@@ -25,9 +21,9 @@
     "supertest": "^7.2.2"
   },
   "jest": {
-  "testEnvironment": "node",
-  "collectCoverage": true,
-  "coverageReporters": ["lcov", "text"],
-  "coverageDirectory": "coverage"
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageReporters": ["lcov", "text"],
+    "coverageDirectory": "coverage"
   }
 }

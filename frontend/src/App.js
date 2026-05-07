@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import Login       from './components/Login';
-import UserList    from './components/UserList';
-import AreaUsuarios from './components/AreaUsuarios';
+import Login        from './components/Login';
+import Layout       from './components/Layout';
+import UsuariosPage from './components/UsuariosPage';
+import ContratistaPage from './components/ContratistaPage';
+import AreaUsuarios   from './components/AreaUsuarios';
 import './styles.css';
 
-const NAV_ITEMS = [
-  { key: 'usuarios',     label: 'Usuarios' },
-  { key: 'area-usuarios', label: 'Unidades Organizativas' },
-];
+const VISTAS_USUARIOS     = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
+const VISTAS_CONTRATISTAS = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
+const VISTAS_AREA_USUARIOS = ['area-usuarios'];
 
 function App() {
+
   const [usuario, setUsuario] = useState(() => {
     const guardado = localStorage.getItem('usuario');
     return guardado ? JSON.parse(guardado) : null;
@@ -25,7 +27,28 @@ function App() {
 
   if (!usuario) return <Login onLogin={handleLogin} />;
 
-  const esAdmin = usuario.rol_id === 1;
+  const renderVista = () => {
+    if (VISTAS_USUARIOS.includes(vistaActual))
+      return <UsuariosPage vistaActual={vistaActual} onNavegar={setVistaActual} />;
+
+    if (VISTAS_CONTRATISTAS.includes(vistaActual))
+      return <ContratistaPage vistaActual={vistaActual} onNavegar={setVistaActual} />;
+
+    if (VISTAS_AREA_USUARIOS.includes(vistaActual))
+      return <AreaUsuarios onNavegar={setVistaActual} />;
+
+    switch (vistaActual) {
+      case 'expedientes':
+      case 'tareas':
+      case 'dashboard':
+      default:
+        return (
+          <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
+            Selecciona una opción del menú
+          </div>
+        );
+    }
+  };
 
   return (
     <div>
