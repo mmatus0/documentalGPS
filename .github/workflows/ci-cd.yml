@@ -6,6 +6,7 @@ on:
     branches: [ "main" ]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   security-scan:
     name: Escáner de Vulnerabilidades (CodeQL)
@@ -62,21 +63,40 @@ jobs:
         run: npx jest --forceExit --detectOpenHandles
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      - name: Subir cobertura ms-auth a Codecov
+      - name: Guardar reportes de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            ms-auth/coverage/lcov.info
+            ms-mantenedores/coverage/lcov.info
+            gateway/coverage/lcov.info
+
+  coverage:
+    name: Cobertura (Codecov)
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar reportes de cobertura
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+      - name: Subir cobertura ms-auth
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ms-auth/coverage/lcov.info
           flags: ms-auth
           name: ms-auth
-      - name: Subir cobertura ms-mantenedores a Codecov
+      - name: Subir cobertura ms-mantenedores
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ms-mantenedores/coverage/lcov.info
           flags: ms-mantenedores
           name: ms-mantenedores
-      - name: Subir cobertura gateway a Codecov
+      - name: Subir cobertura gateway
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -86,7 +106,7 @@ jobs:
 
   deploy-to-pacheco:
     name: Desplegar en Pacheco
-    needs: [test-and-build, security-scan]
+    needs: [test-and-build, security-scan, coverage]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:

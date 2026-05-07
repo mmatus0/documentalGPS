@@ -3,9 +3,6 @@ import ContratistaList   from './ContratistaList';
 import ContratistaCreate from './ContratistaCreate';
 import ContratistaEdit   from './ContratistaEdit';
 
-/**
- * Sigue la misma metodología que UsuariosPage
- */
 const ContratistasPage = ({ vistaActual, onNavegar }) => {
     const [contratistaEditar, setContratistaEditar] = useState(null);
 
@@ -24,7 +21,13 @@ const ContratistasPage = ({ vistaActual, onNavegar }) => {
         return <ContratistaEdit contratista={contratistaEditar} onVolver={irALista} />;
     }
 
-    return <ContratistaList onNuevo={irACrear} onEditar={irAEditar} />;
+    return (
+        <ContratistaList
+            onNuevo={irACrear}
+            onEditar={irAEditar}
+            onNavegar={onNavegar}
+        />
+    );
 };
 
 export default ContratistasPage;

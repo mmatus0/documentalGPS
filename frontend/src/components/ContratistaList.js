@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
 import Modales from './Modales';
 
-const ContratistaList = ({ onNuevo, onEditar }) => {
+const ContratistaList = ({ onNuevo, onEditar, onNavegar }) => {
     const [contratistas, setContratistas] = useState([]);
     const [tabActiva,    setTabActiva]    = useState('activos');
     const [busqueda,     setBusqueda]     = useState('');
@@ -52,6 +52,11 @@ const ContratistaList = ({ onNuevo, onEditar }) => {
                 fetchContratistas();
             },
         });
+    };
+
+    // Navega a Áreas con el contratista preseleccionado como filtro — cierra criterio HU-5
+    const handleVerAreas = (contratista) => {
+        onNavegar('areas-listado', { filtroContratistaId: contratista.id });
     };
 
     const listaFiltrada = contratistas
@@ -125,6 +130,13 @@ const ContratistaList = ({ onNuevo, onEditar }) => {
                                         <td className="text-end pe-4">
                                             {tabActiva === 'activos' ? (
                                                 <div className="d-flex gap-2 justify-content-end">
+                                                    <button
+                                                        className="btn btn-sm btn-outline-secondary"
+                                                        onClick={() => handleVerAreas(c)}
+                                                        title="Ver Unidades Organizativas de este contratista"
+                                                    >
+                                                        <i className="bi bi-diagram-3 me-1" />Ver Áreas
+                                                    </button>
                                                     <button className="btn btn-sm btn-outline-warning" onClick={() => onEditar(c)}>
                                                         <i className="bi bi-pencil me-1" />Editar
                                                     </button>
