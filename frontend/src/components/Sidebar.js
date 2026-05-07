@@ -14,7 +14,7 @@ const menu = {
       label: 'Mantenedores', vista: 'mantenedores',
       subopciones: [
         { label: 'Contratistas',           vista: 'contratistas-listado' },
-        { label: 'Unidades Organizativas', vista: 'area-usuarios'        },
+        { label: 'Unidades Organizativas', vista: 'areas-listado'        },
       ]
     },
     { label: 'Expedientes', vista: 'expedientes' },
@@ -31,8 +31,15 @@ const menu = {
   ],
 };
 
+// Vistas que deben resaltar "Unidades Organizativas" en el sidebar
+const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
+
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
+
+  // Normalizar la vista para el resaltado: todas las vistas de áreas
+  // se mapean a 'areas-listado' para que el sidebar resalte correctamente
+  const vistaEfectiva = VISTAS_AREAS.includes(vistaActual) ? 'areas-listado' : vistaActual;
 
   const padreDeVista = useCallback((vista) => {
     const item = opciones.find(
@@ -41,12 +48,12 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
     return item ? item.vista : null;
   }, [opciones]);
 
-  const [expandido, setExpandido] = useState(() => padreDeVista(vistaActual));
+  const [expandido, setExpandido] = useState(() => padreDeVista(vistaEfectiva));
 
   useEffect(() => {
-    const padre = padreDeVista(vistaActual);
+    const padre = padreDeVista(vistaEfectiva);
     if (padre) setExpandido(padre);
-  }, [vistaActual, padreDeVista]);
+  }, [vistaEfectiva, padreDeVista]);
 
   const toggleExpandido = (vista) => {
     setExpandido(expandido === vista ? null : vista);
@@ -54,9 +61,9 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
 
   const estaActivo = (item) => {
     if (item.subopciones) {
-      return item.subopciones.some(s => s.vista === vistaActual);
+      return item.subopciones.some(s => s.vista === vistaEfectiva);
     }
-    return vistaActual === item.vista;
+    return vistaEfectiva === item.vista;
   };
 
   return (
@@ -87,7 +94,7 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
                 {item.subopciones.map((sub) => (
                   <button
                     key={sub.vista}
-                    className={`sidebar-subitem ${vistaActual === sub.vista ? 'active' : ''}`}
+                    className={`sidebar-subitem ${vistaEfectiva === sub.vista ? 'active' : ''}`}
                     onClick={() => onNavegar(sub.vista)}
                   >
                     {sub.label}
