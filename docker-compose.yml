@@ -92,7 +92,7 @@ services:
         - REACT_APP_API_URL=http://localhost:8033
     container_name: documentalgps-frontend
     ports:
-      - "8032:80"
+      - "8032:3000"
     depends_on:
       - gateway
     deploy:
