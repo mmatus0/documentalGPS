@@ -89,7 +89,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_URL=http://localhost:8033
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
     container_name: documentalgps-frontend
     ports:
       - "8032:3000"

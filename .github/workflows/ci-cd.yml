@@ -6,7 +6,6 @@ on:
     branches: [ "main" ]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   security-scan:
     name: Escáner de Vulnerabilidades (CodeQL)
@@ -21,7 +20,6 @@ jobs:
         with:
           languages: javascript
       - uses: github/codeql-action/analyze@v3
-
   test-and-build:
     name: Pruebas de Calidad
     runs-on: ubuntu-latest
@@ -71,7 +69,6 @@ jobs:
             ms-auth/coverage/lcov.info
             ms-mantenedores/coverage/lcov.info
             gateway/coverage/lcov.info
-
   coverage:
     name: Cobertura (Codecov)
     needs: test-and-build
@@ -103,7 +100,6 @@ jobs:
           files: gateway/coverage/lcov.info
           flags: gateway
           name: gateway
-
   deploy-to-pacheco:
     name: Desplegar en Pacheco
     needs: [test-and-build, security-scan, coverage]
@@ -120,6 +116,7 @@ jobs:
             cd ~/documentalGPS
             git pull origin main
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+            echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
             docker-compose down --remove-orphans
             docker system prune -f
             docker-compose up -d --build
