@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Login        from './components/Login';
 import Layout       from './components/Layout';
-import Dashboard      from './components/Dashboard';
+import PaginaInicio      from './components/PaginaInicio';
 import UsuariosPage from './components/UsuariosPage';
 import ContratistaPage from './components/ContratistaPage';
 import AreaUsuarios   from './components/AreaUsuarios';
@@ -50,7 +50,7 @@ function App() {
  
     const renderVista = () => {
     if (vistaActual === 'dashboard')
-      return <Dashboard usuario={usuario} onNavegar={handleNavegar} />;
+      return <PaginaInicio usuario={usuario} onNavegar={handleNavegar} />;
  
     if (VISTAS_USUARIOS.includes(vistaActual))
       return <UsuariosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;

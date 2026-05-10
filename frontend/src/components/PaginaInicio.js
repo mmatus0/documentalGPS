@@ -29,7 +29,7 @@ const MENSAJE = {
  
 const BADGE_COLOR = { 1: 'danger', 2: 'success', 3: 'secondary' };
  
-const Dashboard = ({ usuario, onNavegar }) => {
+const PaginaInicio = ({ usuario, onNavegar }) => {
   const rolId   = usuario.rol_id;
   const accesos = ACCESOS[rolId] || [];
  
@@ -100,4 +100,4 @@ const Dashboard = ({ usuario, onNavegar }) => {
   );
 };
  
-export default Dashboard;
+export default PaginaInicio;
