@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Login        from './components/Login';
 import Layout       from './components/Layout';
+import Dashboard      from './components/Dashboard';
 import UsuariosPage from './components/UsuariosPage';
 import ContratistaPage from './components/ContratistaPage';
 import AreaUsuarios   from './components/AreaUsuarios';
@@ -47,7 +48,10 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
  
-  const renderVista = () => {
+    const renderVista = () => {
+    if (vistaActual === 'dashboard')
+      return <Dashboard usuario={usuario} onNavegar={handleNavegar} />;
+ 
     if (VISTAS_USUARIOS.includes(vistaActual))
       return <UsuariosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
  
@@ -63,21 +67,16 @@ function App() {
         />
       );
  
-    // Modo autónomo legacy (acceso directo desde sidebar a area-usuarios)
+    // Acceso directo desde sidebar → Asignación de Usuarios (HU-03)
     if (VISTAS_AREA_USUARIOS.includes(vistaActual))
       return <AreaUsuarios />;
  
-    switch (vistaActual) {
-      case 'expedientes':
-      case 'tareas':
-      case 'dashboard':
-      default:
-        return (
-          <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
-            Selecciona una opción del menú
-          </div>
-        );
-    }
+    // Placeholders para módulos futuros
+    return (
+      <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
+        Módulo en construcción
+      </div>
+    );
   };
  
   return (
