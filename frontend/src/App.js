@@ -19,12 +19,12 @@ function App() {
     return guardado ? JSON.parse(guardado) : null;
   });
  
-  const [vistaActual,       setVistaActual]       = useState('dashboard');
+  const [vistaActual,       setVistaActual]       = useState('inicio');
   const [filtroContratistaId, setFiltroContratistaId] = useState(null);
  
   const handleLogin = (usuarioData) => {
     setUsuario(usuarioData);
-    setVistaActual('dashboard');
+    setVistaActual('inicio');
   };
  
   const handleLogout = () => {
@@ -49,34 +49,45 @@ function App() {
   }
  
     const renderVista = () => {
-    if (vistaActual === 'dashboard')
+      if (vistaActual === 'inicio')
       return <PaginaInicio usuario={usuario} onNavegar={handleNavegar} />;
+
+      if (vistaActual === 'dashboard')
+        return (
+          <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
+            <i className="bi bi-bar-chart-fill" style={{ fontSize: 48, display: 'block', marginBottom: 16 }} />
+            <strong>Dashboard Power BI</strong>
+            <p className="mt-2" style={{ fontSize: 13 }}>
+              Módulo de reportes en construcción (HU-29 / HU-30).
+            </p>
+          </div>
+        );
  
-    if (VISTAS_USUARIOS.includes(vistaActual))
-      return <UsuariosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+      if (VISTAS_USUARIOS.includes(vistaActual))
+        return <UsuariosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+  
+      if (VISTAS_CONTRATISTAS.includes(vistaActual))
+        return <ContratistaPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+  
+      if (VISTAS_AREAS.includes(vistaActual))
+        return (
+          <AreasPage
+            vistaActual={vistaActual}
+            onNavegar={handleNavegar}
+            filtroContratistaId={filtroContratistaId}
+          />
+        );
+  
+      // Acceso directo desde sidebar → Asignación de Usuarios (HU-03)
+      if (VISTAS_AREA_USUARIOS.includes(vistaActual))
+        return <AreaUsuarios />;
  
-    if (VISTAS_CONTRATISTAS.includes(vistaActual))
-      return <ContratistaPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
- 
-    if (VISTAS_AREAS.includes(vistaActual))
+      // Placeholders para módulos futuros
       return (
-        <AreasPage
-          vistaActual={vistaActual}
-          onNavegar={handleNavegar}
-          filtroContratistaId={filtroContratistaId}
-        />
+        <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
+          Módulo en construcción
+        </div>
       );
- 
-    // Acceso directo desde sidebar → Asignación de Usuarios (HU-03)
-    if (VISTAS_AREA_USUARIOS.includes(vistaActual))
-      return <AreaUsuarios />;
- 
-    // Placeholders para módulos futuros
-    return (
-      <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
-        Módulo en construcción
-      </div>
-    );
   };
  
   return (
