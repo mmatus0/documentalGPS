@@ -1,5 +1,54 @@
 const db = require('../config/db');
 
+// Decodifica el payload de un JWT sin verificar la firma (el gateway ya lo hizo)
+function decodeJwtPayload(token) {
+  try {
+    const base64Payload = token.split('.')[1];
+    const payload = Buffer.from(base64Payload, 'base64').toString('utf-8');
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+// Devuelve las unidades organizativas asignadas al usuario autenticado (roles 2 y 3)
+exports.getMisUnidades = async (req, res) => {
+  let usuarioId = null;
+
+  const authHeader = req.headers['authorization'];
+  if (authHeader) {
+    const token   = authHeader.split(' ')[1];
+    const payload = decodeJwtPayload(token);
+    usuarioId = payload?.id;
+  }
+
+  if (!usuarioId) {
+    return res.status(401).json({ error: 'Usuario no identificado' });
+  }
+
+  try {
+    const [rows] = await db.query(
+      `SELECT
+         au.id            AS asignacion_id,
+         au.rol_en_area,
+         a.id             AS area_id,
+         a.nombre         AS area_nombre,
+         c.id             AS contratista_id,
+         c.nombre         AS contratista_nombre
+       FROM area_usuario au
+       JOIN area        a ON au.area_id        = a.id
+       JOIN contratista c ON a.contratista_id  = c.id
+       WHERE au.usuario_id = ?
+         AND a.estado_id   = 1
+       ORDER BY c.nombre, a.nombre`,
+      [usuarioId]
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getUsuariosPorArea = async (req, res) => {
   const { areaId } = req.params;
   try {

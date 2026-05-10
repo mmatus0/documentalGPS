@@ -12,11 +12,13 @@ const ACCESOS = {
     { titulo: 'Tareas',                         descripcion: 'Supervisar todas las tareas activas del sistema.',     icono: 'bi-check2-square',        vista: 'tareas',               variante: 'secondary' },
   ],
   2: [
-    { titulo: 'Mis Expedientes',                descripcion: 'Crear y gestionar expedientes de tu área.',            icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
-    { titulo: 'Mis Tareas',                     descripcion: 'Revisar y resolver las tareas asignadas a ti.',        icono: 'bi-check2-square',        vista: 'tareas',               variante: 'success'   },
+    { titulo: 'Mis Unidades',                   descripcion: 'Ver las unidades organizativas a las que perteneces.',    icono: 'bi-diagram-3-fill',       vista: 'mis-unidades',         variante: 'info'      },
+    { titulo: 'Mis Expedientes',                descripcion: 'Crear y gestionar expedientes de tu área.',               icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
+    { titulo: 'Mis Tareas',                     descripcion: 'Revisar y resolver las tareas asignadas a ti.',           icono: 'bi-check2-square',        vista: 'tareas',               variante: 'success'   },
   ],
   3: [
-    { titulo: 'Expedientes',                    descripcion: 'Consultar los expedientes de tu área.',                icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
+    { titulo: 'Mis Unidades',                   descripcion: 'Ver las unidades organizativas a las que perteneces.',    icono: 'bi-diagram-3-fill',       vista: 'mis-unidades',         variante: 'info'      },
+    { titulo: 'Expedientes',                    descripcion: 'Consultar los expedientes de tu área.',                   icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
   ],
 };
  

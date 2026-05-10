@@ -14,6 +14,8 @@ const limiter = rateLimit({
 
 router.get('/',               limiter, areaCRUD.getAreas);
 router.post('/',              limiter, areaCRUD.crearArea);
+// Ruta específica ANTES de las rutas con parámetro /:id
+router.get('/mis-unidades',   limiter, areaUsuario.getMisUnidades);
 router.put('/:id',            limiter, areaCRUD.editarArea);
 router.delete('/:id',         limiter, areaCRUD.desactivarArea);
 router.patch('/:id/reactivar',limiter, areaCRUD.reactivarArea);

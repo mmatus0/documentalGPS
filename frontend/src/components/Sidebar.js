@@ -23,26 +23,35 @@ const menu = {
     { label: 'Tareas',      vista: 'tareas'       },
   ],
   2: [
-    { label: 'Inicio',      vista: 'inicio'      },
-    { label: 'Dashboard',   vista: 'dashboard'   },
-    { label: 'Expedientes', vista: 'expedientes' },
-    { label: 'Tareas',      vista: 'tareas'      },
+    { label: 'Inicio',       vista: 'inicio'       },
+    { label: 'Dashboard',    vista: 'dashboard'    },
+    { label: 'Mis Unidades', vista: 'mis-unidades' },
+    { label: 'Expedientes',  vista: 'expedientes'  },
+    { label: 'Tareas',       vista: 'tareas'       },
   ],
   3: [
-    { label: 'Inicio',      vista: 'inicio'      },
-    { label: 'Dashboard',   vista: 'dashboard'   },
-    { label: 'Expedientes', vista: 'expedientes' },
+    { label: 'Inicio',       vista: 'inicio'       },
+    { label: 'Dashboard',    vista: 'dashboard'    },
+    { label: 'Mis Unidades', vista: 'mis-unidades' },
+    { label: 'Expedientes',  vista: 'expedientes'  },
   ],
 };
  
 // Vistas que deben resaltar "Unidades Organizativas" en el sidebar
 const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
+
+// Vistas que deben resaltar "Mis Unidades" en el sidebar (roles 2 y 3)
+const VISTAS_MIS_UNIDADES = ['mis-unidades', 'mi-unidad-detalle'];
  
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
  
   // vistaEfectiva se usa solo para resaltar el ítem padre (Mantenedores, Usuarios)
-  const vistaEfectiva = VISTAS_AREAS.includes(vistaActual) ? 'areas-listado' : vistaActual;
+  const vistaEfectiva = VISTAS_AREAS.includes(vistaActual)
+    ? 'areas-listado'
+    : VISTAS_MIS_UNIDADES.includes(vistaActual)
+    ? 'mis-unidades'
+    : vistaActual;
  
   const padreDeVista = useCallback((vista) => {
     const item = opciones.find(
