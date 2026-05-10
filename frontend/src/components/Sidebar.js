@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-
+ 
 const menu = {
   1: [
-    { label: 'Dashboard', vista: 'dashboard' },
+    { label: 'Inicio',     vista: 'inicio'     },
+    { label: 'Dashboard',  vista: 'dashboard'  },
     {
       label: 'Usuarios', vista: 'usuarios',
       subopciones: [
@@ -13,59 +14,61 @@ const menu = {
     {
       label: 'Mantenedores', vista: 'mantenedores',
       subopciones: [
-        { label: 'Contratistas',              vista: 'contratistas-listado' },
-        { label: 'Unidades Organizativas',    vista: 'areas-listado'        },
-        { label: 'Asignación de Usuarios',    vista: 'area-usuarios'        },
+        { label: 'Contratistas',           vista: 'contratistas-listado' },
+        { label: 'Unidades Organizativas', vista: 'areas-listado'        },
+        { label: 'Asignación de Usuarios', vista: 'area-usuarios'        },
       ]
     },
     { label: 'Expedientes', vista: 'expedientes' },
     { label: 'Tareas',      vista: 'tareas'       },
   ],
   2: [
+    { label: 'Inicio',      vista: 'inicio'      },
     { label: 'Dashboard',   vista: 'dashboard'   },
     { label: 'Expedientes', vista: 'expedientes' },
     { label: 'Tareas',      vista: 'tareas'      },
   ],
   3: [
+    { label: 'Inicio',      vista: 'inicio'      },
     { label: 'Dashboard',   vista: 'dashboard'   },
     { label: 'Expedientes', vista: 'expedientes' },
   ],
 };
-
+ 
 // Vistas que deben resaltar "Unidades Organizativas" en el sidebar
 const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
-
+ 
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
-
-  // Normalizar la vista para el resaltado
+ 
+  // vistaEfectiva se usa solo para resaltar el ítem padre (Mantenedores, Usuarios)
   const vistaEfectiva = VISTAS_AREAS.includes(vistaActual) ? 'areas-listado' : vistaActual;
-
+ 
   const padreDeVista = useCallback((vista) => {
     const item = opciones.find(
       op => op.subopciones?.some(s => s.vista === vista)
     );
     return item ? item.vista : null;
   }, [opciones]);
-
+ 
   const [expandido, setExpandido] = useState(() => padreDeVista(vistaEfectiva));
-
+ 
   useEffect(() => {
     const padre = padreDeVista(vistaEfectiva);
     if (padre) setExpandido(padre);
   }, [vistaEfectiva, padreDeVista]);
-
+ 
   const toggleExpandido = (vista) => {
     setExpandido(expandido === vista ? null : vista);
   };
-
+ 
   const estaActivo = (item) => {
     if (item.subopciones) {
       return item.subopciones.some(s => s.vista === vistaActual);
     }
     return vistaActual === item.vista;
   };
-
+ 
   return (
     <aside className="sidebar">
       <div className="sidebar-section-label">NAVEGACIÓN</div>
@@ -108,5 +111,5 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
     </aside>
   );
 };
-
+ 
 export default Sidebar;
