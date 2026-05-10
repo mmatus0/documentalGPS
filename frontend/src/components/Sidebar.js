@@ -15,6 +15,7 @@ const menu = {
       subopciones: [
         { label: 'Contratistas',           vista: 'contratistas-listado' },
         { label: 'Unidades Organizativas', vista: 'areas-listado'        },
+        { label: 'Asignación de Usuarios',    vista: 'area-usuarios'        },
       ]
     },
     { label: 'Expedientes', vista: 'expedientes' },
@@ -65,6 +66,14 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
     }
     return vistaEfectiva === item.vista;
   };
+
+    const estaSubActivo = (subVista) => {
+    if (subVista === 'areas-listado') {
+      return VISTAS_AREAS.filter(v => v !== 'area-usuarios').includes(vistaActual);
+    }
+    return vistaActual === subVista;
+  };
+
 
   return (
     <aside className="sidebar">
