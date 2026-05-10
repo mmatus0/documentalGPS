@@ -13,8 +13,8 @@ const menu = {
     {
       label: 'Mantenedores', vista: 'mantenedores',
       subopciones: [
-        { label: 'Contratistas',           vista: 'contratistas-listado' },
-        { label: 'Unidades Organizativas', vista: 'areas-listado'        },
+        { label: 'Contratistas',              vista: 'contratistas-listado' },
+        { label: 'Unidades Organizativas',    vista: 'areas-listado'        },
         { label: 'Asignación de Usuarios',    vista: 'area-usuarios'        },
       ]
     },
@@ -38,8 +38,7 @@ const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', '
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
 
-  // Normalizar la vista para el resaltado: todas las vistas de áreas
-  // se mapean a 'areas-listado' para que el sidebar resalte correctamente
+  // Normalizar la vista para el resaltado
   const vistaEfectiva = VISTAS_AREAS.includes(vistaActual) ? 'areas-listado' : vistaActual;
 
   const padreDeVista = useCallback((vista) => {
@@ -62,18 +61,10 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
 
   const estaActivo = (item) => {
     if (item.subopciones) {
-      return item.subopciones.some(s => s.vista === vistaEfectiva);
+      return item.subopciones.some(s => s.vista === vistaActual);
     }
-    return vistaEfectiva === item.vista;
+    return vistaActual === item.vista;
   };
-
-    const estaSubActivo = (subVista) => {
-    if (subVista === 'areas-listado') {
-      return VISTAS_AREAS.filter(v => v !== 'area-usuarios').includes(vistaActual);
-    }
-    return vistaActual === subVista;
-  };
-
 
   return (
     <aside className="sidebar">
@@ -103,7 +94,7 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
                 {item.subopciones.map((sub) => (
                   <button
                     key={sub.vista}
-                    className={`sidebar-subitem ${vistaEfectiva === sub.vista ? 'active' : ''}`}
+                    className={`sidebar-subitem ${vistaActual === sub.vista ? 'active' : ''}`}
                     onClick={() => onNavegar(sub.vista)}
                   >
                     {sub.label}
