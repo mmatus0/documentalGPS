@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../services/axiosConfig';
 
+// ─── Utilidades ────────────────────────────────────────────────────────────────
+
 const ROL_BADGE = {
   Colaborador: { bg: 'bg-success-subtle text-success', icon: 'bi-pencil-fill' },
   Lector:      { bg: 'bg-secondary-subtle text-secondary', icon: 'bi-eye-fill' },
@@ -24,8 +26,7 @@ const PERMISO_TEXTO = {
   },
 };
 
-
-
+// ─── Fila de integrante ─────────────────────────────────────────────────────────
 
 const FilaIntegrante = ({ usuario, esYo }) => {
   const badge = ROL_BADGE[usuario.rol_en_area] || ROL_BADGE.Lector;
@@ -79,7 +80,9 @@ const FilaIntegrante = ({ usuario, esYo }) => {
   );
 };
 
-const MiUnidadDetalle = ({ unidad, usuario, onVolver }) => {
+// ─── Vista de detalle ───────────────────────────────────────────────────────────
+
+const MiUnidadDetalle = ({ unidad, usuario, onVolver, onVerExpedientes }) => {
   const [integrantes,  setIntegrantes]  = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
@@ -105,6 +108,7 @@ const MiUnidadDetalle = ({ unidad, usuario, onVolver }) => {
     fetchIntegrantes();
   }, [fetchIntegrantes]);
 
+  // Filtros por tab
   const colaboradores = integrantes.filter(u => u.rol_en_area === 'Colaborador');
   const lectores      = integrantes.filter(u => u.rol_en_area === 'Lector');
   const listaTab = tabActiva === 'todos'
@@ -115,14 +119,23 @@ const MiUnidadDetalle = ({ unidad, usuario, onVolver }) => {
 
   return (
     <div>
-      {/* Botón volver */}
-      <button
-        className="btn btn-sm btn-outline-secondary mb-4"
-        onClick={onVolver}
-      >
-        <i className="bi bi-arrow-left me-1" />
-        Volver a mis unidades
-      </button>
+      {/* Botones de navegación */}
+      <div className="d-flex gap-2 mb-4">
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={onVolver}
+        >
+          <i className="bi bi-arrow-left me-1" />
+          Volver a mis unidades
+        </button>
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => onVerExpedientes(unidad)}
+        >
+          <i className="bi bi-folder2-open me-1" />
+          Ver expedientes
+        </button>
+      </div>
 
       {/* Encabezado de la unidad */}
       <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: 12, overflow: 'hidden' }}>

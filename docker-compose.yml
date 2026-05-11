@@ -54,6 +54,9 @@ services:
       DB_USER: root
       DB_PASSWORD: ""
       DB_NAME: documentosgps
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       database:
         condition: service_healthy
@@ -104,6 +107,7 @@ services:
 
 volumes:
   db_data:
+  uploads_data:
 
 networks:
   documentalgps-network:

@@ -8,7 +8,7 @@ const { verificarToken } = require('./middleware/authMiddleware');
 const app = express();
 app.use(cors());
 
-// ── Rate limiters ──────────────────────────────────────────────────────────
+// ── Rate limiters ──────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -25,14 +25,14 @@ const apiLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes. Intenta nuevamente en 15 minutos.' }
 });
 
-// ── Rutas públicas (sin token) ─────────────────────────────────────────────
+// ── Rutas públicas (sin token) ─────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, createProxyMiddleware({
   target: 'http://ms-auth:3001',
   changeOrigin: true,
   pathRewrite: { '^': '/api/auth' },
 }));
 
-// ── Rutas protegidas (requieren token válido) ──────────────────────────────
+// ── Rutas protegidas (requieren token válido) ──────────────────────────────────
 app.use('/api/users', apiLimiter, verificarToken, createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
@@ -49,6 +49,13 @@ app.use('/api/areas', apiLimiter, verificarToken, createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
   pathRewrite: { '^': '/api/areas' },
+}));
+
+// ── Expedientes y documentos adjuntos ─────────────────────────────────────────
+app.use('/api/expedientes', apiLimiter, verificarToken, createProxyMiddleware({
+  target: 'http://ms-mantenedores:3002',
+  changeOrigin: true,
+  pathRewrite: { '^': '/api/expedientes' },
 }));
 
 module.exports = app;

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import Login           from './components/Login';
-import Layout          from './components/Layout';
-import PaginaInicio    from './components/PaginaInicio';
-import UsuariosPage    from './components/UsuariosPage';
-import ContratistaPage from './components/ContratistaPage';
-import AreaUsuarios    from './components/AreaUsuarios';
-import AreasPage       from './components/AreasPage';
-import MisUnidadesPage from './components/MisUnidadesPage';
-import MiUnidadDetalle from './components/MiUnidadDetalle';
+import Login               from './components/Login';
+import Layout              from './components/Layout';
+import PaginaInicio        from './components/PaginaInicio';
+import UsuariosPage        from './components/UsuariosPage';
+import ContratistaPage     from './components/ContratistaPage';
+import AreaUsuarios        from './components/AreaUsuarios';
+import AreasPage           from './components/AreasPage';
+import MisUnidadesPage     from './components/MisUnidadesPage';
+import MiUnidadDetalle     from './components/MiUnidadDetalle';
+import ExpedientesArea     from './components/ExpedientesArea';
+import DocumentosExpediente from './components/DocumentosExpediente';
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
@@ -21,9 +23,10 @@ function App() {
     return guardado ? JSON.parse(guardado) : null;
   });
 
-  const [vistaActual,         setVistaActual]         = useState('inicio');
-  const [filtroContratistaId, setFiltroContratistaId] = useState(null);
-  const [unidadSeleccionada,  setUnidadSeleccionada]  = useState(null);
+  const [vistaActual,            setVistaActual]            = useState('inicio');
+  const [filtroContratistaId,    setFiltroContratistaId]    = useState(null);
+  const [unidadSeleccionada,     setUnidadSeleccionada]     = useState(null);
+  const [expedienteSeleccionado, setExpedienteSeleccionado] = useState(null);
 
   const handleLogin = (usuarioData) => {
     setUsuario(usuarioData);
@@ -42,9 +45,8 @@ function App() {
     } else if (VISTAS_AREAS.includes(vista) && !params.filtroContratistaId) {
       setFiltroContratistaId(null);
     }
-    if (vista !== 'mi-unidad-detalle') {
-      setUnidadSeleccionada(null);
-    }
+    if (vista !== 'mi-unidad-detalle') setUnidadSeleccionada(null);
+    if (vista !== 'expedientes-area')  setExpedienteSeleccionado(null);
     setVistaActual(vista);
   };
 
@@ -56,6 +58,21 @@ function App() {
   const handleVolverAMisUnidades = () => {
     setUnidadSeleccionada(null);
     setVistaActual('mis-unidades');
+  };
+
+  const handleVerExpedientes = (unidad) => {
+    setUnidadSeleccionada(unidad);
+    setVistaActual('expedientes-area');
+  };
+
+  const handleVerDocumentos = (expediente) => {
+    setExpedienteSeleccionado(expediente);
+    setVistaActual('documentos-expediente');
+  };
+
+  const handleVolverAExpedientes = () => {
+    setExpedienteSeleccionado(null);
+    setVistaActual('expedientes-area');
   };
 
   if (!usuario) {
@@ -95,7 +112,6 @@ function App() {
     if (VISTAS_AREA_USUARIOS.includes(vistaActual))
       return <AreaUsuarios />;
 
-    // ── Perfilamiento: vistas para roles 2 (Colaborador) y 3 (Lector) ──
     if (vistaActual === 'mis-unidades')
       return (
         <MisUnidadesPage
@@ -110,6 +126,26 @@ function App() {
           unidad={unidadSeleccionada}
           usuario={usuario}
           onVolver={handleVolverAMisUnidades}
+          onVerExpedientes={handleVerExpedientes}
+        />
+      );
+
+    if (vistaActual === 'expedientes-area' && unidadSeleccionada)
+      return (
+        <ExpedientesArea
+          unidad={unidadSeleccionada}
+          usuario={usuario}
+          onVerDetalle={handleVerDocumentos}
+          onVolver={() => handleVerDetalleUnidad(unidadSeleccionada)}
+        />
+      );
+
+    if (vistaActual === 'documentos-expediente' && expedienteSeleccionado)
+      return (
+        <DocumentosExpediente
+          expedienteId={expedienteSeleccionado.id}
+          usuario={usuario}
+          onVolver={handleVolverAExpedientes}
         />
       );
 
