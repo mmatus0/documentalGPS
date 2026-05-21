@@ -25,9 +25,22 @@ CREATE TABLE estado (
   nombre VARCHAR(50) NOT NULL
 );
 
+-- IDs 1-2: estado genérico para entidades (contratista, area, usuario, etc.)
+-- IDs 3-8: estados del ciclo de vida de un expediente
+-- IDs 9-12: estados de una tarea
 INSERT INTO estado (nombre) VALUES
-  ('Activo'),
-  ('Inactivo');
+  ('Activo'),        -- id 1  → entidades
+  ('Inactivo'),      -- id 2  → entidades (borrado lógico)
+  ('Borrador'),      -- id 3  → expediente recién creado
+  ('Derivado'),      -- id 4  → expediente enviado a un área
+  ('En Revisión'),   -- id 5  → revisor tiene tarea activa
+  ('En Colaboración'), -- id 6 → se solicitó colaboración
+  ('En Aprobación'), -- id 7  → aprobador tiene tarea activa
+  ('Terminado'),     -- id 8  → expediente cerrado con éxito
+  ('Pendiente'),     -- id 9  → tarea generada, aún sin abrir
+  ('En Progreso'),   -- id 10 → tarea abierta por el responsable
+  ('Completada'),    -- id 11 → tarea aprobada/resuelta
+  ('Rechazada');     -- id 12 → tarea rechazada
 
 -- =============================================================
 -- MÓDULO 1: USUARIOS Y ROLES
@@ -202,7 +215,7 @@ CREATE TABLE expediente (
   reservado       TINYINT(1)   NOT NULL DEFAULT 0,
   fecha_documento DATE,
   fecha_ingreso   DATE         NOT NULL,
-  estado_id       INT          NOT NULL DEFAULT 1,
+  estado_id       INT          NOT NULL DEFAULT 3,  -- 3 = Borrador
   CONSTRAINT fk_exp_area       FOREIGN KEY (area_id)       REFERENCES area(id),
   CONSTRAINT fk_exp_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
   CONSTRAINT fk_exp_tipo_doc   FOREIGN KEY (tipo_doc_id)   REFERENCES tipo_documento(id),
@@ -248,7 +261,7 @@ CREATE TABLE tarea (
   tarea_padre_id    INT,
   tipo_colab_id     INT,
   tipo              ENUM('Revision','Aprobacion','Colaboracion') NOT NULL,
-  estado_id         INT          NOT NULL DEFAULT 1,
+  estado_id         INT          NOT NULL DEFAULT 9,  -- 9 = Pendiente
   fecha_vencimiento DATE,
   CONSTRAINT fk_tarea_expediente FOREIGN KEY (expediente_id)  REFERENCES expediente(id),
   CONSTRAINT fk_tarea_etapa      FOREIGN KEY (etapa_id)       REFERENCES etapa(id),
@@ -314,30 +327,3 @@ INSERT INTO disciplina (area_id, nombre) VALUES
   (1, 'Metalúrgica'),
   (4, 'Estructuras'),
   (4, 'Instalaciones');
-
--- ============================================================
--- MIGRACIÓN: agregar estados de flujo de expediente y tarea
--- ============================================================
-
-INSERT IGNORE INTO estado (id, nombre) VALUES
-  (3,  'Borrador'),
-  (4,  'Derivado'),
-  (5,  'En Revisión'),
-  (6,  'En Colaboración'),
-  (7,  'En Aprobación'),
-  (8,  'Terminado'),
-  (9,  'Pendiente'),
-  (10, 'En Progreso'),
-  (11, 'Completada'),
-  (12, 'Rechazada');
- 
--- Ajustar DEFAULT de expediente.estado_id a Borrador (3)
-ALTER TABLE expediente
-  ALTER COLUMN estado_id SET DEFAULT 3;
- 
--- Ajustar DEFAULT de tarea.estado_id a Pendiente (9)
-ALTER TABLE tarea
-  ALTER COLUMN estado_id SET DEFAULT 9;
- 
--- Verificar
-SELECT id, nombre FROM estado ORDER BY id;
