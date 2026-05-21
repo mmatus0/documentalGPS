@@ -314,3 +314,30 @@ INSERT INTO disciplina (area_id, nombre) VALUES
   (1, 'Metalúrgica'),
   (4, 'Estructuras'),
   (4, 'Instalaciones');
+
+-- ============================================================
+-- MIGRACIÓN: agregar estados de flujo de expediente y tarea
+-- ============================================================
+
+INSERT IGNORE INTO estado (id, nombre) VALUES
+  (3,  'Borrador'),
+  (4,  'Derivado'),
+  (5,  'En Revisión'),
+  (6,  'En Colaboración'),
+  (7,  'En Aprobación'),
+  (8,  'Terminado'),
+  (9,  'Pendiente'),
+  (10, 'En Progreso'),
+  (11, 'Completada'),
+  (12, 'Rechazada');
+ 
+-- Ajustar DEFAULT de expediente.estado_id a Borrador (3)
+ALTER TABLE expediente
+  ALTER COLUMN estado_id SET DEFAULT 3;
+ 
+-- Ajustar DEFAULT de tarea.estado_id a Pendiente (9)
+ALTER TABLE tarea
+  ALTER COLUMN estado_id SET DEFAULT 9;
+ 
+-- Verificar
+SELECT id, nombre FROM estado ORDER BY id;
