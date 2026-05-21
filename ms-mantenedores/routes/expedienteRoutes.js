@@ -90,6 +90,7 @@ const guardarRegistroDocumento = async (req, res, next) => {
 
 // ── Rutas de Expedientes ────────────────────────────────────────────────────
 router.get('/area/:areaId',  limiter, expedienteCtrl.getExpedientesPorArea);
+router.get('/:id/historial', limiter, expedienteCtrl.getHistorialExpediente); // HU-19
 router.get('/:id',           limiter, expedienteCtrl.getExpedienteDetalle);
 
 // ── Rutas de Documentos ─────────────────────────────────────────────────────
