@@ -39,12 +39,22 @@ const TarjetaExpediente = ({ expediente, onVerDetalle }) => {
           : '—'}
       </td>
       <td className="py-3">
-        <span
-          className={`badge ${expediente.estado === 'Activo' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}`}
-          style={{ fontSize: 10 }}
-        >
-          {expediente.estado}
-        </span>
+        {(() => {
+          const BADGE_ESTADO = {
+            'Borrador':          'bg-secondary-subtle text-secondary',
+            'Derivado':          'bg-primary-subtle text-primary',
+            'En Revisión':       'bg-warning-subtle text-warning',
+            'En Colaboración':   'bg-orange-subtle text-warning',
+            'En Aprobación':     'bg-success-subtle text-success',
+            'Terminado':         'bg-success text-white',
+          };
+          const cls = BADGE_ESTADO[expediente.estado] || 'bg-secondary-subtle text-secondary';
+          return (
+            <span className={`badge ${cls}`} style={{ fontSize: 10 }}>
+              {expediente.estado}
+            </span>
+          );
+        })()}
       </td>
       <td className="pe-4 py-3">
         <button
@@ -66,6 +76,7 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
   const [error,        setError]        = useState(null);
   const [busqueda,     setBusqueda]     = useState('');
   const [filtroOrigen, setFiltroOrigen] = useState('todos');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
 
   const fetchExpedientes = useCallback(async () => {
     setLoading(true);
@@ -82,6 +93,8 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
 
   useEffect(() => { fetchExpedientes(); }, [fetchExpedientes]);
 
+  const ESTADOS_FLUJO = ['Borrador', 'Derivado', 'En Revisión', 'En Colaboración', 'En Aprobación', 'Terminado'];
+
   const expedientesFiltrados = expedientes.filter(e => {
     const q = busqueda.toLowerCase();
     const coincideBusqueda =
@@ -90,7 +103,8 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
       e.materia?.toLowerCase().includes(q) ||
       e.emisor?.toLowerCase().includes(q);
     const coincideOrigen = filtroOrigen === 'todos' || e.origen === filtroOrigen;
-    return coincideBusqueda && coincideOrigen;
+    const coincideEstado = filtroEstado === 'todos' || e.estado === filtroEstado;
+    return coincideBusqueda && coincideOrigen && coincideEstado;
   });
 
   return (
@@ -135,7 +149,8 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
       {/* Filtros */}
       {!loading && expedientes.length > 0 && (
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-          <div className="d-flex gap-2">
+          <div className="d-flex gap-2 flex-wrap">
+            {/* Filtro origen */}
             {['todos', 'Externo', 'Interno'].map(o => (
               <button
                 key={o}
@@ -146,6 +161,20 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
                 {o === 'todos' ? `Todos (${expedientes.length})` : o}
               </button>
             ))}
+            {/* Separador visual */}
+            <span className="text-muted small align-self-center px-1">|</span>
+            {/* Filtro estado */}
+            <select
+              className="form-select form-select-sm"
+              style={{ fontSize: 12, width: 'auto' }}
+              value={filtroEstado}
+              onChange={e => setFiltroEstado(e.target.value)}
+            >
+              <option value="todos">Todos los estados</option>
+              {ESTADOS_FLUJO.map(est => (
+                <option key={est} value={est}>{est}</option>
+              ))}
+            </select>
           </div>
           <div style={{ maxWidth: 280 }}>
             <div className="input-group input-group-sm">
