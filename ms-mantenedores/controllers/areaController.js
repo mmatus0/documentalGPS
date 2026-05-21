@@ -7,9 +7,12 @@ exports.getAreas = async (req, res) => {
     const [rows] = await db.query(
       `SELECT a.id, a.nombre, a.estado_id,
               a.contratista_id,
-              c.nombre AS contratista_nombre
+              a.proceso_id,
+              c.nombre  AS contratista_nombre,
+              p.nombre  AS proceso_nombre
        FROM area a
        JOIN contratista c ON a.contratista_id = c.id
+       LEFT JOIN proceso p ON a.proceso_id = p.id
        ORDER BY c.nombre, a.nombre`
     );
     res.json(rows);
@@ -107,6 +110,36 @@ exports.reactivarArea = async (req, res) => {
       return res.status(404).json({ error: 'Área no encontrada o ya activa' });
     }
     res.json({ message: 'Área reactivada correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// PATCH asignar proceso activo a un área
+exports.asignarProceso = async (req, res) => {
+  const { id } = req.params;
+  const { proceso_id } = req.body;
+
+  try {
+    // proceso_id puede ser null para desasignar
+    if (proceso_id !== null && proceso_id !== undefined) {
+      const [proc] = await db.query(
+        'SELECT id FROM proceso WHERE id = ? AND estado_id = 1',
+        [proceso_id]
+      );
+      if (proc.length === 0) {
+        return res.status(404).json({ error: 'Proceso no encontrado o inactivo' });
+      }
+    }
+
+    const [result] = await db.query(
+      'UPDATE area SET proceso_id = ? WHERE id = ?',
+      [proceso_id ?? null, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Área no encontrada' });
+    }
+    res.json({ message: 'Proceso asignado al área correctamente' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
