@@ -49,6 +49,7 @@ exports.getExpedientesPorArea = async (req, res) => {
          e.reservado,
          e.fecha_documento,
          e.fecha_ingreso,
+         e.estado_id,
          td.nombre  AS tipo_documento,
          cat.nombre AS categoria,
          est.nombre AS estado,
@@ -131,6 +132,56 @@ exports.getExpedienteDetalle = async (req, res) => {
     );
 
     res.json({ ...expediente, documentos: docs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET /api/expedientes/:id/historial — HU-19
+// Devuelve el historial de cambios de estado del expediente
+exports.getHistorialExpediente = async (req, res) => {
+  const usuario = getUsuarioFromReq(req);
+  if (!usuario) return res.status(401).json({ error: 'No autenticado' });
+
+  const { id } = req.params;
+
+  try {
+    // Verificar que el expediente existe y obtener su área
+    const [exp] = await db.query(
+      'SELECT id, area_id FROM expediente WHERE id = ?',
+      [id]
+    );
+    if (exp.length === 0) {
+      return res.status(404).json({ error: 'Expediente no encontrado' });
+    }
+
+    // Verificar acceso al área
+    if (usuario.rol_id !== 1) {
+      const [acceso] = await db.query(
+        'SELECT id FROM area_usuario WHERE area_id = ? AND usuario_id = ?',
+        [exp[0].area_id, usuario.id]
+      );
+      if (acceso.length === 0) {
+        return res.status(403).json({ error: 'No tienes acceso a este expediente' });
+      }
+    }
+
+    const [rows] = await db.query(
+      `SELECT
+         h.id,
+         h.estado_anterior,
+         h.estado_nuevo,
+         h.comentario,
+         h.fecha,
+         u.nombre_completo AS usuario
+       FROM historial_expediente h
+       JOIN usuario u ON h.usuario_id = u.id
+       WHERE h.expediente_id = ?
+       ORDER BY h.fecha ASC`,
+      [id]
+    );
+
+    res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
