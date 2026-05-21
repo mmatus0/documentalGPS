@@ -119,6 +119,7 @@ exports.descargarDocumento = async (req, res) => {
 };
 
 // DELETE /api/expedientes/:expedienteId/documentos/:documentoId
+// Solo se puede eliminar si el expediente está en estado Borrador (estado_id = 3)
 exports.eliminarDocumento = async (req, res) => {
   const usuario = getUsuarioFromReq(req);
   if (!usuario) return res.status(401).json({ error: 'No autenticado' });
@@ -131,7 +132,8 @@ exports.eliminarDocumento = async (req, res) => {
 
   try {
     const [docs] = await db.query(
-      `SELECT d.*, e.area_id FROM documento_adjunto d
+      `SELECT d.*, e.area_id, e.estado_id AS exp_estado_id
+       FROM documento_adjunto d
        JOIN expediente e ON d.expediente_id = e.id
        WHERE d.id = ? AND d.expediente_id = ?`,
       [documentoId, expedienteId]
@@ -142,6 +144,13 @@ exports.eliminarDocumento = async (req, res) => {
     }
 
     const doc = docs[0];
+
+    // solo se puede eliminar si el expediente está en Borrador (estado_id = 3)
+    if (doc.exp_estado_id !== 3) {
+      return res.status(409).json({
+        error: 'Solo se pueden eliminar documentos de expedientes en estado Borrador'
+      });
+    }
 
     // Verificar acceso (solo el que subió o admin puede eliminar)
     if (usuario.rol_id !== 1 && doc.subido_por !== usuario.id) {
