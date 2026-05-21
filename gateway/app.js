@@ -25,6 +25,13 @@ const apiLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes. Intenta nuevamente en 15 minutos.' }
 });
 
+// Helper para crear proxy hacia ms-mantenedores (evita repetición)
+const msProxy = (prefix) => createProxyMiddleware({
+  target: 'http://ms-mantenedores:3002',
+  changeOrigin: true,
+  pathRewrite: { '^': prefix },
+});
+
 // ── Rutas públicas (sin token) ─────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, createProxyMiddleware({
   target: 'http://ms-auth:3001',
@@ -33,29 +40,22 @@ app.use('/api/auth', authLimiter, createProxyMiddleware({
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────────
-app.use('/api/users', apiLimiter, verificarToken, createProxyMiddleware({
-  target: 'http://ms-mantenedores:3002',
-  changeOrigin: true,
-  pathRewrite: { '^': '/api/users' },
-}));
 
-app.use('/api/contratistas', apiLimiter, verificarToken, createProxyMiddleware({
-  target: 'http://ms-mantenedores:3002',
-  changeOrigin: true,
-  pathRewrite: { '^': '/api/contratistas' },
-}));
+// Eje 1 — Usuarios
+app.use('/api/users', apiLimiter, verificarToken, msProxy('/api/users'));
 
-app.use('/api/areas', apiLimiter, verificarToken, createProxyMiddleware({
-  target: 'http://ms-mantenedores:3002',
-  changeOrigin: true,
-  pathRewrite: { '^': '/api/areas' },
-}));
+// Eje 2 — Mantenedores base
+app.use('/api/contratistas', apiLimiter, verificarToken, msProxy('/api/contratistas'));
+app.use('/api/areas',        apiLimiter, verificarToken, msProxy('/api/areas'));
+app.use('/api/categorias',   apiLimiter, verificarToken, msProxy('/api/categorias'));   // HU-08
+app.use('/api/tipos-doc',    apiLimiter, verificarToken, msProxy('/api/tipos-doc'));    // HU-09
+app.use('/api/tipos-colab',  apiLimiter, verificarToken, msProxy('/api/tipos-colab')); // HU-12
 
-// ── Expedientes y documentos adjuntos ─────────────────────────────────────────
-app.use('/api/expedientes', apiLimiter, verificarToken, createProxyMiddleware({
-  target: 'http://ms-mantenedores:3002',
-  changeOrigin: true,
-  pathRewrite: { '^': '/api/expedientes' },
-}));
+// Eje 3 — Procesos y etapas
+app.use('/api/procesos', apiLimiter, verificarToken, msProxy('/api/procesos')); // HU-10
+app.use('/api/etapas',   apiLimiter, verificarToken, msProxy('/api/etapas'));   // HU-11
+
+// Eje 4 — Expedientes y documentos adjuntos
+app.use('/api/expedientes', apiLimiter, verificarToken, msProxy('/api/expedientes'));
 
 module.exports = app;
