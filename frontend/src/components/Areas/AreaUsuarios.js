@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from '../services/axiosConfig';
+import axios from '../../services/axiosConfig';
 
 const AreaUsuarios = ({ areaId: areaIdProp, areaNombre, onVolver }) => {
     const modoEmbebido = Boolean(areaIdProp);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axiosConfig';
-import Modales from './Modales';
+import Modales from './Shared/Modales';
 
 const ContratistaList = ({ onNuevo, onEditar, onNavegar }) => {
     const [contratistas, setContratistas] = useState([]);

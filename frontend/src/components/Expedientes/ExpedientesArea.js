@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from '../services/axiosConfig';
+import axios from '../../services/axiosConfig';
 
 const ORIGEN_BADGE = {
   Externo: { bg: 'bg-warning-subtle text-warning', icon: 'bi-box-arrow-in-down' },

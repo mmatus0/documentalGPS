@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../services/axiosConfig';
-import Modales from './Modales';
+import axios from '../../services/axiosConfig';
+import Modales from '../Shared/Modales';
  
 const UserList = ({ onNuevo, onEditar }) => {
     const [users,      setUsers]      = useState([]);

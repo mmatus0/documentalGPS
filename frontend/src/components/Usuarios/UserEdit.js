@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from '../services/axiosConfig';
-import Modales from './Modales';
+import axios from '../../services/axiosConfig';
+import Modales from '../Shared/Modales';
 
 const TABS = ['Datos Generales', 'Seguridad'];
 

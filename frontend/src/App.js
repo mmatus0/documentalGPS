@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import Login               from './components/Login';
-import Layout              from './components/Layout';
-import PaginaInicio        from './components/PaginaInicio';
-import UsuariosPage        from './components/UsuariosPage';
+import Layout              from './components/Layout/Layout';
+import PaginaInicio        from './components/Layout/PaginaInicio';
+import UsuariosPage        from './components/Usuarios/UsuariosPage';
 import ContratistaPage     from './components/ContratistaPage';
-import AreaUsuarios        from './components/AreaUsuarios';
-import AreasPage           from './components/AreasPage';
-import MisUnidadesPage     from './components/MisUnidadesPage';
-import MiUnidadDetalle     from './components/MiUnidadDetalle';
-import ProyectosPage from './components/ProyectosPage';
-import ExpedientesArea     from './components/ExpedientesArea';
+import AreaUsuarios        from './components/Areas/AreaUsuarios';
+import AreasPage           from './components/Areas/AreasPage';
+import MisUnidadesPage     from './components/Expedientes/MisUnidadesPage';
+import MiUnidadDetalle     from './components/Expedientes/MiUnidadDetalle';
+import ProyectosPage from './components/Proyectos/ProyectosPage';
+import ExpedientesArea     from './components/Expedientes/ExpedientesArea';
 import DocumentosExpediente from './components/DocumentosExpediente';
 import CategoriasPage      from './components/CategoriasPage';    // HU-08
 import './styles.css';
