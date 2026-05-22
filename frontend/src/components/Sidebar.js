@@ -17,6 +17,7 @@ const menu = {
         { label: 'Contratistas',           vista: 'contratistas-listado' },
         { label: 'Unidades Organizativas', vista: 'areas-listado'        },
         { label: 'Asignación de Usuarios', vista: 'area-usuarios'        },
+        { label: 'Categorías',             vista: 'categorias-listado'   },  // HU-08
       ]
     },
     { label: 'Expedientes', vista: 'expedientes' },
@@ -40,6 +41,9 @@ const menu = {
 // Vistas que deben resaltar "Unidades Organizativas" en el sidebar
 const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
 
+// Vistas que deben resaltar "Categorías" en el sidebar
+const VISTAS_CATEGORIAS = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
+
 // Vistas que deben resaltar "Mis Unidades" en el sidebar (roles 2 y 3)
 const VISTAS_MIS_UNIDADES = ['mis-unidades', 'mi-unidad-detalle'];
  
@@ -49,6 +53,8 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   // vistaEfectiva se usa solo para resaltar el ítem padre (Mantenedores, Usuarios)
   const vistaEfectiva = VISTAS_AREAS.includes(vistaActual)
     ? 'areas-listado'
+    : VISTAS_CATEGORIAS.includes(vistaActual)
+    ? 'categorias-listado'
     : VISTAS_MIS_UNIDADES.includes(vistaActual)
     ? 'mis-unidades'
     : vistaActual;
