@@ -10,12 +10,14 @@ import MisUnidadesPage     from './components/MisUnidadesPage';
 import MiUnidadDetalle     from './components/MiUnidadDetalle';
 import ExpedientesArea     from './components/ExpedientesArea';
 import DocumentosExpediente from './components/DocumentosExpediente';
+import CategoriasPage      from './components/CategoriasPage';    // HU-08
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
 const VISTAS_CONTRATISTAS  = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
 const VISTAS_AREAS         = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
 const VISTAS_AREA_USUARIOS = ['area-usuarios'];
+const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar']; // HU-08
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -111,6 +113,10 @@ function App() {
 
     if (VISTAS_AREA_USUARIOS.includes(vistaActual))
       return <AreaUsuarios />;
+
+    // HU-08 — Categorías y subtipos
+    if (VISTAS_CATEGORIAS.includes(vistaActual))
+      return <CategoriasPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
     if (vistaActual === 'mis-unidades')
       return (
