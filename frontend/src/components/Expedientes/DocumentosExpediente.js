@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import axios from '../services/axiosConfig';
+import axios from '../../services/axiosConfig';
 
 const ICONOS_TIPO = {
   '.pdf':  { icon: 'bi-file-earmark-pdf-fill',   color: '#ef4444' },

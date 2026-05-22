@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from '../services/axiosConfig';
-import Modales from './Shared/Modales';
+import axios from '../../services/axiosConfig';
+import Modales from '../Shared/Modales';
 
 const CategoriaList = ({ onNuevo, onEditar }) => {
     const [categorias,   setCategorias]   = useState([]);

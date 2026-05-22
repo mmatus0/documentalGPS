@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from '../services/axiosConfig';
-import Modales from './Shared/Modales';
+import axios from '../../services/axiosConfig';
+import Modales from '../Shared/Modales';
 
 const CategoriaEdit = ({ categoria, onVolver }) => {
     const [formData,  setFormData]  = useState({

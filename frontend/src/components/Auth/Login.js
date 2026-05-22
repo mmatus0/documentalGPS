@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../services/axiosConfig';
+import axios from '../../services/axiosConfig';
 
 const Login = ({ onLogin }) => {
     const [formData, setFormData] = useState({ correo: '', contrasenia: '' });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../services/axiosConfig';
+import axios from '../../services/axiosConfig';
 
 const FORM_INICIAL = { nombre: '', descripcion: '' };
 

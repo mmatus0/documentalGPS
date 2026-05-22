@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import Login               from './components/Login';
-import Layout              from './components/Layout/Layout';
-import PaginaInicio        from './components/Layout/PaginaInicio';
-import UsuariosPage        from './components/Usuarios/UsuariosPage';
-import ContratistaPage     from './components/ContratistaPage';
-import AreaUsuarios        from './components/Areas/AreaUsuarios';
-import AreasPage           from './components/Areas/AreasPage';
-import MisUnidadesPage     from './components/Expedientes/MisUnidadesPage';
-import MiUnidadDetalle     from './components/Expedientes/MiUnidadDetalle';
-import ProyectosPage from './components/Proyectos/ProyectosPage';
-import ExpedientesArea     from './components/Expedientes/ExpedientesArea';
-import DocumentosExpediente from './components/DocumentosExpediente';
-import CategoriasPage      from './components/CategoriasPage';    // HU-08
+
+import Login           from './components/Auth/Login';
+import Layout          from './components/Layout/Layout';
+import PaginaInicio    from './components/Layout/PaginaInicio';
+import UsuariosPage    from './components/Usuarios/UsuariosPage';
+import ContratistaPage from './components/Contratistas/ContratistaPage';
+import AreasPage       from './components/Areas/AreasPage';
+import AreaUsuarios    from './components/Areas/AreaUsuarios';
+import MisUnidadesPage from './components/Expedientes/MisUnidadesPage';
+import MiUnidadDetalle from './components/Expedientes/MiUnidadDetalle';
+import ExpedientesArea from './components/Expedientes/ExpedientesArea';
+import DocumentosExpediente from './components/Expedientes/DocumentosExpediente';
+import CategoriasPage  from './components/Categorias/CategoriasPage';
+import ProyectosPage   from './components/Proyectos/ProyectosPage';
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
