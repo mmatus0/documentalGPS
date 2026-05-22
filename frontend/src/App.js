@@ -8,6 +8,7 @@ import AreaUsuarios        from './components/AreaUsuarios';
 import AreasPage           from './components/AreasPage';
 import MisUnidadesPage     from './components/MisUnidadesPage';
 import MiUnidadDetalle     from './components/MiUnidadDetalle';
+import ProyectosPage from './components/ProyectosPage';
 import ExpedientesArea     from './components/ExpedientesArea';
 import DocumentosExpediente from './components/DocumentosExpediente';
 import CategoriasPage      from './components/CategoriasPage';    // HU-08
@@ -17,6 +18,7 @@ const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 
 const VISTAS_CONTRATISTAS  = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
 const VISTAS_AREAS         = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
 const VISTAS_AREA_USUARIOS = ['area-usuarios'];
+const VISTAS_PROYECTOS = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
 const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar']; // HU-08
 
 function App() {
@@ -117,6 +119,9 @@ function App() {
     // HU-08 — Categorías y subtipos
     if (VISTAS_CATEGORIAS.includes(vistaActual))
       return <CategoriasPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+
+    if (VISTAS_PROYECTOS.includes(vistaActual))
+      return <ProyectosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
     if (vistaActual === 'mis-unidades')
       return (

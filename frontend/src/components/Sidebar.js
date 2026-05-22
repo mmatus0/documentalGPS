@@ -17,6 +17,7 @@ const menu = {
         { label: 'Contratistas',           vista: 'contratistas-listado' },
         { label: 'Unidades Organizativas', vista: 'areas-listado'        },
         { label: 'Asignación de Usuarios', vista: 'area-usuarios'        },
+        { label: 'Proyectos', vista: 'proyectos-listado' },
         { label: 'Categorías',             vista: 'categorias-listado'   },  // HU-08
       ]
     },
@@ -41,6 +42,8 @@ const menu = {
 // Vistas que deben resaltar "Unidades Organizativas" en el sidebar
 const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
 
+const VISTAS_PROYECTOS = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
+
 // Vistas que deben resaltar "Categorías" en el sidebar
 const VISTAS_CATEGORIAS = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
 
@@ -55,6 +58,8 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
     ? 'areas-listado'
     : VISTAS_CATEGORIAS.includes(vistaActual)
     ? 'categorias-listado'
+    : VISTAS_PROYECTOS.includes(vistaActual)
+    ? 'proyectos-listado' 
     : VISTAS_MIS_UNIDADES.includes(vistaActual)
     ? 'mis-unidades'
     : vistaActual;

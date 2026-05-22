@@ -50,6 +50,7 @@ app.use('/api/areas',        apiLimiter, verificarToken, msProxy('/api/areas'));
 app.use('/api/categorias',   apiLimiter, verificarToken, msProxy('/api/categorias'));   // HU-08
 app.use('/api/tipos-doc',    apiLimiter, verificarToken, msProxy('/api/tipos-doc'));    // HU-09
 app.use('/api/tipos-colab',  apiLimiter, verificarToken, msProxy('/api/tipos-colab')); // HU-12
+app.use('/api/proyectos', apiLimiter, verificarToken, msProxy('/api/proyectos')); // HU-07
 
 // Eje 3 — Procesos y etapas
 app.use('/api/procesos', apiLimiter, verificarToken, msProxy('/api/procesos')); // HU-10
