@@ -13,14 +13,16 @@ import ExpedientesArea from './components/Expedientes/ExpedientesArea';
 import DocumentosExpediente from './components/Expedientes/DocumentosExpediente';
 import CategoriasPage  from './components/Categorias/CategoriasPage';
 import ProyectosPage   from './components/Proyectos/ProyectosPage';
+import TipoDocPage     from './components/TiposDocumento/TipoDocPage';   // HU-09
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
 const VISTAS_CONTRATISTAS  = ['contratistas', 'contratistas-listado', 'contratistas-nuevo', 'contratistas-editar'];
 const VISTAS_AREAS         = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
 const VISTAS_AREA_USUARIOS = ['area-usuarios'];
-const VISTAS_PROYECTOS = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
-const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar']; // HU-08
+const VISTAS_PROYECTOS     = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
+const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
+const VISTAS_TIPOS_DOC     = ['tipos-doc', 'tipos-doc-listado', 'tipos-doc-nuevo', 'tipos-doc-editar']; // HU-09
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -123,6 +125,10 @@ function App() {
 
     if (VISTAS_PROYECTOS.includes(vistaActual))
       return <ProyectosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+
+    // HU-09 — Tipos de documento
+    if (VISTAS_TIPOS_DOC.includes(vistaActual))
+      return <TipoDocPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
     if (vistaActual === 'mis-unidades')
       return (

@@ -17,8 +17,9 @@ const menu = {
         { label: 'Contratistas',           vista: 'contratistas-listado' },
         { label: 'Unidades Organizativas', vista: 'areas-listado'        },
         { label: 'Asignación de Usuarios', vista: 'area-usuarios'        },
-        { label: 'Proyectos', vista: 'proyectos-listado' },
-        { label: 'Categorías',             vista: 'categorias-listado'   },  // HU-08
+        { label: 'Proyectos',              vista: 'proyectos-listado'    },
+        { label: 'Categorías',             vista: 'categorias-listado'   },
+        { label: 'Tipos de Documento',     vista: 'tipos-doc-listado'    }, // HU-09
       ]
     },
     { label: 'Expedientes', vista: 'expedientes' },
@@ -39,27 +40,23 @@ const menu = {
   ],
 };
  
-// Vistas que deben resaltar "Unidades Organizativas" en el sidebar
-const VISTAS_AREAS = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
-
-const VISTAS_PROYECTOS = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
-
-// Vistas que deben resaltar "Categorías" en el sidebar
-const VISTAS_CATEGORIAS = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
-
-// Vistas que deben resaltar "Mis Unidades" en el sidebar (roles 2 y 3)
+const VISTAS_AREAS       = ['areas', 'areas-listado', 'areas-nueva', 'areas-editar', 'areas-usuarios'];
+const VISTAS_PROYECTOS   = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
+const VISTAS_CATEGORIAS  = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
+const VISTAS_TIPOS_DOC   = ['tipos-doc', 'tipos-doc-listado', 'tipos-doc-nuevo', 'tipos-doc-editar']; // HU-09
 const VISTAS_MIS_UNIDADES = ['mis-unidades', 'mi-unidad-detalle'];
  
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
  
-  // vistaEfectiva se usa solo para resaltar el ítem padre (Mantenedores, Usuarios)
   const vistaEfectiva = VISTAS_AREAS.includes(vistaActual)
     ? 'areas-listado'
     : VISTAS_CATEGORIAS.includes(vistaActual)
     ? 'categorias-listado'
     : VISTAS_PROYECTOS.includes(vistaActual)
-    ? 'proyectos-listado' 
+    ? 'proyectos-listado'
+    : VISTAS_TIPOS_DOC.includes(vistaActual)
+    ? 'tipos-doc-listado'
     : VISTAS_MIS_UNIDADES.includes(vistaActual)
     ? 'mis-unidades'
     : vistaActual;
