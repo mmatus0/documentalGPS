@@ -1,40 +1,38 @@
 import React from 'react';
- 
+
 const ROL_NOMBRE = { 1: 'Administrador', 2: 'Colaborador', 3: 'Lector' };
- 
-// Tarjetas de acceso rápido por rol
+
 const ACCESOS = {
   1: [
-    { titulo: 'Gestión de Usuarios',            descripcion: 'Crear, editar y desactivar cuentas de usuario.',       icono: 'bi-people-fill',          vista: 'usuarios-listado',     variante: 'primary'   },
-    { titulo: 'Contratistas',                   descripcion: 'Administrar el directorio de empresas contratistas.',  icono: 'bi-building',             vista: 'contratistas-listado', variante: 'success'   },
-    { titulo: 'Unidades Organizativas',         descripcion: 'Gestionar áreas y sus grupos de usuarios.',            icono: 'bi-diagram-3-fill',       vista: 'areas-listado',        variante: 'info'      },
-    { titulo: 'Expedientes',                    descripcion: 'Ver y gestionar todos los expedientes del sistema.',   icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'warning'   },
-    { titulo: 'Tareas',                         descripcion: 'Supervisar todas las tareas activas del sistema.',     icono: 'bi-check2-square',        vista: 'tareas',               variante: 'secondary' },
+    { titulo: 'Mantenedores',    descripcion: 'Configurar contratistas, áreas, procesos y demás entidades base.',    icono: 'bi-grid-fill',      vista: 'mantenedores',         variante: 'success'   },
+    { titulo: 'Usuarios',        descripcion: 'Crear, editar y desactivar cuentas de usuario del sistema.',          icono: 'bi-person-badge-fill', vista: 'usuarios-listado',  variante: 'secondary' },
+    { titulo: 'Expedientes',     descripcion: 'Ver y gestionar todos los expedientes del sistema.',                  icono: 'bi-folder2-open',   vista: 'expedientes',          variante: 'warning'   },
+    { titulo: 'Tareas',          descripcion: 'Supervisar todas las tareas activas del sistema.',                    icono: 'bi-check2-square',  vista: 'tareas',               variante: 'primary'   },
+    { titulo: 'Dashboard',       descripcion: 'Reportes y métricas del sistema en Power BI.',                        icono: 'bi-bar-chart-fill', vista: 'dashboard',            variante: 'info'      },
   ],
   2: [
-    { titulo: 'Mis Unidades',                   descripcion: 'Ver las unidades organizativas a las que perteneces.',    icono: 'bi-diagram-3-fill',       vista: 'mis-unidades',         variante: 'info'      },
-    { titulo: 'Mis Expedientes',                descripcion: 'Crear y gestionar expedientes de tu área.',               icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
-    { titulo: 'Mis Tareas',                     descripcion: 'Revisar y resolver las tareas asignadas a ti.',           icono: 'bi-check2-square',        vista: 'tareas',               variante: 'success'   },
+    { titulo: 'Mis Unidades',    descripcion: 'Ver las unidades organizativas a las que perteneces.',                icono: 'bi-diagram-3-fill', vista: 'mis-unidades',         variante: 'info'      },
+    { titulo: 'Mis Expedientes', descripcion: 'Crear y gestionar expedientes de tu área.',                           icono: 'bi-folder2-open',   vista: 'expedientes',          variante: 'primary'   },
+    { titulo: 'Mis Tareas',      descripcion: 'Revisar y resolver las tareas asignadas a ti.',                       icono: 'bi-check2-square',  vista: 'tareas',               variante: 'success'   },
   ],
   3: [
-    { titulo: 'Mis Unidades',                   descripcion: 'Ver las unidades organizativas a las que perteneces.',    icono: 'bi-diagram-3-fill',       vista: 'mis-unidades',         variante: 'info'      },
-    { titulo: 'Expedientes',                    descripcion: 'Consultar los expedientes de tu área.',                   icono: 'bi-folder2-open',         vista: 'expedientes',          variante: 'primary'   },
+    { titulo: 'Mis Unidades',    descripcion: 'Ver las unidades organizativas a las que perteneces.',                icono: 'bi-diagram-3-fill', vista: 'mis-unidades',         variante: 'info'      },
+    { titulo: 'Expedientes',     descripcion: 'Consultar los expedientes de tu área.',                               icono: 'bi-folder2-open',   vista: 'expedientes',          variante: 'primary'   },
   ],
 };
- 
-// Mensaje de bienvenida por rol
+
 const MENSAJE = {
   1: 'Tiene acceso completo al sistema. Desde aquí puede administrar usuarios, contratistas, unidades organizativas y supervisar todos los expedientes.',
   2: 'Desde aquí puede crear y gestionar expedientes en su área y resolver las tareas que le han sido asignadas.',
   3: 'Tiene acceso de lectura. Puede consultar los expedientes de su área sin realizar modificaciones.',
 };
- 
+
 const BADGE_COLOR = { 1: 'danger', 2: 'success', 3: 'secondary' };
- 
+
 const PaginaInicio = ({ usuario, onNavegar }) => {
   const rolId   = usuario.rol_id;
   const accesos = ACCESOS[rolId] || [];
- 
+
   return (
     <div>
       {/* Encabezado de bienvenida */}
@@ -63,7 +61,7 @@ const PaginaInicio = ({ usuario, onNavegar }) => {
           </div>
         </div>
       </div>
- 
+
       {/* Accesos rápidos */}
       {accesos.length > 0 && (
         <>
@@ -80,7 +78,7 @@ const PaginaInicio = ({ usuario, onNavegar }) => {
                 >
                   <div className="card-body px-4 py-3">
                     <div
-                      className={`mb-3`}
+                      className="mb-3"
                       style={{
                         width: 40, height: 40, borderRadius: 8,
                         background: `var(--bs-${a.variante}-bg-subtle, #e9f5ff)`,
@@ -101,5 +99,5 @@ const PaginaInicio = ({ usuario, onNavegar }) => {
     </div>
   );
 };
- 
+
 export default PaginaInicio;

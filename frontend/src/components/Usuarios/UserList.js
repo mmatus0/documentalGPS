@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../services/axiosConfig';
 import Modales from '../Shared/Modales';
  
-const UserList = ({ onNuevo, onEditar }) => {
+const UserList = ({ onNuevo, onEditar, onVolver }) => {
     const [users,      setUsers]      = useState([]);
     const [tabActiva,  setTabActiva]  = useState('activos');
     const [busqueda,   setBusqueda]   = useState('');
@@ -80,6 +80,9 @@ const UserList = ({ onNuevo, onEditar }) => {
  
             <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
+                    <button className="btn btn-link btn-sm text-muted p-0 mb-2" onClick={onVolver}>
+                        <i className="bi bi-arrow-left me-1" />Volver a Mantenedores
+                    </button>
                     <h5 className="fw-bold mb-1">Gestión de Usuarios</h5>
                     <p className="text-muted small mb-0">Administración de accesos y roles del sistema</p>
                 </div>

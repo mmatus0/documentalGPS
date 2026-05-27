@@ -25,7 +25,7 @@ const UsuariosPage = ({ vistaActual, onNavegar }) => {
     }
 
     // 'usuarios-listado' o cualquier otro caso
-    return <UserList onNuevo={irACrear} onEditar={irAEditar} />;
+    return <UserList onNuevo={irACrear} onEditar={irAEditar} onVolver={() => onNavegar('mantenedores')} />;
 };
 
 export default UsuariosPage;

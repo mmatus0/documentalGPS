@@ -25,6 +25,7 @@ const TipoDocPage = ({ vistaActual, onNavegar }) => {
         <TipoDocList
             onNuevo={irACrear}
             onEditar={irAEditar}
+            onVolver={() => onNavegar('mantenedores')}
         />
     );
 };

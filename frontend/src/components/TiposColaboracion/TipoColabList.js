@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../../services/axiosConfig';
 import Modales from '../Shared/Modales';
 
-const TipoColabList = ({ onNuevo, onEditar }) => {
+const TipoColabList = ({ onNuevo, onEditar, onVolver }) => {
     const [tipos,     setTipos]     = useState([]);
     const [tabActiva, setTabActiva] = useState('activos');
     const [busqueda,  setBusqueda]  = useState('');
@@ -62,6 +62,9 @@ const TipoColabList = ({ onNuevo, onEditar }) => {
         <>
             <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
+                    <button className="btn btn-link btn-sm text-muted p-0 mb-2" onClick={onVolver}>
+                        <i className="bi bi-arrow-left me-1" />Volver a Mantenedores
+                    </button>
                     <h5 className="fw-bold mb-1">Tipos de Colaboración</h5>
                     <p className="text-muted small mb-0">
                         Define los tipos de colaboración disponibles al solicitar apoyo dentro de una tarea activa.

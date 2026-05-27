@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 
-import Login           from './components/Auth/Login';
-import Layout          from './components/Layout/Layout';
-import PaginaInicio    from './components/Layout/PaginaInicio';
-import UsuariosPage    from './components/Usuarios/UsuariosPage';
-import ContratistaPage from './components/Contratistas/ContratistaPage';
-import AreasPage       from './components/Areas/AreasPage';
-import AreaUsuarios    from './components/Areas/AreaUsuarios';
-import MisUnidadesPage from './components/Expedientes/MisUnidadesPage';
-import MiUnidadDetalle from './components/Expedientes/MiUnidadDetalle';
-import ExpedientesArea from './components/Expedientes/ExpedientesArea';
+import Login              from './components/Auth/Login';
+import Layout             from './components/Layout/Layout';
+import PaginaInicio       from './components/Layout/PaginaInicio';
+import MantenedoresPage   from './components/Mantenedores/MantenedoresPage';
+import UsuariosPage       from './components/Usuarios/UsuariosPage';
+import ContratistaPage    from './components/Contratistas/ContratistaPage';
+import AreasPage          from './components/Areas/AreasPage';
+import AreaUsuarios       from './components/Areas/AreaUsuarios';
+import MisUnidadesPage    from './components/Expedientes/MisUnidadesPage';
+import MiUnidadDetalle    from './components/Expedientes/MiUnidadDetalle';
+import ExpedientesArea    from './components/Expedientes/ExpedientesArea';
 import DocumentosExpediente from './components/Expedientes/DocumentosExpediente';
-import CategoriasPage  from './components/Categorias/CategoriasPage';
-import ProyectosPage   from './components/Proyectos/ProyectosPage';
-import TipoDocPage     from './components/TiposDocumento/TipoDocPage';
-import TipoColabPage   from './components/TiposColaboracion/TipoColabPage';
+import CategoriasPage     from './components/Categorias/CategoriasPage';
+import ProyectosPage      from './components/Proyectos/ProyectosPage';
+import TipoDocPage        from './components/TiposDocumento/TipoDocPage';
+import TipoColabPage      from './components/TiposColaboracion/TipoColabPage';
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
@@ -23,8 +24,8 @@ const VISTAS_AREAS         = ['areas', 'areas-listado', 'areas-nueva', 'areas-ed
 const VISTAS_AREA_USUARIOS = ['area-usuarios'];
 const VISTAS_PROYECTOS     = ['proyectos', 'proyectos-listado', 'proyectos-nuevo', 'proyectos-editar'];
 const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
-const VISTAS_TIPOS_DOC     = ['tipos-doc', 'tipos-doc-listado', 'tipos-doc-nuevo', 'tipos-doc-editar']; // HU-09
-const VISTAS_TIPOS_COLAB   = ['tipos-colab', 'tipos-colab-listado', 'tipos-colab-nuevo', 'tipos-colab-editar']; // HU-12
+const VISTAS_TIPOS_DOC     = ['tipos-doc', 'tipos-doc-listado', 'tipos-doc-nuevo', 'tipos-doc-editar'];
+const VISTAS_TIPOS_COLAB   = ['tipos-colab', 'tipos-colab-listado', 'tipos-colab-nuevo', 'tipos-colab-editar'];
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -92,6 +93,10 @@ function App() {
     if (vistaActual === 'inicio')
       return <PaginaInicio usuario={usuario} onNavegar={handleNavegar} />;
 
+    // HU-04 — Vista general de mantenedores
+    if (vistaActual === 'mantenedores')
+      return <MantenedoresPage onNavegar={handleNavegar} />;
+
     if (vistaActual === 'dashboard')
       return (
         <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
@@ -121,21 +126,17 @@ function App() {
     if (VISTAS_AREA_USUARIOS.includes(vistaActual))
       return <AreaUsuarios />;
 
-    // HU-08 — Categorías y subtipos
     if (VISTAS_CATEGORIAS.includes(vistaActual))
       return <CategoriasPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
     if (VISTAS_PROYECTOS.includes(vistaActual))
       return <ProyectosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
-    // HU-09 — Tipos de documento
     if (VISTAS_TIPOS_DOC.includes(vistaActual))
       return <TipoDocPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
-    // HU-12 — Tipos de colaboración
     if (VISTAS_TIPOS_COLAB.includes(vistaActual))
       return <TipoColabPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
-
 
     if (vistaActual === 'mis-unidades')
       return (

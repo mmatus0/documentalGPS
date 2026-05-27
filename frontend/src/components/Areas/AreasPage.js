@@ -44,6 +44,7 @@ const AreasPage = ({ vistaActual, onNavegar, filtroContratistaId }) => {
             onNueva={irACrear}
             onEditar={irAEditar}
             onGestionarUsuarios={irAUsuarios}
+            onVolver={() => onNavegar('mantenedores')}
             filtroContratistaId={filtroContratistaId}
         />
     );

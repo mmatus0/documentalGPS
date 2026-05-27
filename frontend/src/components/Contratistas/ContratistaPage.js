@@ -26,6 +26,7 @@ const ContratistasPage = ({ vistaActual, onNavegar }) => {
             onNuevo={irACrear}
             onEditar={irAEditar}
             onNavegar={onNavegar}
+            onVolver={() => onNavegar('mantenedores')}
         />
     );
 };

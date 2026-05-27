@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../services/axiosConfig';
 import Modales from '../Shared/Modales';
  
-const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId }) => {
+const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId, onVolver }) => {
     const [areas,        setAreas]        = useState([]);
     const [contratistas, setContratistas] = useState([]);
     const [tabActiva,    setTabActiva]    = useState('activos');
@@ -81,6 +81,9 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId 
         <>
             <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
+                    <button className="btn btn-link btn-sm text-muted p-0 mb-2" onClick={onVolver}>
+                        <i className="bi bi-arrow-left me-1" />Volver a Mantenedores
+                    </button>
                     <h5 className="fw-bold mb-1">Gestión de Unidades Organizativas</h5>
                     <p className="text-muted small mb-0">Áreas vinculadas a cada empresa contratista</p>
                 </div>

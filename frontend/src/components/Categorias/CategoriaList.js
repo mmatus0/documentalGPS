@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../../services/axiosConfig';
 import Modales from '../Shared/Modales';
 
-const CategoriaList = ({ onNuevo, onEditar }) => {
+const CategoriaList = ({ onNuevo, onEditar, onVolver }) => {
     const [categorias,   setCategorias]   = useState([]);
     const [tabActiva,    setTabActiva]    = useState('activos');
     const [busqueda,     setBusqueda]     = useState('');
@@ -147,6 +147,9 @@ const CategoriaList = ({ onNuevo, onEditar }) => {
         <>
             <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
+                    <button className="btn btn-link btn-sm text-muted p-0 mb-2" onClick={onVolver}>
+                        <i className="bi bi-arrow-left me-1" />Volver a Mantenedores
+                    </button>
                     <h5 className="fw-bold mb-1">Categorías y Subtipos</h5>
                     <p className="text-muted small mb-0">
                         Clasifica los documentos del sistema. Cada categoría puede tener múltiples subtipos.

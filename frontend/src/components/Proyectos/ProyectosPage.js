@@ -25,6 +25,7 @@ const ProyectosPage = ({ vistaActual, onNavegar }) => {
         <ProyectoList
             onNuevo={irACrear}
             onEditar={irAEditar}
+            onVolver={() => onNavegar('mantenedores')}
         />
     );
 };

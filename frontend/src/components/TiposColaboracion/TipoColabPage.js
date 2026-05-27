@@ -25,6 +25,7 @@ const TipoColabPage = ({ vistaActual, onNavegar }) => {
         <TipoColabList
             onNuevo={irACrear}
             onEditar={irAEditar}
+            onVolver={() => onNavegar('mantenedores')}
         />
     );
 };

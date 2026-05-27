@@ -25,6 +25,7 @@ const CategoriasPage = ({ vistaActual, onNavegar }) => {
         <CategoriaList
             onNuevo={irACrear}
             onEditar={irAEditar}
+            onVolver={() => onNavegar('mantenedores')}
         />
     );
 };
