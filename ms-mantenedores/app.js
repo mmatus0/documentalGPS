@@ -13,6 +13,7 @@ const categoriaRoutes   = require('./routes/categoriaRoutes');
 const tipoDocRoutes     = require('./routes/tipoDocRoutes');  
 const tipoColabRoutes   = require('./routes/tipoColabRoutes');
 const procesoRoutes = require('./routes/procesoRoutes');
+const etapaRoutes       = require('./routes/etapaRoutes');
 
 const app = express();
 app.use(cors());
@@ -26,7 +27,8 @@ app.use('/api/expedientes',  expedienteRoutes);
 app.use('/api/categorias',   categoriaRoutes);
 app.use('/api/tipos-doc',    tipoDocRoutes);    
 app.use('/api/tipos-colab',  tipoColabRoutes); 
-app.use('/api/procesos', procesoRoutes);              
+app.use('/api/procesos', procesoRoutes);   
+app.use('/api/etapas', etapaRoutes);           
 
 // ── Manejo de errores de Multer (tamaño, tipo) ─────────────────────────────────
 app.use((err, req, res, next) => {

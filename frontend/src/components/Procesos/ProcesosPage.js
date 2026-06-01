@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../../services/axiosConfig';
 import Modales from '../Shared/Modales';
+import EtapasPage from './EtapasPage';
 
 const FORM_VACIO = { nombre: '', descripcion: '' };
 
@@ -15,6 +16,7 @@ const ProcesosPage = ({ onVolver }) => {
   const [exito,       setExito]       = useState('');
   const [guardando,   setGuardando]   = useState(false);
   const [modal,       setModal]       = useState({ visible: false });
+  const [procesoEtapas, setProcesoEtapas] = useState(null);
 
   const fetchProcesos = useCallback(async () => {
     try {
@@ -114,71 +116,12 @@ const ProcesosPage = ({ onVolver }) => {
 
   const lista = procesos.filter(p => tabActiva === 'activos' ? p.estado_id === 1 : p.estado_id === 2);
 
-  // ── Vista Formulario (crear / editar) ──────────────────────────────────────
-  if (vista === 'crear' || vista === 'editar') {
-    return (
-      <>
-        <div className="d-flex justify-content-between align-items-start mb-4">
-          <div>
-            <h5 className="fw-bold mb-1">{vista === 'crear' ? 'Nuevo Proceso' : `Editar Proceso: ${procesoEdit.nombre}`}</h5>
-            <p className="text-muted small mb-0">
-              {vista === 'crear' ? 'Define un nuevo proceso documental' : 'Modifica los datos del proceso'}
-            </p>
-          </div>
-          <button className="btn btn-outline-secondary btn-sm" onClick={irAListado}>
-            <i className="bi bi-arrow-left me-1" />Volver al Listado
-          </button>
-        </div>
+  // ── Vista Listado ──────────────────────────────────────────────────────────
 
-        {exito && <div className="alert alert-success py-2 small"><i className="bi bi-check-lg me-1" />{exito}</div>}
-
-        <div className="card border">
-          <div className="card-header bg-light d-flex align-items-center gap-3 py-3">
-            <i className="bi bi-arrow-repeat" style={{ fontSize: 22, color: 'var(--primary)' }} />
-            <div>
-              <p className="fw-semibold mb-0 small">{vista === 'crear' ? 'Crear Nuevo Proceso' : 'Editar Proceso'}</p>
-              <p className="text-muted mb-0" style={{ fontSize: 12 }}>Complete la información del proceso documental.</p>
-            </div>
-          </div>
-
-          {apiError && <div className="alert alert-danger py-2 small mx-4 mt-3 mb-0">{apiError}</div>}
-
-          <div className="p-4">
-            <div className="mb-3">
-              <label className="form-label small fw-medium">Nombre del Proceso <span className="text-danger">*</span></label>
-              <input
-                type="text" name="nombre"
-                className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-                placeholder="Ej: Revisión de Documentos Técnicos"
-                value={form.nombre} onChange={handleChange}
-              />
-              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
-            </div>
-            <div className="mb-3">
-              <label className="form-label small fw-medium">Descripción</label>
-              <textarea
-                name="descripcion" rows={3}
-                className="form-control"
-                placeholder="Descripción opcional del proceso..."
-                value={form.descripcion} onChange={handleChange}
-              />
-            </div>
-          </div>
-
-          <div className="d-flex justify-content-center p-4 bg-light border-top">
-            <button className="btn btn-primary px-5" onClick={handleGuardar} disabled={guardando}>
-              {guardando
-                ? <><span className="spinner-border spinner-border-sm me-2" />Guardando...</>
-                : <><i className="bi bi-floppy me-2" />{vista === 'crear' ? 'Registrar Proceso' : 'Guardar Cambios'}</>
-              }
-            </button>
-          </div>
-        </div>
-      </>
-    );
+  if (procesoEtapas) {
+    return <EtapasPage proceso={procesoEtapas} onVolver={() => setProcesoEtapas(null)} />;
   }
 
-  // ── Vista Listado ──────────────────────────────────────────────────────────
   return (
     <>
       <div className="d-flex justify-content-between align-items-start mb-4">
@@ -244,6 +187,9 @@ const ProcesosPage = ({ onVolver }) => {
                     <td className="text-end pe-4">
                       {tabActiva === 'activos' ? (
                         <div className="d-flex gap-2 justify-content-end">
+                          <button className="btn btn-sm btn-outline-secondary" onClick={() => setProcesoEtapas(p)}>
+                            <i className="bi bi-list-ol me-1" />Etapas
+                          </button>
                           <button className="btn btn-sm btn-outline-warning" onClick={() => irAEditar(p)}>
                             <i className="bi bi-pencil me-1" />Editar
                           </button>
