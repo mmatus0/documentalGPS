@@ -16,6 +16,7 @@ import CategoriasPage     from './components/Categorias/CategoriasPage';
 import ProyectosPage      from './components/Proyectos/ProyectosPage';
 import TipoDocPage        from './components/TiposDocumento/TipoDocPage';
 import TipoColabPage      from './components/TiposColaboracion/TipoColabPage';
+import ProcesosPage       from './components/Procesos/ProcesosPage';
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
@@ -93,7 +94,6 @@ function App() {
     if (vistaActual === 'inicio')
       return <PaginaInicio usuario={usuario} onNavegar={handleNavegar} />;
 
-    // HU-04 — Vista general de mantenedores
     if (vistaActual === 'mantenedores')
       return <MantenedoresPage onNavegar={handleNavegar} />;
 
@@ -137,6 +137,9 @@ function App() {
 
     if (VISTAS_TIPOS_COLAB.includes(vistaActual))
       return <TipoColabPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
+
+    if (vistaActual === 'procesos-listado')
+      return <ProcesosPage onVolver={() => handleNavegar('mantenedores')} />;
 
     if (vistaActual === 'mis-unidades')
       return (
