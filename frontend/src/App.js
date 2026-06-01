@@ -138,7 +138,7 @@ function App() {
     if (VISTAS_TIPOS_COLAB.includes(vistaActual))
       return <TipoColabPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
-    if (vistaActual === 'procesos-listado')
+    if (vistaActual === 'procesos-listado' || vistaActual === 'etapas-listado')
       return <ProcesosPage onVolver={() => handleNavegar('mantenedores')} />;
 
     if (vistaActual === 'mis-unidades')
