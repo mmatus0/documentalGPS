@@ -18,8 +18,12 @@ const limiter = rateLimit({
 });
 
 // ── Asegurar que el directorio de uploads existe ───────────────────────────
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (err) {
+  console.warn('No se pudo crear directorio uploads:', err.message);
 }
 
 // ── Configuración de Multer ─────────────────────────────────────────────────
