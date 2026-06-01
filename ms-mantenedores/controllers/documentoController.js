@@ -2,7 +2,7 @@ const db   = require('../config/db');
 const path = require('path');
 const fs   = require('fs');
 
-const EXTENSIONES_PERMITIDAS = ['.pdf', '.docx', '.xlsx', '.pbix'];
+const EXTENSIONES_PERMITIDAS = ['.pdf', '.docx', '.xlsx', '.pbix', '.jpg', '.jpeg', '.png'];
 const TAMANO_MAXIMO          = 50 * 1024 * 1024; // 50 MB
 const UPLOAD_DIR             = process.env.UPLOAD_DIR || '/app/uploads';
 

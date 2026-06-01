@@ -50,6 +50,22 @@ const MODULOS = [
     bg:          '#cffafe',
   },
   {
+    titulo:      'Procesos',
+    descripcion: 'Definir procesos documentales y asignarlos a unidades organizativas.',
+    icono:       'bi-arrow-repeat',
+    vista:       'procesos-listado',
+    color:       '#0369a1',
+    bg:          '#e0f2fe',
+  },
+  {
+    titulo:      'Etapas por Proceso',
+    descripcion: 'Configurar etapas secuenciales con revisor y aprobador por proceso.',
+    icono:       'bi-list-ol',
+    vista:       'etapas-listado',
+    color:       '#7e22ce',
+    bg:          '#f3e8ff',
+  },
+  {
     titulo:      'Usuarios',
     descripcion: 'Crear, editar y desactivar cuentas de usuario del sistema.',
     icono:       'bi-person-badge-fill',

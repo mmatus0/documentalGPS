@@ -40,23 +40,27 @@ app.use('/api/auth', authLimiter, createProxyMiddleware({
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────────
+const { soloAdmin } = require('./middleware/authMiddleware');
 
-// Eje 1 — Usuarios
-app.use('/api/users', apiLimiter, verificarToken, msProxy('/api/users'));
+// Eje 1 — Usuarios (solo Admin puede gestionar usuarios)
+app.use('/api/users', apiLimiter, verificarToken, soloAdmin, msProxy('/api/users'));
 
-// Eje 2 — Mantenedores base
-app.use('/api/contratistas', apiLimiter, verificarToken, msProxy('/api/contratistas'));
-app.use('/api/areas',        apiLimiter, verificarToken, msProxy('/api/areas'));
-app.use('/api/categorias',   apiLimiter, verificarToken, msProxy('/api/categorias'));   // HU-08
-app.use('/api/tipos-doc',    apiLimiter, verificarToken, msProxy('/api/tipos-doc'));    // HU-09
-app.use('/api/tipos-colab',  apiLimiter, verificarToken, msProxy('/api/tipos-colab')); // HU-12
-app.use('/api/proyectos', apiLimiter, verificarToken, msProxy('/api/proyectos')); // HU-07
+// Eje 2 — Mantenedores base (solo Admin)
+app.use('/api/contratistas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/contratistas'));
+app.use('/api/categorias',   apiLimiter, verificarToken, soloAdmin, msProxy('/api/categorias'));
+app.use('/api/tipos-doc',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/tipos-doc'));
+app.use('/api/tipos-colab',  apiLimiter, verificarToken, soloAdmin, msProxy('/api/tipos-colab'));
+app.use('/api/proyectos',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/proyectos'));
 
-// Eje 3 — Procesos y etapas
-app.use('/api/procesos', apiLimiter, verificarToken, msProxy('/api/procesos')); // HU-10
-app.use('/api/etapas',   apiLimiter, verificarToken, msProxy('/api/etapas'));   // HU-11
+// Áreas: escritura solo Admin, pero GET /mis-unidades accesible a todos los roles
+// Se divide en dos rutas para que los Colaboradores/Lectores puedan ver sus unidades
+app.use('/api/areas/mis-unidades', apiLimiter, verificarToken, msProxy('/api/areas'));
+app.use('/api/areas',              apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
 
-// Eje 4 — Expedientes y documentos adjuntos
+// Eje 3 — Procesos y etapas (solo Admin)
+app.use('/api/procesos', apiLimiter, verificarToken, soloAdmin, msProxy('/api/procesos'));
+app.use('/api/etapas',   apiLimiter, verificarToken, soloAdmin, msProxy('/api/etapas'));
+
+// Eje 4 — Expedientes y documentos (todos los roles autenticados)
 app.use('/api/expedientes', apiLimiter, verificarToken, msProxy('/api/expedientes'));
-
 module.exports = app;
