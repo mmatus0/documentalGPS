@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../../services/axiosConfig';
+import ExpedienteCreate from './ExpedienteCreate';
 
 const ORIGEN_BADGE = {
   Externo: { bg: 'bg-warning-subtle text-warning', icon: 'bi-box-arrow-in-down' },
@@ -71,12 +72,15 @@ const TarjetaExpediente = ({ expediente, onVerDetalle }) => {
 };
 
 const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
+  const [vista,        setVista]        = useState('listado'); // 'listado' | 'nuevo'
   const [expedientes,  setExpedientes]  = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState(null);
   const [busqueda,     setBusqueda]     = useState('');
   const [filtroOrigen, setFiltroOrigen] = useState('todos');
   const [filtroEstado, setFiltroEstado] = useState('todos');
+
+  const esColaborador = usuario.rol_id === 2;
 
   const fetchExpedientes = useCallback(async () => {
     setLoading(true);
@@ -92,6 +96,23 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
   }, [unidad.area_id]);
 
   useEffect(() => { fetchExpedientes(); }, [fetchExpedientes]);
+
+  // Cuando se crea un expediente vuelve al listado y recarga
+  const handleCreado = () => {
+    setVista('listado');
+    fetchExpedientes();
+  };
+
+  if (vista === 'nuevo') {
+    return (
+      <ExpedienteCreate
+        unidad={unidad}
+        usuario={usuario}
+        onVolver={() => setVista('listado')}
+        onCreado={handleCreado}
+      />
+    );
+  }
 
   const ESTADOS_FLUJO = ['Borrador', 'Derivado', 'En Revisión', 'En Colaboración', 'En Aprobación', 'Terminado'];
 
@@ -137,11 +158,22 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
                 <span>{unidad.contratista_nombre}</span>
               </div>
             </div>
-            {!loading && (
-              <div className="badge bg-primary-subtle text-primary px-3 py-2" style={{ fontSize: 12 }}>
-                {expedientes.length} expediente{expedientes.length !== 1 ? 's' : ''}
-              </div>
-            )}
+            <div className="d-flex align-items-center gap-3">
+              {!loading && (
+                <div className="badge bg-primary-subtle text-primary px-3 py-2" style={{ fontSize: 12 }}>
+                  {expedientes.length} expediente{expedientes.length !== 1 ? 's' : ''}
+                </div>
+              )}
+              {/* HU-15: solo Colaboradores pueden crear expedientes */}
+              {esColaborador && (
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => setVista('nuevo')}
+                >
+                  <i className="bi bi-plus-lg me-1" />Nuevo Expediente
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -150,7 +182,6 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
       {!loading && expedientes.length > 0 && (
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <div className="d-flex gap-2 flex-wrap">
-            {/* Filtro origen */}
             {['todos', 'Externo', 'Interno'].map(o => (
               <button
                 key={o}
@@ -161,9 +192,7 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
                 {o === 'todos' ? `Todos (${expedientes.length})` : o}
               </button>
             ))}
-            {/* Separador visual */}
             <span className="text-muted small align-self-center px-1">|</span>
-            {/* Filtro estado */}
             <select
               className="form-select form-select-sm"
               style={{ fontSize: 12, width: 'auto' }}
@@ -221,7 +250,12 @@ const ExpedientesArea = ({ unidad, usuario, onVerDetalle, onVolver }) => {
                 <i className="bi bi-folder2" style={{ fontSize: 30, color: 'var(--primary)' }} />
               </div>
               <h6 className="fw-bold mb-1">Sin expedientes</h6>
-              <p className="text-muted small mb-0">Esta unidad no tiene expedientes registrados aún.</p>
+              <p className="text-muted small mb-3">Esta unidad no tiene expedientes registrados aún.</p>
+              {esColaborador && (
+                <button className="btn btn-sm btn-primary" onClick={() => setVista('nuevo')}>
+                  <i className="bi bi-plus-lg me-1" />Crear el primero
+                </button>
+              )}
             </div>
           ) : expedientesFiltrados.length === 0 ? (
             <div className="text-center py-5 text-muted small">

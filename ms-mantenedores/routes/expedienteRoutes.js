@@ -75,7 +75,7 @@ const guardarRegistroDocumento = async (req, res, next) => {
       usuarioId     = payload?.id;
     }
 
-    const ext         = path.extname(req.file.originalname).toLowerCase();
+    const ext          = path.extname(req.file.originalname).toLowerCase();
     const rutaRelativa = `expediente_${expedienteId}/${req.file.filename}`;
 
     const [result] = await db.query(
@@ -93,6 +93,7 @@ const guardarRegistroDocumento = async (req, res, next) => {
 };
 
 // ── Rutas de Expedientes ────────────────────────────────────────────────────
+router.post('/',             limiter, expedienteCtrl.crearExpediente);      // HU-15
 router.get('/area/:areaId',  limiter, expedienteCtrl.getExpedientesPorArea);
 router.get('/:id/historial', limiter, expedienteCtrl.getHistorialExpediente); // HU-19
 router.get('/:id',           limiter, expedienteCtrl.getExpedienteDetalle);

@@ -1,10 +1,7 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 03-05-2026
--- Versión del servidor: 10.4.32-MariaDB
+-- ============================================================
+-- documentosgps.sql — Schema + Datos de Prueba Completos
+-- Versión: HU-01 a HU-15
+-- ============================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +14,7 @@ CREATE DATABASE IF NOT EXISTS documentosgps
 USE documentosgps;
 
 -- ============================================================
--- TABLA ESTADO (base para todas las entidades)
+-- TABLA ESTADO
 -- ============================================================
 
 CREATE TABLE estado (
@@ -25,26 +22,23 @@ CREATE TABLE estado (
   nombre VARCHAR(50) NOT NULL
 );
 
--- IDs 1-2: estado genérico para entidades (contratista, area, usuario, etc.)
--- IDs 3-8: estados del ciclo de vida de un expediente
--- IDs 9-12: estados de una tarea
 INSERT INTO estado (nombre) VALUES
-  ('Activo'),        -- id 1  → entidades
-  ('Inactivo'),      -- id 2  → entidades (borrado lógico)
-  ('Borrador'),      -- id 3  → expediente recién creado
-  ('Derivado'),      -- id 4  → expediente enviado a un área
-  ('En Revisión'),   -- id 5  → revisor tiene tarea activa
-  ('En Colaboración'), -- id 6 → se solicitó colaboración
-  ('En Aprobación'), -- id 7  → aprobador tiene tarea activa
-  ('Terminado'),     -- id 8  → expediente cerrado con éxito
-  ('Pendiente'),     -- id 9  → tarea generada, aún sin abrir
-  ('En Progreso'),   -- id 10 → tarea abierta por el responsable
-  ('Completada'),    -- id 11 → tarea aprobada/resuelta
-  ('Rechazada');     -- id 12 → tarea rechazada
+  ('Activo'),           -- id 1  → entidades
+  ('Inactivo'),         -- id 2  → entidades (borrado lógico)
+  ('Borrador'),         -- id 3  → expediente recién creado
+  ('Derivado'),         -- id 4  → expediente enviado a un área
+  ('En Revisión'),      -- id 5  → revisor tiene tarea activa
+  ('En Colaboración'),  -- id 6  → se solicitó colaboración
+  ('En Aprobación'),    -- id 7  → aprobador tiene tarea activa
+  ('Terminado'),        -- id 8  → expediente cerrado con éxito
+  ('Pendiente'),        -- id 9  → tarea generada, aún sin abrir
+  ('En Progreso'),      -- id 10 → tarea abierta por el responsable
+  ('Completada'),       -- id 11 → tarea aprobada/resuelta
+  ('Rechazada');        -- id 12 → tarea rechazada
 
--- =============================================================
+-- ============================================================
 -- MÓDULO 1: USUARIOS Y ROLES
--- =============================================================
+-- ============================================================
 
 CREATE TABLE rol (
   id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -206,6 +200,7 @@ CREATE TABLE expediente (
   tipo_doc_id     INT          NOT NULL,
   categoria_id    INT          NOT NULL,
   subtipo_id      INT,
+  n_documento     VARCHAR(100),
   creado_por      INT          NOT NULL,
   correlativo     VARCHAR(30)  NOT NULL UNIQUE,
   nombre          VARCHAR(255) NOT NULL,
@@ -215,7 +210,7 @@ CREATE TABLE expediente (
   reservado       TINYINT(1)   NOT NULL DEFAULT 0,
   fecha_documento DATE,
   fecha_ingreso   DATE         NOT NULL,
-  estado_id       INT          NOT NULL DEFAULT 3,  -- 3 = Borrador
+  estado_id       INT          NOT NULL DEFAULT 3,
   CONSTRAINT fk_exp_area       FOREIGN KEY (area_id)       REFERENCES area(id),
   CONSTRAINT fk_exp_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
   CONSTRAINT fk_exp_tipo_doc   FOREIGN KEY (tipo_doc_id)   REFERENCES tipo_documento(id),
@@ -261,7 +256,7 @@ CREATE TABLE tarea (
   tarea_padre_id    INT,
   tipo_colab_id     INT,
   tipo              ENUM('Revision','Aprobacion','Colaboracion') NOT NULL,
-  estado_id         INT          NOT NULL DEFAULT 9,  -- 9 = Pendiente
+  estado_id         INT          NOT NULL DEFAULT 9,
   fecha_vencimiento DATE,
   CONSTRAINT fk_tarea_expediente FOREIGN KEY (expediente_id)  REFERENCES expediente(id),
   CONSTRAINT fk_tarea_etapa      FOREIGN KEY (etapa_id)       REFERENCES etapa(id),
@@ -283,43 +278,84 @@ CREATE TABLE visador (
 );
 
 -- ============================================================
--- DATOS INICIALES
+-- DATOS INICIALES — NO MODIFICAR
 -- ============================================================
 
+-- Roles (HU-01/02)
 INSERT INTO rol (nombre, descripcion) VALUES
   ('Administrador', 'Acceso total al sistema'),
   ('Colaborador',   'Puede crear y gestionar expedientes en su área'),
   ('Lector',        'Solo puede visualizar expedientes');
 
-INSERT INTO tipo_colaboracion (nombre, descripcion) VALUES
-  ('Revisión técnica', 'Revisión desde el área técnica'),
-  ('Revisión legal',   'Revisión desde el área legal'),
-  ('Visto bueno',      'Aprobación informal de un área relacionada');
-
--- Usuarios 
+-- Usuarios — NO MODIFICAR CREDENCIALES
 INSERT INTO usuario (rol_id, nombre_completo, correo, password_hash, estado_id) VALUES
   (1, 'Gonzalo Matus',     'gmatusz@gmail.com', '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1),
   (2, 'Constanza Venegas', 'cony@gmail.com',    '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1),
   (2, 'Benjamín Castillo', 'benja@gmail.com',   '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1);
 
+-- Usuario Lector de prueba (HU-03)
+INSERT INTO usuario (rol_id, nombre_completo, correo, password_hash, estado_id) VALUES
+  (3, 'Cristian Cliente',  'cristian@gmail.com', '$2b$10$UOv60PulnOpwrlO3GnRZ2eeSGqAjuioa1iWEi40uCpLFSuHDvPAUK', 1);
+
 -- ============================================================
--- DATOS DE PRUEBA — Contratistas y Áreas (para HU-06)
+-- DATOS DE PRUEBA
 -- ============================================================
 
+-- ── Tipos de Colaboración (HU-12) ─────────────────────────────────────────
+INSERT INTO tipo_colaboracion (nombre, descripcion) VALUES
+  ('Revisión técnica', 'Revisión desde el área técnica'),
+  ('Revisión legal',   'Revisión desde el área legal'),
+  ('Visto bueno',      'Aprobación informal de un área relacionada');
+
+-- ── Tipos de Documento (HU-09) ────────────────────────────────────────────
+INSERT INTO tipo_documento (nombre, descripcion) VALUES
+  ('Carta',    'Comunicación formal entre partes'),
+  ('Oficio',   'Documento oficial emitido por una institución'),
+  ('Memo',     'Comunicación interna breve'),
+  ('Informe',  'Documento técnico o de gestión con análisis'),
+  ('Contrato', 'Acuerdo formal entre dos o más partes');
+
+-- ── Categorías y Subtipos (HU-08) ─────────────────────────────────────────
+INSERT INTO categoria (nombre, descripcion) VALUES
+  ('Documentación Técnica',     'Documentos relacionados con ingeniería y obras'),
+  ('Documentación Administrativa', 'Documentos de gestión y administración'),
+  ('Documentación Legal',       'Contratos, resoluciones y documentos legales');
+
+-- Subtipos de "Documentación Técnica" (categoria_id = 1)
+INSERT INTO subtipo (categoria_id, nombre) VALUES
+  (1, 'Planos'),
+  (1, 'Especificaciones Técnicas'),
+  (1, 'Informes de Terreno');
+
+-- Subtipos de "Documentación Administrativa" (categoria_id = 2)
+INSERT INTO subtipo (categoria_id, nombre) VALUES
+  (2, 'Circulares'),
+  (2, 'Resoluciones Internas'),
+  (2, 'Actas de Reunión');
+
+-- Subtipos de "Documentación Legal" (categoria_id = 3)
+INSERT INTO subtipo (categoria_id, nombre) VALUES
+  (3, 'Contratos Marco'),
+  (3, 'Adendas'),
+  (3, 'Resoluciones Exentas');
+
+-- ── Contratistas (HU-05) ──────────────────────────────────────────────────
 INSERT INTO contratista (nombre, rut, correo_contacto, telefono) VALUES
-  ('Agrosana S.A.',    '76.123.456-7', 'contacto@agrosana.cl',    '+56912345678'),
-  ('MegaCorp Ltda.',   '77.234.567-8', 'contacto@megacorp.cl',    '+56923456789'),
+  ('Agrosana S.A.',    '76.123.456-7', 'contacto@agrosana.cl',     '+56912345678'),
+  ('MegaCorp Ltda.',   '77.234.567-8', 'contacto@megacorp.cl',     '+56923456789'),
   ('Constructora XYZ', '78.345.678-9', 'contacto@constructora.cl', '+56934567890');
 
+-- ── Áreas sin proceso aún (HU-06) — proceso_id se asigna más adelante
 INSERT INTO area (contratista_id, nombre) VALUES
-  (1, 'Ingeniería'),
-  (1, 'Contabilidad'),
-  (1, 'Proyectos'),
-  (2, 'Ingeniería'),
-  (2, 'Recursos Humanos'),
-  (3, 'Obras Civiles'),
-  (3, 'Administración');
+  (1, 'Ingeniería'),       -- id 1
+  (1, 'Contabilidad'),     -- id 2
+  (1, 'Proyectos'),        -- id 3
+  (2, 'Ingeniería'),       -- id 4
+  (2, 'Recursos Humanos'), -- id 5
+  (3, 'Obras Civiles'),    -- id 6
+  (3, 'Administración');   -- id 7
 
+-- ── Disciplinas (MER v3 / Reunion1) ───────────────────────────────────────
 INSERT INTO disciplina (area_id, nombre) VALUES
   (1, 'Movimientos de Tierra'),
   (1, 'Estudios de Agua'),
@@ -327,3 +363,109 @@ INSERT INTO disciplina (area_id, nombre) VALUES
   (1, 'Metalúrgica'),
   (4, 'Estructuras'),
   (4, 'Instalaciones');
+
+-- ── Proyectos (HU-07) ─────────────────────────────────────────────────────
+INSERT INTO proyecto (contratista_id, nombre, descripcion, fecha_inicio) VALUES
+  (1, 'Proyecto Riego Norte',    'Instalación de sistemas de riego en zona norte', '2026-01-15'),
+  (1, 'Expansión Planta Sur',    'Ampliación de planta de procesamiento',          '2026-03-01'),
+  (2, 'Torre Corporativa',       'Construcción de edificio corporativo',            '2026-02-01'),
+  (3, 'Pavimentación Acceso A',  'Obras de pavimentación en acceso principal',     '2026-04-01');
+
+-- Relaciones proyecto–área (HU-07)
+INSERT INTO proyecto_area (proyecto_id, area_id) VALUES
+  (1, 1), (1, 3),
+  (2, 1), (2, 2),
+  (3, 4), (3, 5),
+  (4, 6), (4, 7);
+
+-- ── Procesos (HU-10) ──────────────────────────────────────────────────────
+INSERT INTO proceso (nombre, descripcion) VALUES
+  ('Revisión de Documentos Técnicos', 'Proceso de revisión y aprobación de documentación técnica de ingeniería'),
+  ('Gestión Administrativa',          'Proceso de revisión de documentación administrativa y contable'),
+  ('Revisión Legal',                  'Proceso de revisión de contratos y documentación legal');
+
+-- ── Etapas por proceso (HU-11)
+-- Proceso 1: Revisión de Documentos Técnicos — 2 etapas
+-- Revisor: Constanza (id=2), Aprobador: Gonzalo (id=1)
+INSERT INTO etapa (proceso_id, titulo, secuencia, revisor_id, aprobador_id, dias_revision, dias_aprobacion, requiere_aprobador) VALUES
+  (1, 'Revisión Técnica',   1, 2, 1, 5, 3, 1),
+  (1, 'Aprobación Final',   2, 2, 1, 3, 5, 1);
+
+-- Proceso 2: Gestión Administrativa — 1 etapa
+INSERT INTO etapa (proceso_id, titulo, secuencia, revisor_id, aprobador_id, dias_revision, dias_aprobacion, requiere_aprobador) VALUES
+  (2, 'Revisión Administrativa', 1, 3, 1, 5, 5, 1);
+
+-- Proceso 3: Revisión Legal — 2 etapas
+INSERT INTO etapa (proceso_id, titulo, secuencia, revisor_id, aprobador_id, dias_revision, dias_aprobacion, requiere_aprobador) VALUES
+  (3, 'Revisión Legal',     1, 2, 1, 7, 5, 1),
+  (3, 'Visación Final',     2, 3, 1, 5, 3, 0);
+
+-- ── HU-13: Asignar procesos a áreas ───────────────────────────────────────
+UPDATE area SET proceso_id = 1 WHERE id = 1;  -- Agrosana Ingeniería → Revisión Técnica
+UPDATE area SET proceso_id = 2 WHERE id = 2;  -- Agrosana Contabilidad → Gestión Administrativa
+UPDATE area SET proceso_id = 1 WHERE id = 3;  -- Agrosana Proyectos → Revisión Técnica
+UPDATE area SET proceso_id = 1 WHERE id = 4;  -- MegaCorp Ingeniería → Revisión Técnica
+UPDATE area SET proceso_id = 2 WHERE id = 5;  -- MegaCorp RRHH → Gestión Administrativa
+UPDATE area SET proceso_id = 1 WHERE id = 6;  -- Constructora Obras Civiles → Revisión Técnica
+UPDATE area SET proceso_id = 3 WHERE id = 7;  -- Constructora Administración → Revisión Legal
+
+-- ── HU-03: Asignar usuarios a áreas ───────────────────────────────────────
+-- Constanza (id=2) es Colaboradora en Ingeniería Agrosana (id=1) y Obras Civiles (id=6)
+-- Benjamín (id=3) es Colaborador en Contabilidad Agrosana (id=2) y Proyectos Agrosana (id=3)
+-- Cristian/Lector (id=4) es Lector en Ingeniería Agrosana (id=1)
+INSERT INTO area_usuario (area_id, usuario_id, rol_en_area) VALUES
+  (1, 2, 'Colaborador'),
+  (1, 4, 'Lector'),
+  (2, 3, 'Colaborador'),
+  (3, 3, 'Colaborador'),
+  (6, 2, 'Colaborador'),
+  (4, 3, 'Lector');
+
+-- ── HU-14/15: Expedientes de prueba en distintos estados ──────────────────
+-- Expediente 1: Borrador (recién creado por Constanza en Ingeniería Agrosana)
+INSERT INTO expediente
+  (area_id, tipo_doc_id, categoria_id, subtipo_id, n_documento, creado_por,
+   correlativo, nombre, materia, emisor, origen, reservado, fecha_documento, fecha_ingreso, estado_id)
+VALUES
+  (1, 4, 1, 2, 'INF-2026-001', 2,
+   'EXP-2026-0001', 'Informe Estudio de Suelo Sector Norte',
+   'Análisis geotécnico para fundaciones', 'Laboratorio Geotécnico Sur', 'Externo', 0,
+   '2026-05-10', '2026-05-12', 3);
+
+-- Expediente 2: Borrador (creado por Benjamín en Contabilidad)
+INSERT INTO expediente
+  (area_id, tipo_doc_id, categoria_id, subtipo_id, n_documento, creado_por,
+   correlativo, nombre, materia, emisor, origen, reservado, fecha_documento, fecha_ingreso, estado_id)
+VALUES
+  (2, 1, 2, 5, 'CARTA-2026-042', 3,
+   'EXP-2026-0002', 'Carta Solicitud Presupuesto Anual',
+   'Solicitud de presupuesto para ejercicio 2026', 'Gerencia General', 'Interno', 0,
+   '2026-05-15', '2026-05-15', 3);
+
+-- Expediente 3: En Revisión (para demo del flujo de tareas)
+INSERT INTO expediente
+  (area_id, tipo_doc_id, categoria_id, subtipo_id, n_documento, creado_por,
+   correlativo, nombre, materia, emisor, origen, reservado, fecha_documento, fecha_ingreso, estado_id)
+VALUES
+  (1, 2, 1, 1, 'OF-2026-010', 2,
+   'EXP-2026-0003', 'Oficio Aprobación Planos Estructurales',
+   'Revisión y aprobación de planos de estructura', 'Dirección de Obras', 'Externo', 0,
+   '2026-04-20', '2026-04-22', 5);
+
+-- Expediente 4: Reservado (solo acceso reservado)
+INSERT INTO expediente
+  (area_id, tipo_doc_id, categoria_id, subtipo_id, n_documento, creado_por,
+   correlativo, nombre, materia, emisor, origen, reservado, fecha_documento, fecha_ingreso, estado_id)
+VALUES
+  (1, 5, 3, 7, 'CONT-2026-003', 2,
+   'EXP-2026-0004', 'Contrato Marco Proveedor Equipos',
+   'Contrato de suministro de equipos industriales', 'Proveedor Industrial Norte', 'Externo', 1,
+   '2026-03-01', '2026-03-05', 3);
+
+-- Historial de los expedientes de prueba
+INSERT INTO historial_expediente (expediente_id, usuario_id, estado_anterior, estado_nuevo, comentario) VALUES
+  (1, 2, NULL,        'Borrador',     'Expediente creado'),
+  (2, 3, NULL,        'Borrador',     'Expediente creado'),
+  (3, 2, NULL,        'Borrador',     'Expediente creado'),
+  (3, 2, 'Borrador',  'En Revisión',  'Derivado para revisión técnica de planos'),
+  (4, 2, NULL,        'Borrador',     'Expediente creado');
