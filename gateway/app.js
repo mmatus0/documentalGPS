@@ -48,16 +48,25 @@ app.use('/api/users', apiLimiter, verificarToken, soloAdmin, msProxy('/api/users
 app.use('/api/contratistas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/contratistas'));
 app.use('/api/proyectos',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/proyectos'));
 
-// Categorías, tipos-doc y tipos-colab: escritura solo Admin, pero lectura
-// necesaria para Colaboradores al crear expedientes (HU-15).
-// El control de escritura queda en los controladores del ms-mantenedores.
+// Categorías, tipos-doc y tipos-colab: accesibles a todos los roles autenticados
+// (Colaboradores las necesitan al crear expedientes — HU-15)
 app.use('/api/categorias',  apiLimiter, verificarToken, msProxy('/api/categorias'));
 app.use('/api/tipos-doc',   apiLimiter, verificarToken, msProxy('/api/tipos-doc'));
 app.use('/api/tipos-colab', apiLimiter, verificarToken, msProxy('/api/tipos-colab'));
 
-// Áreas: escritura solo Admin, pero GET /mis-unidades accesible a todos los roles
-app.use('/api/areas/mis-unidades', apiLimiter, verificarToken, msProxy('/api/areas'));
-app.use('/api/areas',              apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
+// Áreas: /mis-unidades accesible a todos los roles autenticados (devuelve solo
+// las áreas del usuario autenticado). El resto solo Admin.
+// IMPORTANTE: pathRewrite debe preservar el sufijo /mis-unidades
+app.use('/api/areas/mis-unidades',
+  apiLimiter,
+  verificarToken,
+  createProxyMiddleware({
+    target: 'http://ms-mantenedores:3002',
+    changeOrigin: true,
+    pathRewrite: { '^/api/areas/mis-unidades': '/api/areas/mis-unidades' },
+  })
+);
+app.use('/api/areas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
 
 // Eje 3 — Procesos y etapas (solo Admin)
 app.use('/api/procesos', apiLimiter, verificarToken, soloAdmin, msProxy('/api/procesos'));
