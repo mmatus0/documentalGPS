@@ -25,18 +25,21 @@ const apiLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes. Intenta nuevamente en 15 minutos.' }
 });
 
-// Helper para crear proxy hacia ms-mantenedores
-const msProxy = (prefix) => createProxyMiddleware({
+// Helper proxy hacia ms-mantenedores.
+// pathRewrite: Express stripea el prefijo de app.use antes de llegar acá,
+// así que la URL que ve el pathRewrite ya viene sin prefijo (ej. '/' o '/1/usuarios').
+// El rewrite la convierte en la ruta completa que espera ms-mantenedores.
+const msProxy = (apiPrefix) => createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
-  pathRewrite: { '^': prefix },
+  pathRewrite: (path) => `${apiPrefix}${path}`,
 });
 
 // ── Rutas públicas (sin token) ─────────────────────────────────────────────────
 app.use('/api/auth', authLimiter, createProxyMiddleware({
   target: 'http://ms-auth:3001',
   changeOrigin: true,
-  pathRewrite: { '^': '/api/auth' },
+  pathRewrite: (path) => `/api/auth${path}`,
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────────
@@ -54,19 +57,10 @@ app.use('/api/categorias',  apiLimiter, verificarToken, msProxy('/api/categorias
 app.use('/api/tipos-doc',   apiLimiter, verificarToken, msProxy('/api/tipos-doc'));
 app.use('/api/tipos-colab', apiLimiter, verificarToken, msProxy('/api/tipos-colab'));
 
-// Áreas: /mis-unidades accesible a todos los roles autenticados (devuelve solo
-// las áreas del usuario autenticado). El resto solo Admin.
-// IMPORTANTE: pathRewrite debe preservar el sufijo /mis-unidades
-app.use('/api/areas/mis-unidades',
-  apiLimiter,
-  verificarToken,
-  createProxyMiddleware({
-    target: 'http://ms-mantenedores:3002',
-    changeOrigin: true,
-    pathRewrite: { '^/api/areas/mis-unidades': '/api/areas/mis-unidades' },
-  })
-);
-app.use('/api/areas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
+// Áreas: /mis-unidades accesible a todos los roles; resto solo Admin.
+// DEBE registrarse antes de /api/areas para que Express lo capture primero.
+app.use('/api/areas/mis-unidades', apiLimiter, verificarToken, msProxy('/api/areas/mis-unidades'));
+app.use('/api/areas',              apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
 
 // Eje 3 — Procesos y etapas (solo Admin)
 app.use('/api/procesos', apiLimiter, verificarToken, soloAdmin, msProxy('/api/procesos'));
