@@ -3,7 +3,7 @@ const express   = require('express');
 const cors      = require('cors');
 const rateLimit = require('express-rate-limit');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { verificarToken } = require('./middleware/authMiddleware');
+const { verificarToken, soloAdmin } = require('./middleware/authMiddleware');
 
 const app = express();
 app.use(cors());
@@ -25,7 +25,7 @@ const apiLimiter = rateLimit({
   message: { error: 'Demasiadas solicitudes. Intenta nuevamente en 15 minutos.' }
 });
 
-// Helper para crear proxy hacia ms-mantenedores (evita repetición)
+// Helper para crear proxy hacia ms-mantenedores
 const msProxy = (prefix) => createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
@@ -40,20 +40,22 @@ app.use('/api/auth', authLimiter, createProxyMiddleware({
 }));
 
 // ── Rutas protegidas (requieren token válido) ──────────────────────────────────
-const { soloAdmin } = require('./middleware/authMiddleware');
 
-// Eje 1 — Usuarios (solo Admin puede gestionar usuarios)
+// Eje 1 — Usuarios (solo Admin)
 app.use('/api/users', apiLimiter, verificarToken, soloAdmin, msProxy('/api/users'));
 
-// Eje 2 — Mantenedores base (solo Admin)
+// Eje 2 — Mantenedores de escritura (solo Admin)
 app.use('/api/contratistas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/contratistas'));
-app.use('/api/categorias',   apiLimiter, verificarToken, soloAdmin, msProxy('/api/categorias'));
-app.use('/api/tipos-doc',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/tipos-doc'));
-app.use('/api/tipos-colab',  apiLimiter, verificarToken, soloAdmin, msProxy('/api/tipos-colab'));
 app.use('/api/proyectos',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/proyectos'));
 
+// Categorías, tipos-doc y tipos-colab: escritura solo Admin, pero lectura
+// necesaria para Colaboradores al crear expedientes (HU-15).
+// El control de escritura queda en los controladores del ms-mantenedores.
+app.use('/api/categorias',  apiLimiter, verificarToken, msProxy('/api/categorias'));
+app.use('/api/tipos-doc',   apiLimiter, verificarToken, msProxy('/api/tipos-doc'));
+app.use('/api/tipos-colab', apiLimiter, verificarToken, msProxy('/api/tipos-colab'));
+
 // Áreas: escritura solo Admin, pero GET /mis-unidades accesible a todos los roles
-// Se divide en dos rutas para que los Colaboradores/Lectores puedan ver sus unidades
 app.use('/api/areas/mis-unidades', apiLimiter, verificarToken, msProxy('/api/areas'));
 app.use('/api/areas',              apiLimiter, verificarToken, soloAdmin, msProxy('/api/areas'));
 
@@ -63,4 +65,5 @@ app.use('/api/etapas',   apiLimiter, verificarToken, soloAdmin, msProxy('/api/et
 
 // Eje 4 — Expedientes y documentos (todos los roles autenticados)
 app.use('/api/expedientes', apiLimiter, verificarToken, msProxy('/api/expedientes'));
+
 module.exports = app;
