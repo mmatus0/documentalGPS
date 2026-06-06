@@ -39,7 +39,8 @@ const VISTAS_MANTENEDORES = [
   'usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar',
 ];
 
-const VISTAS_MIS_UNIDADES = ['mis-unidades', 'mi-unidad-detalle'];
+const VISTAS_MIS_UNIDADES  = ['mis-unidades', 'mi-unidad-detalle', 'expedientes-area', 'documentos-expediente'];
+const VISTAS_EXPEDIENTES   = ['expedientes', 'expediente-detalle'];
 
 const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
   const opciones = useMemo(() => menu[usuario.rol_id] || [], [usuario.rol_id]);
@@ -49,6 +50,8 @@ const Sidebar = ({ usuario, vistaActual, onNavegar }) => {
     ? 'mantenedores'
     : VISTAS_MIS_UNIDADES.includes(vistaActual)
     ? 'mis-unidades'
+    : VISTAS_EXPEDIENTES.includes(vistaActual)
+    ? 'expedientes'
     : vistaActual;
 
   const estaActivo = useCallback((item) => {

@@ -12,6 +12,8 @@ import MisUnidadesPage    from './components/Expedientes/MisUnidadesPage';
 import MiUnidadDetalle    from './components/Expedientes/MiUnidadDetalle';
 import ExpedientesArea    from './components/Expedientes/ExpedientesArea';
 import DocumentosExpediente from './components/Expedientes/DocumentosExpediente';
+import ExpedientesListado from './components/Expedientes/ExpedientesListado';
+import ExpedienteDetalle  from './components/Expedientes/ExpedienteDetalle';
 import CategoriasPage     from './components/Categorias/CategoriasPage';
 import ProyectosPage      from './components/Proyectos/ProyectosPage';
 import TipoDocPage        from './components/TiposDocumento/TipoDocPage';
@@ -56,39 +58,22 @@ function App() {
     } else if (VISTAS_AREAS.includes(vista) && !params.filtroContratistaId) {
       setFiltroContratistaId(null);
     }
-    if (vista !== 'mi-unidad-detalle') setUnidadSeleccionada(null);
-    if (vista !== 'expedientes-area')  setExpedienteSeleccionado(null);
+    if (vista !== 'mi-unidad-detalle')    setUnidadSeleccionada(null);
+    if (vista !== 'expedientes-area' &&
+        vista !== 'expediente-detalle' &&
+        vista !== 'documentos-expediente') setExpedienteSeleccionado(null);
     setVistaActual(vista);
   };
 
-  const handleVerDetalleUnidad = (unidad) => {
-    setUnidadSeleccionada(unidad);
-    setVistaActual('mi-unidad-detalle');
-  };
+  const handleVerDetalleUnidad   = (unidad)     => { setUnidadSeleccionada(unidad);         setVistaActual('mi-unidad-detalle'); };
+  const handleVolverAMisUnidades = ()            => { setUnidadSeleccionada(null);           setVistaActual('mis-unidades'); };
+  const handleVerExpedientes     = (unidad)     => { setUnidadSeleccionada(unidad);         setVistaActual('expedientes-area'); };
+  const handleVerExpedienteDetalle = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle'); };
+  const handleVolverAExpedientes   = ()           => { setExpedienteSeleccionado(null);       setVistaActual('expedientes'); };
+  const handleVerDocumentos        = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('documentos-expediente'); };
+  const handleVolverAExpedientesArea = ()         => { setExpedienteSeleccionado(null);       setVistaActual('expedientes-area'); };
 
-  const handleVolverAMisUnidades = () => {
-    setUnidadSeleccionada(null);
-    setVistaActual('mis-unidades');
-  };
-
-  const handleVerExpedientes = (unidad) => {
-    setUnidadSeleccionada(unidad);
-    setVistaActual('expedientes-area');
-  };
-
-  const handleVerDocumentos = (expediente) => {
-    setExpedienteSeleccionado(expediente);
-    setVistaActual('documentos-expediente');
-  };
-
-  const handleVolverAExpedientes = () => {
-    setExpedienteSeleccionado(null);
-    setVistaActual('expedientes-area');
-  };
-
-  if (!usuario) {
-    return <Login onLogin={handleLogin} />;
-  }
+  if (!usuario) return <Login onLogin={handleLogin} />;
 
   const renderVista = () => {
     if (vistaActual === 'inicio')
@@ -102,9 +87,7 @@ function App() {
         <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
           <i className="bi bi-bar-chart-fill" style={{ fontSize: 48, display: 'block', marginBottom: 16 }} />
           <strong>Dashboard Power BI</strong>
-          <p className="mt-2" style={{ fontSize: 13 }}>
-            Módulo de reportes en construcción (HU-29 / HU-30).
-          </p>
+          <p className="mt-2" style={{ fontSize: 13 }}>Módulo de reportes en construcción (HU-29 / HU-30).</p>
         </div>
       );
 
@@ -115,13 +98,7 @@ function App() {
       return <ContratistaPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
     if (VISTAS_AREAS.includes(vistaActual))
-      return (
-        <AreasPage
-          vistaActual={vistaActual}
-          onNavegar={handleNavegar}
-          filtroContratistaId={filtroContratistaId}
-        />
-      );
+      return <AreasPage vistaActual={vistaActual} onNavegar={handleNavegar} filtroContratistaId={filtroContratistaId} />;
 
     if (VISTAS_AREA_USUARIOS.includes(vistaActual))
       return <AreaUsuarios />;
@@ -142,41 +119,22 @@ function App() {
       return <ProcesosPage onVolver={() => handleNavegar('mantenedores')} />;
 
     if (vistaActual === 'mis-unidades')
-      return (
-        <MisUnidadesPage
-          usuario={usuario}
-          onVerDetalle={handleVerDetalleUnidad}
-        />
-      );
+      return <MisUnidadesPage usuario={usuario} onVerDetalle={handleVerDetalleUnidad} />;
 
     if (vistaActual === 'mi-unidad-detalle' && unidadSeleccionada)
-      return (
-        <MiUnidadDetalle
-          unidad={unidadSeleccionada}
-          usuario={usuario}
-          onVolver={handleVolverAMisUnidades}
-          onVerExpedientes={handleVerExpedientes}
-        />
-      );
+      return <MiUnidadDetalle unidad={unidadSeleccionada} usuario={usuario} onVolver={handleVolverAMisUnidades} onVerExpedientes={handleVerExpedientes} />;
 
     if (vistaActual === 'expedientes-area' && unidadSeleccionada)
-      return (
-        <ExpedientesArea
-          unidad={unidadSeleccionada}
-          usuario={usuario}
-          onVerDetalle={handleVerDocumentos}
-          onVolver={() => handleVerDetalleUnidad(unidadSeleccionada)}
-        />
-      );
+      return <ExpedientesArea unidad={unidadSeleccionada} usuario={usuario} onVerDetalle={handleVerDocumentos} onVolver={() => handleVerDetalleUnidad(unidadSeleccionada)} />;
 
     if (vistaActual === 'documentos-expediente' && expedienteSeleccionado)
-      return (
-        <DocumentosExpediente
-          expedienteId={expedienteSeleccionado.id}
-          usuario={usuario}
-          onVolver={handleVolverAExpedientes}
-        />
-      );
+      return <DocumentosExpediente expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientesArea} />;
+
+    if (vistaActual === 'expedientes')
+      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} />;
+
+    if (vistaActual === 'expediente-detalle' && expedienteSeleccionado)
+      return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientes} />;
 
     return (
       <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
@@ -186,12 +144,7 @@ function App() {
   };
 
   return (
-    <Layout
-      usuario={usuario}
-      vistaActual={vistaActual}
-      onNavegar={handleNavegar}
-      onLogout={handleLogout}
-    >
+    <Layout usuario={usuario} vistaActual={vistaActual} onNavegar={handleNavegar} onLogout={handleLogout}>
       {renderVista()}
     </Layout>
   );

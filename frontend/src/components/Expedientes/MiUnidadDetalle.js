@@ -94,7 +94,7 @@ const MiUnidadDetalle = ({ unidad, usuario, onVolver, onVerExpedientes }) => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axios.get(`/api/areas/${unidad.area_id}/usuarios`);
+      const { data } = await axios.get(`/api/areas/${unidad.area_id ?? unidad.id}/usuarios`);
       setIntegrantes(data);
     } catch (err) {
       setError('No se pudieron cargar los integrantes de esta unidad.');
@@ -102,7 +102,7 @@ const MiUnidadDetalle = ({ unidad, usuario, onVolver, onVerExpedientes }) => {
     } finally {
       setLoading(false);
     }
-  }, [unidad.area_id]);
+  }, [unidad.area_id ?? unidad.id]);
 
   useEffect(() => {
     fetchIntegrantes();
