@@ -71,7 +71,6 @@ function App() {
   const handleVerExpedientes     = (unidad)     => { setUnidadSeleccionada(unidad);         setVistaActual('expedientes-area'); };
   const handleVerExpedienteDetalle = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle'); };
   const handleVolverAExpedientes   = ()           => { setExpedienteSeleccionado(null);       setVistaActual('expedientes'); };
-  const handleVerDocumentos        = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('documentos-expediente'); };
   const handleVolverAExpedientesArea = ()         => { setExpedienteSeleccionado(null);       setVistaActual('expedientes-area'); };
   // Desde ExpedientesArea → ExpedienteDetalle, con volver a expedientes-area (no a la lista global)
   const handleVerExpedienteDetalleDesdeArea = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle-area'); };
