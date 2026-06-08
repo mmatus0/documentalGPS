@@ -47,7 +47,8 @@ app.use('/api/tipos-colab', apiLimiter, verificarToken, msProxy('/api/tipos-cola
 app.use('/api/areas/mis-unidades', apiLimiter, verificarToken, msProxy('/api/areas/mis-unidades'));
 app.use('/api/areas', apiLimiter, verificarToken, (req, res, next) => {
   const esGETUsuarios = req.method === 'GET' && /^\/[0-9]+\/usuarios/.test(req.path);
-  if (esGETUsuarios) return next();
+  const esGETListado  = req.method === 'GET' && req.path === '/';
+  if (esGETUsuarios || esGETListado) return next();
   return soloAdmin(req, res, next);
 }, msProxy('/api/areas'));
 

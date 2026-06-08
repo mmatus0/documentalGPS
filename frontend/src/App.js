@@ -61,6 +61,7 @@ function App() {
     if (vista !== 'mi-unidad-detalle')    setUnidadSeleccionada(null);
     if (vista !== 'expedientes-area' &&
         vista !== 'expediente-detalle' &&
+        vista !== 'expediente-detalle-area' &&
         vista !== 'documentos-expediente') setExpedienteSeleccionado(null);
     setVistaActual(vista);
   };
@@ -72,6 +73,8 @@ function App() {
   const handleVolverAExpedientes   = ()           => { setExpedienteSeleccionado(null);       setVistaActual('expedientes'); };
   const handleVerDocumentos        = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('documentos-expediente'); };
   const handleVolverAExpedientesArea = ()         => { setExpedienteSeleccionado(null);       setVistaActual('expedientes-area'); };
+  // Desde ExpedientesArea → ExpedienteDetalle, con volver a expedientes-area (no a la lista global)
+  const handleVerExpedienteDetalleDesdeArea = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle-area'); };
 
   if (!usuario) return <Login onLogin={handleLogin} />;
 
@@ -125,7 +128,7 @@ function App() {
       return <MiUnidadDetalle unidad={unidadSeleccionada} usuario={usuario} onVolver={handleVolverAMisUnidades} onVerExpedientes={handleVerExpedientes} />;
 
     if (vistaActual === 'expedientes-area' && unidadSeleccionada)
-      return <ExpedientesArea unidad={unidadSeleccionada} usuario={usuario} onVerDetalle={handleVerDocumentos} onVolver={() => handleVerDetalleUnidad(unidadSeleccionada)} />;
+      return <ExpedientesArea unidad={unidadSeleccionada} usuario={usuario} onVerDetalle={handleVerExpedienteDetalleDesdeArea} onVolver={() => handleVerDetalleUnidad(unidadSeleccionada)} />;
 
     if (vistaActual === 'documentos-expediente' && expedienteSeleccionado)
       return <DocumentosExpediente expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientesArea} />;
@@ -135,6 +138,9 @@ function App() {
 
     if (vistaActual === 'expediente-detalle' && expedienteSeleccionado)
       return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientes} />;
+
+    if (vistaActual === 'expediente-detalle-area' && expedienteSeleccionado)
+      return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientesArea} />;
 
     return (
       <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>

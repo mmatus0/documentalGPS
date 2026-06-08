@@ -64,6 +64,8 @@ router.post('/',                 limiter, expedienteCtrl.crearExpediente);      
 router.get('/area/:areaId',      limiter, expedienteCtrl.getExpedientesPorArea);
 router.get('/:id/historial',     limiter, expedienteCtrl.getHistorialExpediente);   // HU-19
 router.get('/:id',               limiter, expedienteCtrl.getExpedienteDetalle);
+router.post('/:id/derivar',       limiter, expedienteCtrl.derivarExpediente);      // HU-20
+router.get('/:id/exportar-pdf',   limiter, expedienteCtrl.exportarPDF);            // HU-21
 
 router.post('/:expedienteId/documentos', limiter, upload.single('archivo'), guardarRegistroDocumento, documentoCtrl.subirDocumento);
 router.get('/:expedienteId/documentos/:documentoId/descargar', limiter, documentoCtrl.descargarDocumento);
