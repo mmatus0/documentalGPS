@@ -48,7 +48,6 @@ const LineaTiempo = ({ historial }) => {
   }
   return (
     <div style={{ position: 'relative', paddingLeft: 32 }}>
-      {/* Línea vertical */}
       <div style={{
         position: 'absolute', left: 11, top: 8, bottom: 8,
         width: 2, background: 'var(--border)',
@@ -57,7 +56,6 @@ const LineaTiempo = ({ historial }) => {
         const cfgNuevo = ESTADO_CONFIG[h.estado_nuevo] || { color: '#64748b', bg: '#f1f5f9', icon: 'bi-circle' };
         return (
           <div key={h.id} style={{ position: 'relative', marginBottom: i < historial.length - 1 ? 24 : 0 }}>
-            {/* Punto en la línea */}
             <div style={{
               position: 'absolute', left: -32, top: 4,
               width: 22, height: 22, borderRadius: '50%',
@@ -141,19 +139,104 @@ const FilaDocumento = ({ doc, puedeEliminar, onDescargar, onEliminar, eliminando
   );
 };
 
+// ─── Modal de Derivación (HU-20) ───────────────────────────────────────────────
+const ModalDerivar = ({ visible, areas, derivando, errorDerivar, onConfirmar, onCerrar }) => {
+  const [areaDestinoId, setAreaDestinoId] = useState('');
+  const [comentario,    setComentario]    = useState('');
+
+  useEffect(() => {
+    if (!visible) { setAreaDestinoId(''); setComentario(''); }
+  }, [visible]);
+
+  if (!visible) return null;
+
+  const handleConfirmar = () => onConfirmar(areaDestinoId, comentario);
+
+  return (
+    <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.4)' }}>
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 12 }}>
+          <div className="modal-header border-0 pb-0 px-4 pt-4">
+            <div>
+              <h5 className="modal-title fw-bold mb-0">
+                <i className="bi bi-arrow-right-circle-fill me-2 text-primary" />
+                Derivar Expediente
+              </h5>
+              <p className="text-muted small mb-0 mt-1">
+                El expediente cambiará a estado <strong>Derivado</strong> y se generará una tarea para el área seleccionada.
+              </p>
+            </div>
+            <button className="btn-close ms-auto" onClick={onCerrar} disabled={derivando} />
+          </div>
+          <div className="modal-body px-4 pt-3 pb-2">
+            {errorDerivar && (
+              <div className="alert alert-danger py-2 small mb-3">
+                <i className="bi bi-exclamation-triangle-fill me-1" />{errorDerivar}
+              </div>
+            )}
+            <div className="mb-3">
+              <label className="form-label small fw-semibold">
+                Unidad Organizativa destino <span className="text-danger">*</span>
+              </label>
+              <select className="form-select form-select-sm" value={areaDestinoId}
+                onChange={e => setAreaDestinoId(e.target.value)} disabled={derivando}>
+                <option value="">Seleccionar área…</option>
+                {areas.map(a => (
+                  <option key={a.id} value={a.id}>{a.nombre} — {a.contratista_nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label small fw-semibold">
+                Comentario <span className="text-danger">*</span>
+              </label>
+              <textarea className="form-control form-control-sm" rows={3}
+                placeholder="Motivo o instrucciones para el área destino…"
+                value={comentario} onChange={e => setComentario(e.target.value)}
+                disabled={derivando} style={{ resize: 'none' }} />
+            </div>
+          </div>
+          <div className="modal-footer border-0 px-4 pb-4 pt-2 gap-2">
+            <button className="btn btn-outline-secondary btn-sm" onClick={onCerrar} disabled={derivando}>
+              Cancelar
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={handleConfirmar}
+              disabled={derivando || !areaDestinoId || !comentario.trim()}>
+              {derivando
+                ? <><span className="spinner-border spinner-border-sm me-1" />Derivando…</>
+                : <><i className="bi bi-arrow-right-circle me-1" />Confirmar derivación</>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Componente principal ──────────────────────────────────────────────────────
 const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
-  const [expediente,  setExpediente]  = useState(null);
-  const [historial,   setHistorial]   = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState(null);
-  const [tabActiva,   setTabActiva]   = useState('detalle');
-  const [subiendo,    setSubiendo]    = useState(false);
-  const [errorSubida, setErrorSubida] = useState(null);
-  const [exitoSubida, setExitoSubida] = useState(null);
-  const [archivoSelec, setArchivoSelec] = useState(null);
-  const [dragOver,    setDragOver]    = useState(false);
-  const [eliminando,  setEliminando]  = useState(null);
+  const [expediente,    setExpediente]    = useState(null);
+  const [historial,     setHistorial]     = useState([]);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState(null);
+  const [tabActiva,     setTabActiva]     = useState('detalle');
+  const [subiendo,      setSubiendo]      = useState(false);
+  const [errorSubida,   setErrorSubida]   = useState(null);
+  const [exitoSubida,   setExitoSubida]   = useState(null);
+  const [archivoSelec,  setArchivoSelec]  = useState(null);
+  const [dragOver,      setDragOver]      = useState(false);
+  const [eliminando,    setEliminando]    = useState(null);
+
+  // HU-20: Derivación
+  const [modalDerivar,  setModalDerivar]  = useState(false);
+  const [areas,         setAreas]         = useState([]);
+  const [derivando,     setDerivando]     = useState(false);
+  const [errorDerivar,  setErrorDerivar]  = useState(null);
+  const [exitoDerivar,  setExitoDerivar]  = useState(null);
+
+  // HU-21: PDF export
+  const [exportandoPDF, setExportandoPDF] = useState(false);
+
   const fileInputRef = useRef();
 
   const esColaborador = usuario.rol_id === 2;
@@ -181,6 +264,70 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
   }, [expedienteId]);
 
   useEffect(() => { fetchExpediente(); }, [fetchExpediente]);
+
+  // Cargar áreas cuando se abre el modal de derivar
+  const abrirModalDerivar = async () => {
+    setErrorDerivar(null);
+    try {
+      const res = await axios.get('/api/areas');
+      setAreas(res.data || []);
+    } catch {
+      setAreas([]);
+    }
+    setModalDerivar(true);
+  };
+
+  // HU-20: Confirmar derivación
+  const handleDerivar = async (areaDestinoId, comentario) => {
+    if (!areaDestinoId || !comentario.trim()) {
+      setErrorDerivar('Todos los campos son obligatorios.');
+      return;
+    }
+    setDerivando(true);
+    setErrorDerivar(null);
+    try {
+      await axios.post(`/api/expedientes/${expedienteId}/derivar`, {
+        area_destino_id: areaDestinoId,
+        comentario: comentario.trim(),
+      });
+      setModalDerivar(false);
+      onVolver();
+    } catch (err) {
+      setErrorDerivar(err.response?.data?.error || 'Error al derivar el expediente.');
+    } finally {
+      setDerivando(false);
+    }
+  };
+
+  // HU-21: Exportar PDF
+  const handleExportarPDF = async () => {
+    setExportandoPDF(true);
+    try {
+      const res = await axios.get(`/api/expedientes/${expedienteId}/exportar-pdf`, {
+        responseType: 'blob',
+      });
+      const contentType = res.headers['content-type'] || '';
+      const blob = new Blob([res.data], { type: contentType });
+      const url  = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href  = url;
+
+      // Si es HTML (fallback), abrir en ventana nueva para imprimir a PDF
+      if (contentType.includes('text/html')) {
+        window.open(url, '_blank');
+      } else {
+        link.setAttribute('download', `${expediente.correlativo}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert('No se pudo generar el PDF. Intenta nuevamente.');
+    } finally {
+      setExportandoPDF(false);
+    }
+  };
 
   const validarArchivo = (file) => {
     const ext = '.' + file.name.split('.').pop().toLowerCase();
@@ -257,13 +404,33 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
   );
 
   const cfg = ESTADO_CONFIG[expediente.estado] || {};
+  const esBorrador = expediente.estado === 'Borrador';
+  const puedeExportar = esColaborador || esAdmin;
 
   return (
     <div>
+      {/* Modal de derivación HU-20 */}
+      <ModalDerivar
+        visible={modalDerivar}
+        areas={areas}
+        derivando={derivando}
+        errorDerivar={errorDerivar}
+        onConfirmar={handleDerivar}
+        onCerrar={() => { setModalDerivar(false); setErrorDerivar(null); }}
+      />
+
       {/* Botón volver */}
       <button className="btn btn-sm btn-outline-secondary mb-4" onClick={onVolver}>
         <i className="bi bi-arrow-left me-1" />Volver a expedientes
       </button>
+
+      {/* Alertas de acciones */}
+      {exitoDerivar && (
+        <div className="alert alert-success alert-dismissible py-2 small mb-3">
+          <i className="bi bi-check-circle-fill me-1" />{exitoDerivar}
+          <button type="button" className="btn-close btn-sm" onClick={() => setExitoDerivar(null)} />
+        </div>
+      )}
 
       {/* Encabezado */}
       <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: 12, overflow: 'hidden' }}>
@@ -291,7 +458,35 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
               </div>
             </div>
             <div className="col-md-4 text-md-end">
-              <EstadoBadge estado={expediente.estado} large />
+              <div className="d-flex flex-column align-items-md-end gap-2">
+                <EstadoBadge estado={expediente.estado} large />
+                {/* Acciones principales */}
+                <div className="d-flex gap-2 flex-wrap justify-content-md-end mt-1">
+                  {/* HU-20: Botón Derivar — solo Colaborador y solo en Borrador */}
+                  {esColaborador && esBorrador && (
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={abrirModalDerivar}
+                      style={{ fontSize: 12 }}>
+                      <i className="bi bi-arrow-right-circle me-1" />
+                      Derivar
+                    </button>
+                  )}
+                  {/* HU-21: Botón exportar PDF — Colaborador y Admin */}
+                  {puedeExportar && (
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={handleExportarPDF}
+                      disabled={exportandoPDF}
+                      title="Exportar expediente a PDF"
+                      style={{ fontSize: 12 }}>
+                      {exportandoPDF
+                        ? <><span className="spinner-border spinner-border-sm me-1" />Generando…</>
+                        : <><i className="bi bi-file-earmark-pdf me-1" />Exportar PDF</>}
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -322,16 +517,16 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
           {/* Tab Detalle */}
           {tabActiva === 'detalle' && (
             <div className="row g-3">
-              <CampoDetalle label="Correlativo"   valor={expediente.correlativo} />
+              <CampoDetalle label="Correlativo"    valor={expediente.correlativo} />
               <CampoDetalle label="Tipo Documento" valor={expediente.tipo_documento} />
-              <CampoDetalle label="Categoría"     valor={expediente.categoria} />
-              <CampoDetalle label="Origen"        valor={expediente.origen} />
-              <CampoDetalle label="Emisor"        valor={expediente.emisor} col={6} />
-              <CampoDetalle label="Materia"       valor={expediente.materia} col={6} />
+              <CampoDetalle label="Categoría"      valor={expediente.categoria} />
+              <CampoDetalle label="Origen"         valor={expediente.origen} />
+              <CampoDetalle label="Emisor"         valor={expediente.emisor} col={6} />
+              <CampoDetalle label="Materia"        valor={expediente.materia} col={6} />
               <CampoDetalle label="Fecha Documento" valor={expediente.fecha_documento ? new Date(expediente.fecha_documento).toLocaleDateString('es-CL') : null} />
               <CampoDetalle label="Fecha Ingreso"  valor={expediente.fecha_ingreso ? new Date(expediente.fecha_ingreso).toLocaleDateString('es-CL') : null} />
-              <CampoDetalle label="Creado por"    valor={expediente.creado_por_nombre} />
-              <CampoDetalle label="Reservado"     valor={expediente.reservado ? 'Sí' : 'No'} />
+              <CampoDetalle label="Creado por"     valor={expediente.creado_por_nombre} />
+              <CampoDetalle label="Reservado"      valor={expediente.reservado ? 'Sí' : 'No'} />
             </div>
           )}
 
@@ -341,7 +536,6 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
           {/* Tab Documentos */}
           {tabActiva === 'documentos' && (
             <div>
-              {/* Zona de subida */}
               {puedeSubir && (
                 <div className="mb-4">
                   <div
@@ -387,7 +581,6 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
                 </div>
               )}
 
-              {/* Lista de documentos */}
               {!expediente.documentos || expediente.documentos.length === 0 ? (
                 <div className="text-center py-4 text-muted small">
                   <i className="bi bi-paperclip d-block mb-2" style={{ fontSize: 24 }} />
