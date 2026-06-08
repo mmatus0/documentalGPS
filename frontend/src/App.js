@@ -40,6 +40,7 @@ function App() {
   const [filtroContratistaId,    setFiltroContratistaId]    = useState(null);
   const [unidadSeleccionada,     setUnidadSeleccionada]     = useState(null);
   const [expedienteSeleccionado, setExpedienteSeleccionado] = useState(null);
+  const [filtroEstadoInicial,    setFiltroEstadoInicial]    = useState(null);
 
   const handleLogin = (usuarioData) => {
     setUsuario(usuarioData);
@@ -58,6 +59,7 @@ function App() {
     } else if (VISTAS_AREAS.includes(vista) && !params.filtroContratistaId) {
       setFiltroContratistaId(null);
     }
+    setFiltroEstadoInicial(params.filtroEstado || null);
     if (vista !== 'mi-unidad-detalle')    setUnidadSeleccionada(null);
     if (vista !== 'expedientes-area' &&
         vista !== 'expediente-detalle' &&
@@ -134,7 +136,7 @@ function App() {
       return <DocumentosExpediente expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientesArea} />;
 
     if (vistaActual === 'expedientes')
-      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} />;
+      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial={filtroEstadoInicial} />;
 
     if (vistaActual === 'expediente-detalle' && expedienteSeleccionado)
       return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientes} />;
