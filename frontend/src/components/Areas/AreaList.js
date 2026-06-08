@@ -5,6 +5,7 @@ import Modales from '../Shared/Modales';
 const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId, onVolver }) => {
     const [areas,        setAreas]        = useState([]);
     const [contratistas, setContratistas] = useState([]);
+    const [procesos,     setProcesos]     = useState([]);
     const [tabActiva,    setTabActiva]    = useState('activos');
     const [busqueda,     setBusqueda]     = useState('');
     const [filtroC,      setFiltroC]      = useState(filtroContratistaId ? String(filtroContratistaId) : '');
@@ -12,6 +13,10 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
         visible: false, titulo: '', mensaje: '',
         labelConfirmar: '', variante: 'danger', onConfirmar: null,
     });
+    const [modalProceso,     setModalProceso]     = useState({
+        visible: false, areaId: null, areaNombre: '', procesoIdSeleccionado: '',
+    });
+    const [guardandoProceso, setGuardandoProceso] = useState(false);
  
     const fetchAreas = async () => {
         try {
@@ -26,6 +31,9 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
         fetchAreas();
         axios.get('/api/contratistas')
             .then(({ data }) => setContratistas(data.filter(c => c.estado_id === 1)))
+            .catch(err => console.error(err));
+        axios.get('/api/procesos')
+            .then(({ data }) => setProcesos(data.filter(p => p.estado_id === 1)))
             .catch(err => console.error(err));
     }, []);
  
@@ -64,6 +72,33 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                 fetchAreas();
             },
         });
+    };
+
+    // HU-13 — abrir modal de asignación de proceso
+    const handleAbrirModalProceso = (area) => {
+        setModalProceso({
+            visible: true,
+            areaId: area.id,
+            areaNombre: area.nombre,
+            procesoIdSeleccionado: area.proceso_id ? String(area.proceso_id) : '',
+        });
+    };
+
+    const handleGuardarProceso = async () => {
+        setGuardandoProceso(true);
+        try {
+            await axios.patch(`/api/areas/${modalProceso.areaId}/proceso`, {
+                proceso_id: modalProceso.procesoIdSeleccionado
+                    ? Number(modalProceso.procesoIdSeleccionado)
+                    : null,
+            });
+            setModalProceso({ visible: false, areaId: null, areaNombre: '', procesoIdSeleccionado: '' });
+            fetchAreas();
+        } catch (err) {
+            console.error('Error al asignar proceso:', err);
+        } finally {
+            setGuardandoProceso(false);
+        }
     };
  
     const listaFiltrada = areas
@@ -136,6 +171,7 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                             <tr>
                                 <th className="small text-muted fw-semibold ps-4">Nombre del Área</th>
                                 <th className="small text-muted fw-semibold">Contratista</th>
+                                <th className="small text-muted fw-semibold">Proceso Asignado</th>
                                 <th className="small text-muted fw-semibold">Estado</th>
                                 <th className="small text-muted fw-semibold text-end pe-4">Acciones</th>
                             </tr>
@@ -146,6 +182,11 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                                     <tr key={a.id}>
                                         <td className="ps-4 small fw-medium">{a.nombre}</td>
                                         <td className="small text-muted">{a.contratista_nombre}</td>
+                                        <td className="small">
+                                            {a.proceso_nombre
+                                                ? <span className="badge bg-primary-subtle text-primary">{a.proceso_nombre}</span>
+                                                : <span className="text-muted fst-italic">Sin proceso</span>}
+                                        </td>
                                         <td>
                                             <span className={`badge ${a.estado_id === 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
                                                 {a.estado_id === 1 ? 'Activo' : 'Inactivo'}
@@ -159,6 +200,13 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                                                         onClick={() => onGestionarUsuarios(a)}
                                                     >
                                                         <i className="bi bi-people me-1" /> Gestionar Usuarios
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-info"
+                                                        onClick={() => handleAbrirModalProceso(a)}
+                                                        title="Asignar proceso a esta área"
+                                                    >
+                                                        <i className="bi bi-arrow-repeat me-1" />Proceso
                                                     </button>
                                                     <button className="btn btn-sm btn-outline-warning" onClick={() => onEditar(a)}>
                                                         <i className="bi bi-pencil me-1" />Editar
@@ -177,7 +225,7 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="text-center text-muted py-5 small">
+                                    <td colSpan="5" className="text-center text-muted py-5 small">
                                         {busqueda || filtroC
                                             ? 'No se encontraron áreas con ese criterio'
                                             : `No hay áreas ${tabActiva}`}
@@ -189,7 +237,72 @@ const AreaList = ({ onNueva, onEditar, onGestionarUsuarios, filtroContratistaId,
                 </div>
             </div>
  
+            {/* Modal de confirmación (desactivar / reactivar) */}
             <Modales {...modal} onCancelar={cerrarModal} />
+
+            {/* Modal HU-13: asignar proceso al área */}
+            {modalProceso.visible && (
+                <div
+                    className="modal d-block"
+                    style={{ background: 'rgba(0,0,0,0.4)' }}
+                    onClick={() => setModalProceso({ visible: false })}
+                >
+                    <div
+                        className="modal-dialog modal-dialog-centered"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h6 className="modal-title fw-bold">
+                                    <i className="bi bi-arrow-repeat me-2 text-primary" />
+                                    Asignar Proceso — {modalProceso.areaNombre}
+                                </h6>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setModalProceso({ visible: false })}
+                                />
+                            </div>
+                            <div className="modal-body">
+                                <p className="text-muted small mb-3">
+                                    Selecciona el proceso que seguirán los expedientes de esta área.
+                                    Solo puede haber un proceso activo por área a la vez.
+                                </p>
+                                <label className="form-label small fw-semibold">Proceso activo</label>
+                                <select
+                                    className="form-select form-select-sm"
+                                    value={modalProceso.procesoIdSeleccionado}
+                                    onChange={e => setModalProceso(m => ({
+                                        ...m, procesoIdSeleccionado: e.target.value,
+                                    }))}
+                                >
+                                    <option value="">— Sin proceso asignado —</option>
+                                    {procesos.map(p => (
+                                        <option key={p.id} value={p.id}>{p.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-sm btn-secondary"
+                                    onClick={() => setModalProceso({ visible: false })}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={handleGuardarProceso}
+                                    disabled={guardandoProceso}
+                                >
+                                    {guardandoProceso
+                                        ? <><span className="spinner-border spinner-border-sm me-1" />Guardando…</>
+                                        : <><i className="bi bi-check-lg me-1" />Guardar</>}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
