@@ -113,12 +113,12 @@ const FilaExpediente = ({ exp, onAbrir, mostrarArea }) => {
 };
 
 // ─── Componente principal ──────────────────────────────────────────────────────
-const ExpedientesListado = ({ usuario, onVerDetalle }) => {
+const ExpedientesListado = ({ usuario, onVerDetalle, filtroEstadoInicial }) => {
   const [expedientes,    setExpedientes]    = useState([]);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState(null);
   const [busqueda,       setBusqueda]       = useState('');
-  const [filtroEstado,   setFiltroEstado]   = useState(null);
+  const [filtroEstado,   setFiltroEstado]   = useState(filtroEstadoInicial || null);
   const [filtroOrigen,   setFiltroOrigen]   = useState('');
   const [filtroTipoDoc,  setFiltroTipoDoc]  = useState('');
   const [opcionesFiltro, setOpcionesFiltro] = useState({ tipos_documento: [], estados: [] });
