@@ -81,6 +81,14 @@ const MODULOS = [
     color:       '#16a34a',
     bg:          '#dcfce7',
   },
+  {
+    titulo:      'Visadores',
+    descripcion: 'Gestionar los usuarios habilitados para realizar visaciones en áreas específicas.',
+    icono:       'bi-person-check-fill',
+    vista:       'visadores',
+    color:       '#be185d',
+    bg:          '#fce7f3',
+  },
 ];
 
 const MantenedoresPage = ({ onNavegar }) => {

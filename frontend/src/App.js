@@ -19,6 +19,9 @@ import ProyectosPage      from './components/Proyectos/ProyectosPage';
 import TipoDocPage        from './components/TiposDocumento/TipoDocPage';
 import TipoColabPage      from './components/TiposColaboracion/TipoColabPage';
 import ProcesosPage       from './components/Procesos/ProcesosPage';
+import TareasPage         from './components/Tareas/TareasPage';       // HU-22/23/24/25/26
+import VisadoresPage      from './components/Visadores/VisadoresPage'; // HU-27
+import DashboardPage      from './components/Dashboard/DashboardPage'; // HU-29/30
 import './styles.css';
 
 const VISTAS_USUARIOS      = ['usuarios', 'usuarios-listado', 'usuarios-nuevo', 'usuarios-editar'];
@@ -29,6 +32,7 @@ const VISTAS_PROYECTOS     = ['proyectos', 'proyectos-listado', 'proyectos-nuevo
 const VISTAS_CATEGORIAS    = ['categorias', 'categorias-listado', 'categorias-nueva', 'categorias-editar'];
 const VISTAS_TIPOS_DOC     = ['tipos-doc', 'tipos-doc-listado', 'tipos-doc-nuevo', 'tipos-doc-editar'];
 const VISTAS_TIPOS_COLAB   = ['tipos-colab', 'tipos-colab-listado', 'tipos-colab-nuevo', 'tipos-colab-editar'];
+const VISTAS_VISADORES     = ['visadores', 'visadores-listado', 'visadores-nuevo', 'visadores-editar'];
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -68,13 +72,12 @@ function App() {
     setVistaActual(vista);
   };
 
-  const handleVerDetalleUnidad   = (unidad)     => { setUnidadSeleccionada(unidad);         setVistaActual('mi-unidad-detalle'); };
-  const handleVolverAMisUnidades = ()            => { setUnidadSeleccionada(null);           setVistaActual('mis-unidades'); };
-  const handleVerExpedientes     = (unidad)     => { setUnidadSeleccionada(unidad);         setVistaActual('expedientes-area'); };
-  const handleVerExpedienteDetalle = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle'); };
-  const handleVolverAExpedientes   = ()           => { setExpedienteSeleccionado(null);       setVistaActual('expedientes'); };
-  const handleVolverAExpedientesArea = ()         => { setExpedienteSeleccionado(null);       setVistaActual('expedientes-area'); };
-  // Desde ExpedientesArea → ExpedienteDetalle, con volver a expedientes-area (no a la lista global)
+  const handleVerDetalleUnidad             = (unidad)      => { setUnidadSeleccionada(unidad);         setVistaActual('mi-unidad-detalle'); };
+  const handleVolverAMisUnidades           = ()             => { setUnidadSeleccionada(null);           setVistaActual('mis-unidades'); };
+  const handleVerExpedientes               = (unidad)      => { setUnidadSeleccionada(unidad);         setVistaActual('expedientes-area'); };
+  const handleVerExpedienteDetalle         = (expediente)  => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle'); };
+  const handleVolverAExpedientes           = ()             => { setExpedienteSeleccionado(null);       setVistaActual('expedientes'); };
+  const handleVolverAExpedientesArea       = ()             => { setExpedienteSeleccionado(null);       setVistaActual('expedientes-area'); };
   const handleVerExpedienteDetalleDesdeArea = (expediente) => { setExpedienteSeleccionado(expediente); setVistaActual('expediente-detalle-area'); };
 
   if (!usuario) return <Login onLogin={handleLogin} />;
@@ -87,13 +90,7 @@ function App() {
       return <MantenedoresPage onNavegar={handleNavegar} />;
 
     if (vistaActual === 'dashboard')
-      return (
-        <div style={{ padding: '40px', color: '#64748b', textAlign: 'center' }}>
-          <i className="bi bi-bar-chart-fill" style={{ fontSize: 48, display: 'block', marginBottom: 16 }} />
-          <strong>Dashboard Power BI</strong>
-          <p className="mt-2" style={{ fontSize: 13 }}>Módulo de reportes en construcción (HU-29 / HU-30).</p>
-        </div>
-      );
+      return <DashboardPage usuario={usuario} />;
 
     if (VISTAS_USUARIOS.includes(vistaActual))
       return <UsuariosPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
@@ -119,8 +116,14 @@ function App() {
     if (VISTAS_TIPOS_COLAB.includes(vistaActual))
       return <TipoColabPage vistaActual={vistaActual} onNavegar={handleNavegar} />;
 
+    if (VISTAS_VISADORES.includes(vistaActual))  // HU-27
+      return <VisadoresPage onVolver={() => handleNavegar('mantenedores')} />;
+
     if (vistaActual === 'procesos-listado' || vistaActual === 'etapas-listado')
       return <ProcesosPage onVolver={() => handleNavegar('mantenedores')} />;
+
+    if (vistaActual === 'tareas')   // HU-22/23/24/25/26
+      return <TareasPage usuario={usuario} />;
 
     if (vistaActual === 'mis-unidades')
       return <MisUnidadesPage usuario={usuario} onVerDetalle={handleVerDetalleUnidad} />;
@@ -136,6 +139,9 @@ function App() {
 
     if (vistaActual === 'expedientes')
       return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial={filtroEstadoInicial} />;
+
+    if (vistaActual === 'documentos-finales')  // HU-28
+      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial="8" soloTerminados />;
 
     if (vistaActual === 'expediente-detalle' && expedienteSeleccionado)
       return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientes} />;

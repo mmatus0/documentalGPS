@@ -33,12 +33,12 @@ app.use('/api/auth', authLimiter, createProxyMiddleware({
   pathRewrite: (path) => `/api/auth${path}`,
 }));
 
-// Rutas protegidas
+// Rutas protegidas solo admin
 app.use('/api/users',        apiLimiter, verificarToken, soloAdmin, msProxy('/api/users'));
 app.use('/api/contratistas', apiLimiter, verificarToken, soloAdmin, msProxy('/api/contratistas'));
 app.use('/api/proyectos',    apiLimiter, verificarToken, soloAdmin, msProxy('/api/proyectos'));
 
-// Categorias, tipos-doc y tipos-colab: accesibles a todos los roles (HU-15)
+// Categorias, tipos-doc y tipos-colab: todos los roles autenticados
 app.use('/api/categorias',  apiLimiter, verificarToken, msProxy('/api/categorias'));
 app.use('/api/tipos-doc',   apiLimiter, verificarToken, msProxy('/api/tipos-doc'));
 app.use('/api/tipos-colab', apiLimiter, verificarToken, msProxy('/api/tipos-colab'));
@@ -52,11 +52,17 @@ app.use('/api/areas', apiLimiter, verificarToken, (req, res, next) => {
   return soloAdmin(req, res, next);
 }, msProxy('/api/areas'));
 
-// Procesos y etapas
+// Procesos y etapas: solo admin
 app.use('/api/procesos', apiLimiter, verificarToken, soloAdmin, msProxy('/api/procesos'));
 app.use('/api/etapas',   apiLimiter, verificarToken, soloAdmin, msProxy('/api/etapas'));
 
 // Expedientes: todos los roles autenticados
 app.use('/api/expedientes', apiLimiter, verificarToken, msProxy('/api/expedientes'));
+
+// Tareas: todos los roles autenticados (el controller filtra por rol)
+app.use('/api/tareas', apiLimiter, verificarToken, msProxy('/api/tareas'));
+
+// Visadores: solo admin para escritura, todos para lectura (el controller lo maneja internamente)
+app.use('/api/visadores', apiLimiter, verificarToken, msProxy('/api/visadores'));
 
 module.exports = app;

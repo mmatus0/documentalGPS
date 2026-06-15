@@ -151,11 +151,13 @@ exports.getExpedientesGlobal = async (req, res) => {
     const [rows] = await db.query(
       `SELECT e.id, e.correlativo, e.nombre, e.materia, e.emisor, e.origen,
               e.reservado, e.fecha_documento, e.fecha_ingreso, e.estado_id,
+              e.area_id,
               td.nombre  AS tipo_documento,
               cat.nombre AS categoria,
               est.nombre AS estado,
               a.nombre   AS area_nombre,
               c.nombre   AS contratista_nombre,
+              p.nombre   AS proceso_nombre,
               u.nombre_completo AS creado_por
        FROM expediente e
        JOIN tipo_documento td  ON e.tipo_doc_id    = td.id
@@ -164,6 +166,7 @@ exports.getExpedientesGlobal = async (req, res) => {
        JOIN usuario u          ON e.creado_por     = u.id
        JOIN area a             ON e.area_id        = a.id
        JOIN contratista c      ON a.contratista_id = c.id
+       LEFT JOIN proceso p     ON a.proceso_id     = p.id
        WHERE 1=1 ${whereExtra}
        ORDER BY e.fecha_ingreso DESC`,
       params

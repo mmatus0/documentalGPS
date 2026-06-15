@@ -9,28 +9,32 @@ const contratistaRoutes = require('./routes/contratistaRoutes');
 const areaRoutes        = require('./routes/areaRoutes');
 const expedienteRoutes  = require('./routes/expedienteRoutes');
 const proyectoRoutes    = require('./routes/proyectoRoutes');
-const categoriaRoutes   = require('./routes/categoriaRoutes');  
-const tipoDocRoutes     = require('./routes/tipoDocRoutes');  
+const categoriaRoutes   = require('./routes/categoriaRoutes');
+const tipoDocRoutes     = require('./routes/tipoDocRoutes');
 const tipoColabRoutes   = require('./routes/tipoColabRoutes');
-const procesoRoutes = require('./routes/procesoRoutes');
+const procesoRoutes     = require('./routes/procesoRoutes');
 const etapaRoutes       = require('./routes/etapaRoutes');
+const tareaRoutes       = require('./routes/tareaRoutes');    // HU-22–26
+const visadorRoutes     = require('./routes/visadorRoutes');  // HU-27
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use('/api/users',        userRoutes);
-app.use('/api/proyectos', proyectoRoutes);
+app.use('/api/proyectos',    proyectoRoutes);
 app.use('/api/contratistas', contratistaRoutes);
 app.use('/api/areas',        areaRoutes);
 app.use('/api/expedientes',  expedienteRoutes);
 app.use('/api/categorias',   categoriaRoutes);
-app.use('/api/tipos-doc',    tipoDocRoutes);    
-app.use('/api/tipos-colab',  tipoColabRoutes); 
-app.use('/api/procesos', procesoRoutes);   
-app.use('/api/etapas', etapaRoutes);           
+app.use('/api/tipos-doc',    tipoDocRoutes);
+app.use('/api/tipos-colab',  tipoColabRoutes);
+app.use('/api/procesos',     procesoRoutes);
+app.use('/api/etapas',       etapaRoutes);
+app.use('/api/tareas',       tareaRoutes);    // HU-22–26
+app.use('/api/visadores',    visadorRoutes);  // HU-27
 
-// ── Manejo de errores de Multer (tamaño, tipo) ─────────────────────────────────
+// Manejo de errores de Multer
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
