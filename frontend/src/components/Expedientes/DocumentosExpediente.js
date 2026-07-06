@@ -5,7 +5,7 @@ const ICONOS_TIPO = {
   '.pdf':  { icon: 'bi-file-earmark-pdf-fill',   color: '#ef4444' },
   '.docx': { icon: 'bi-file-earmark-word-fill',   color: '#2563eb' },
   '.xlsx': { icon: 'bi-file-earmark-excel-fill',  color: '#16a34a' },
-  '.pbix': { icon: 'bi-file-earmark-bar-graph-fill', color: '#f59e0b' },
+  '.pbix': { icon: 'bi-file-earmark-bar-graph-fill', color: '#fda000' },
 };
 
 const EXTENSIONES_PERMITIDAS = ['.pdf', '.docx', '.xlsx', '.pbix'];
