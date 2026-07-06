@@ -2,7 +2,7 @@ const db   = require('../config/db');
 const path = require('path');
 const fs   = require('fs');
 
-const EXTENSIONES_PERMITIDAS = ['.pdf', '.docx', '.xlsx', '.pbix', '.jpg', '.jpeg', '.png'];
+const EXTENSIONES_PERMITIDAS = ['.pdf', '.docx', '.xlsx', '.pbix', '.jpg', '.jpeg', '.png', '.txt', '.csv'];
 const TAMANO_MAXIMO          = 50 * 1024 * 1024; // 50 MB
 const UPLOAD_DIR             = process.env.UPLOAD_DIR || '/app/uploads';
 
@@ -69,6 +69,60 @@ exports.subirDocumento = async (req, res) => {
         fecha_carga:    new Date(),
         subido_por:     usuario.nombre_completo || usuario.correo,
       }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// POST /api/expedientes/:expedienteId/documentos/lote
+// Carga masiva: recibe hasta LIMITE_LOTE archivos en un solo request (multipart, campo "archivos").
+// El middleware guardarRegistrosDocumentoLote ya insertó los registros en documento_adjunto
+// y dejó el resultado en req.fileRecords (array de { id, nombre_archivo, ok } por archivo).
+exports.subirDocumentosLote = async (req, res) => {
+  const usuario = getUsuarioFromReq(req);
+  if (!usuario) return res.status(401).json({ error: 'No autenticado' });
+
+  if (usuario.rol_id === 3) {
+    return res.status(403).json({ error: 'Los lectores no pueden subir archivos' });
+  }
+
+  const { expedienteId } = req.params;
+
+  try {
+    const [exp] = await db.query(
+      `SELECT e.id, e.area_id FROM expediente e WHERE e.id = ?`,
+      [expedienteId]
+    );
+    if (exp.length === 0) {
+      return res.status(404).json({ error: 'Expediente no encontrado' });
+    }
+
+    if (usuario.rol_id !== 1) {
+      const [acceso] = await db.query(
+        `SELECT id, rol_en_area FROM area_usuario WHERE area_id = ? AND usuario_id = ?`,
+        [exp[0].area_id, usuario.id]
+      );
+      if (acceso.length === 0 || acceso[0].rol_en_area !== 'Colaborador') {
+        return res.status(403).json({ error: 'Solo los colaboradores pueden subir archivos' });
+      }
+    }
+
+    const registros = req.fileRecords || [];
+    if (registros.length === 0) {
+      return res.status(400).json({ error: 'No se recibió ningún archivo' });
+    }
+
+    const exitosos = registros.filter(r => r.ok);
+    const fallidos  = registros.filter(r => !r.ok);
+
+    res.status(201).json({
+      mensaje: `${exitosos.length} de ${registros.length} archivos subidos correctamente`,
+      total:      registros.length,
+      exitosos:   exitosos.length,
+      fallidos:   fallidos.length,
+      documentos: exitosos.map(r => ({ id: r.id, nombre_archivo: r.nombre_archivo })),
+      errores:    fallidos.map(r => ({ nombre_archivo: r.nombre_archivo, error: r.error })),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

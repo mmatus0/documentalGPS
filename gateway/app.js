@@ -24,6 +24,10 @@ const msProxy = (apiPrefix) => createProxyMiddleware({
   target: 'http://ms-mantenedores:3002',
   changeOrigin: true,
   pathRewrite: (path) => `${apiPrefix}${path}`,
+  // La carga masiva de documentos puede tardar varios minutos; sin esto el proxy
+  // corta la conexión con ms-mantenedores mucho antes de que termine.
+  proxyTimeout: 10 * 60 * 1000,
+  timeout: 10 * 60 * 1000,
 });
 
 // Rutas publicas

@@ -16,6 +16,8 @@ const ICONOS_TIPO = {
   '.docx': { icon: 'bi-file-earmark-word-fill',      color: '#2563eb' },
   '.xlsx': { icon: 'bi-file-earmark-excel-fill',     color: '#16a34a' },
   '.pbix': { icon: 'bi-file-earmark-bar-graph-fill', color: '#f59e0b' },
+  '.txt':  { icon: 'bi-file-earmark-text-fill',      color: '#6b7280' },
+  '.csv':  { icon: 'bi-file-earmark-spreadsheet-fill', color: '#059669' },
 };
 
 const EstadoBadge = ({ estado, large }) => {
@@ -223,9 +225,17 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
   const [subiendo,      setSubiendo]      = useState(false);
   const [errorSubida,   setErrorSubida]   = useState(null);
   const [exitoSubida,   setExitoSubida]   = useState(null);
-  const [archivoSelec,  setArchivoSelec]  = useState(null);
+  const [archivosSelec,     setArchivosSelec]     = useState([]);   // File[] válidos, listos para subir
+  const [archivosInvalidos, setArchivosInvalidos] = useState([]);   // [{ name, motivo }]
+  const [progresoLote,      setProgresoLote]      = useState(null); // { loteActual, totalLotes, subidos, total }
+  const [resultadoLote,     setResultadoLote]     = useState(null); // { exitosos, fallidos, errores }
   const [dragOver,      setDragOver]      = useState(false);
   const [eliminando,    setEliminando]    = useState(null);
+
+  // Búsqueda y paginación de la lista de documentos
+  const [busquedaDoc, setBusquedaDoc] = useState('');
+  const [paginaDoc,   setPaginaDoc]   = useState(1);
+  const [porPaginaDoc, setPorPaginaDoc] = useState(10);
 
   // HU-20: Derivación
   const [modalDerivar,  setModalDerivar]  = useState(false);
@@ -243,8 +253,9 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
   const esAdmin       = usuario.rol_id === 1;
   const puedeSubir    = esColaborador || esAdmin;
 
-  const EXTENSIONES = ['.pdf', '.docx', '.xlsx', '.pbix'];
+  const EXTENSIONES = ['.pdf', '.docx', '.xlsx', '.pbix', '.txt', '.csv'];
   const TAMANO_MAX_MB = 50;
+  const TAMANO_LOTE = 150; // archivos por request; el backend acepta hasta 200 por request
 
   const fetchExpediente = useCallback(async () => {
     setLoading(true);
@@ -264,6 +275,9 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
   }, [expedienteId]);
 
   useEffect(() => { fetchExpediente(); }, [fetchExpediente]);
+
+  // Al cambiar el término de búsqueda o el tamaño de página, volvemos a la página 1
+  useEffect(() => { setPaginaDoc(1); }, [busquedaDoc, porPaginaDoc]);
 
   // Cargar áreas cuando se abre el modal de derivar
   const abrirModalDerivar = async () => {
@@ -336,31 +350,63 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
     return null;
   };
 
-  const handleSeleccionar = (file) => {
-    setErrorSubida(null); setExitoSubida(null);
-    const err = validarArchivo(file);
-    if (err) { setErrorSubida(err); return; }
-    setArchivoSelec(file);
+  // Valida cada archivo seleccionado; separa los válidos de los que no cumplen extensión/tamaño.
+  const handleSeleccionarArchivos = (fileList) => {
+    setErrorSubida(null); setExitoSubida(null); setResultadoLote(null);
+    const validos = [];
+    const invalidos = [];
+    Array.from(fileList).forEach(file => {
+      const err = validarArchivo(file);
+      if (err) invalidos.push({ name: file.name, motivo: err });
+      else validos.push(file);
+    });
+    setArchivosSelec(validos);
+    setArchivosInvalidos(invalidos);
   };
 
+  // Sube los archivos seleccionados en lotes de TAMANO_LOTE, secuencialmente, mostrando
+  // progreso. Si un lote completo falla (ej. corte de red), no aborta los siguientes lotes:
+  // se registra como fallido y se continúa, para no perder lo que ya se subió.
   const handleSubir = async () => {
-    if (!archivoSelec) return;
-    setSubiendo(true); setErrorSubida(null); setExitoSubida(null);
-    const formData = new FormData();
-    formData.append('archivo', archivoSelec);
-    try {
-      await axios.post(`/api/expedientes/${expedienteId}/documentos`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setExitoSubida(`"${archivoSelec.name}" subido correctamente`);
-      setArchivoSelec(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      await fetchExpediente();
-    } catch (err) {
-      setErrorSubida(err.response?.data?.error || 'Error al subir el archivo');
-    } finally {
-      setSubiendo(false);
+    if (archivosSelec.length === 0) return;
+    setSubiendo(true); setErrorSubida(null); setExitoSubida(null); setResultadoLote(null);
+
+    const lotes = [];
+    for (let i = 0; i < archivosSelec.length; i += TAMANO_LOTE) {
+      lotes.push(archivosSelec.slice(i, i + TAMANO_LOTE));
     }
+
+    let exitosos = 0;
+    let fallidos  = 0;
+    const errores = [];
+
+    for (let i = 0; i < lotes.length; i++) {
+      setProgresoLote({ loteActual: i + 1, totalLotes: lotes.length, subidos: exitosos + fallidos, total: archivosSelec.length });
+      const formData = new FormData();
+      lotes[i].forEach(file => formData.append('archivos', file));
+      try {
+        const { data } = await axios.post(`/api/expedientes/${expedienteId}/documentos/lote`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        exitosos += data.exitosos || 0;
+        fallidos  += data.fallidos  || 0;
+        if (data.errores?.length) errores.push(...data.errores);
+      } catch (err) {
+        fallidos += lotes[i].length;
+        lotes[i].forEach(f => errores.push({
+          nombre_archivo: f.name,
+          error: err.response?.data?.error || 'Error de red al subir el lote',
+        }));
+      }
+    }
+
+    setProgresoLote({ loteActual: lotes.length, totalLotes: lotes.length, subidos: exitosos + fallidos, total: archivosSelec.length });
+    setResultadoLote({ exitosos, fallidos, errores });
+    setArchivosSelec([]);
+    setArchivosInvalidos([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setSubiendo(false);
+    await fetchExpediente();
   };
 
   const handleDescargar = async (doc) => {
@@ -543,37 +589,90 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
                       border: `2px dashed ${dragOver ? 'var(--primary)' : '#cbd5e1'}`,
                       borderRadius: 10, padding: '20px', textAlign: 'center',
                       background: dragOver ? 'var(--primary-light)' : '#f8fafc',
-                      transition: 'all 0.2s', cursor: 'pointer',
+                      transition: 'all 0.2s', cursor: subiendo ? 'default' : 'pointer',
                     }}
-                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragOver={e => { e.preventDefault(); if (!subiendo) setDragOver(true); }}
                     onDragLeave={() => setDragOver(false)}
-                    onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleSeleccionar(f); }}
-                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={e => {
+                      e.preventDefault(); setDragOver(false);
+                      if (subiendo) return;
+                      if (e.dataTransfer.files?.length) handleSeleccionarArchivos(e.dataTransfer.files);
+                    }}
+                    onClick={() => !subiendo && fileInputRef.current?.click()}
                   >
                     <div className="d-flex justify-content-center gap-3 mb-2">
-                      {['.pdf', '.docx', '.xlsx', '.pbix'].map(ext => {
+                      {EXTENSIONES.map(ext => {
                         const c = ICONOS_TIPO[ext] || {};
                         return <i key={ext} className={`bi ${c.icon}`} style={{ fontSize: 24, color: c.color }} />;
                       })}
                     </div>
                     <p className="mb-1 small fw-medium">
-                      {archivoSelec
-                        ? <><i className="bi bi-check-circle-fill text-success me-1" />{archivoSelec.name}</>
-                        : 'Arrastra un archivo o haz clic para seleccionar'}
+                      {archivosSelec.length > 0
+                        ? <><i className="bi bi-check-circle-fill text-success me-1" />{archivosSelec.length} archivo{archivosSelec.length !== 1 ? 's' : ''} listo{archivosSelec.length !== 1 ? 's' : ''} para subir</>
+                        : 'Arrastra archivos o haz clic para seleccionar'}
                     </p>
-                    <p className="text-muted mb-0" style={{ fontSize: 11 }}>PDF, DOCX, XLSX, PBIX · Máximo {TAMANO_MAX_MB}MB</p>
-                    <input ref={fileInputRef} type="file" style={{ display: 'none' }}
-                      accept=".pdf,.docx,.xlsx,.pbix"
-                      onChange={e => e.target.files[0] && handleSeleccionar(e.target.files[0])} />
+                    <p className="text-muted mb-0" style={{ fontSize: 11 }}>
+                      PDF, DOCX, XLSX, PBIX, TXT, CSV · Máximo {TAMANO_MAX_MB}MB por archivo · Hasta 10.000 archivos (carga masiva por lotes)
+                    </p>
+                    <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }}
+                      accept=".pdf,.docx,.xlsx,.pbix,.txt,.csv"
+                      onChange={e => e.target.files?.length && handleSeleccionarArchivos(e.target.files)} />
                   </div>
+
+                  {archivosInvalidos.length > 0 && (
+                    <div className="alert alert-warning py-2 mt-2 mb-0 small">
+                      <i className="bi bi-exclamation-triangle-fill me-1" />
+                      {archivosInvalidos.length} archivo{archivosInvalidos.length !== 1 ? 's' : ''} no se subirá{archivosInvalidos.length !== 1 ? 'n' : ''} (extensión o tamaño no permitido):
+                      <div className="mt-1" style={{ fontSize: 11 }}>
+                        {archivosInvalidos.slice(0, 5).map((f, i) => (
+                          <div key={i}>• {f.name} — {f.motivo}</div>
+                        ))}
+                        {archivosInvalidos.length > 5 && <div>… y {archivosInvalidos.length - 5} más</div>}
+                      </div>
+                    </div>
+                  )}
+
                   {errorSubida && <div className="alert alert-danger py-2 mt-2 mb-0 small"><i className="bi bi-exclamation-triangle-fill me-1" />{errorSubida}</div>}
                   {exitoSubida && <div className="alert alert-success py-2 mt-2 mb-0 small"><i className="bi bi-check-circle-fill me-1" />{exitoSubida}</div>}
-                  {archivoSelec && !errorSubida && (
+
+                  {subiendo && progresoLote && (
+                    <div className="mt-3">
+                      <div className="d-flex justify-content-between small text-muted mb-1">
+                        <span>Lote {progresoLote.loteActual} de {progresoLote.totalLotes}</span>
+                        <span>{progresoLote.subidos}/{progresoLote.total} archivos</span>
+                      </div>
+                      <div className="progress" style={{ height: 8 }}>
+                        <div className="progress-bar progress-bar-striped progress-bar-animated"
+                          style={{ width: `${Math.round((progresoLote.subidos / progresoLote.total) * 100)}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {resultadoLote && (
+                    <div className={`alert py-2 mt-3 mb-0 small ${resultadoLote.fallidos > 0 ? 'alert-warning' : 'alert-success'}`}>
+                      <i className={`bi ${resultadoLote.fallidos > 0 ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} me-1`} />
+                      {resultadoLote.exitosos} de {resultadoLote.exitosos + resultadoLote.fallidos} archivos subidos correctamente.
+                      {resultadoLote.fallidos > 0 && (
+                        <div className="mt-1" style={{ fontSize: 11 }}>
+                          {resultadoLote.errores.slice(0, 5).map((e, i) => (
+                            <div key={i}>• {e.nombre_archivo} — {e.error}</div>
+                          ))}
+                          {resultadoLote.errores.length > 5 && <div>… y {resultadoLote.errores.length - 5} más</div>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {archivosSelec.length > 0 && (
                     <div className="d-flex gap-2 mt-2">
                       <button className="btn btn-primary btn-sm" onClick={handleSubir} disabled={subiendo}>
-                        {subiendo ? <><span className="spinner-border spinner-border-sm me-1" />Subiendo…</> : <><i className="bi bi-cloud-upload me-1" />Subir</>}
+                        {subiendo
+                          ? <><span className="spinner-border spinner-border-sm me-1" />Subiendo…</>
+                          : <><i className="bi bi-cloud-upload me-1" />Subir {archivosSelec.length} archivo{archivosSelec.length !== 1 ? 's' : ''}</>}
                       </button>
-                      <button className="btn btn-outline-secondary btn-sm" onClick={() => { setArchivoSelec(null); setErrorSubida(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} disabled={subiendo}>
+                      <button className="btn btn-outline-secondary btn-sm"
+                        onClick={() => { setArchivosSelec([]); setArchivosInvalidos([]); setErrorSubida(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                        disabled={subiendo}>
                         Cancelar
                       </button>
                     </div>
@@ -581,31 +680,102 @@ const ExpedienteDetalle = ({ expedienteId, usuario, onVolver }) => {
                 </div>
               )}
 
-              {!expediente.documentos || expediente.documentos.length === 0 ? (
-                <div className="text-center py-4 text-muted small">
-                  <i className="bi bi-paperclip d-block mb-2" style={{ fontSize: 24 }} />
-                  {puedeSubir ? 'No hay documentos. Sube el primero.' : 'No hay documentos adjuntos.'}
-                </div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-hover align-middle mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th className="ps-4 small text-muted fw-semibold">Archivo</th>
-                        <th className="small text-muted fw-semibold">Subido por</th>
-                        <th className="small text-muted fw-semibold">Fecha</th>
-                        <th className="pe-4 small text-muted fw-semibold text-end">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {expediente.documentos.map(doc => (
-                        <FilaDocumento key={doc.id} doc={doc} puedeEliminar={puedeSubir}
-                          onDescargar={handleDescargar} onEliminar={handleEliminar} eliminando={eliminando} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              {(() => {
+                const documentos = expediente.documentos || [];
+                const documentosFiltrados = busquedaDoc.trim()
+                  ? documentos.filter(d => d.nombre_archivo.toLowerCase().includes(busquedaDoc.trim().toLowerCase()))
+                  : documentos;
+                const totalPaginas = Math.max(1, Math.ceil(documentosFiltrados.length / porPaginaDoc));
+                const paginaSegura = Math.min(paginaDoc, totalPaginas);
+                const inicio = (paginaSegura - 1) * porPaginaDoc;
+                const documentosPagina = documentosFiltrados.slice(inicio, inicio + porPaginaDoc);
+
+                if (documentos.length === 0) {
+                  return (
+                    <div className="text-center py-4 text-muted small">
+                      <i className="bi bi-paperclip d-block mb-2" style={{ fontSize: 24 }} />
+                      {puedeSubir ? 'No hay documentos. Sube el primero.' : 'No hay documentos adjuntos.'}
+                    </div>
+                  );
+                }
+
+                return (
+                  <>
+                    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                      <div className="input-group input-group-sm" style={{ maxWidth: 280 }}>
+                        <span className="input-group-text bg-white border-end-0">
+                          <i className="bi bi-search text-muted" />
+                        </span>
+                        <input
+                          type="text"
+                          className="form-control border-start-0"
+                          placeholder="Buscar por nombre de archivo…"
+                          value={busquedaDoc}
+                          onChange={e => setBusquedaDoc(e.target.value)}
+                        />
+                        {busquedaDoc && (
+                          <button className="btn btn-outline-secondary" type="button" onClick={() => setBusquedaDoc('')}>
+                            <i className="bi bi-x-lg" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="text-muted small">Mostrar</span>
+                        <select className="form-select form-select-sm" style={{ width: 80 }}
+                          value={porPaginaDoc} onChange={e => setPorPaginaDoc(Number(e.target.value))}>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {documentosFiltrados.length === 0 ? (
+                      <div className="text-center py-4 text-muted small">
+                        <i className="bi bi-search d-block mb-2" style={{ fontSize: 24 }} />
+                        No se encontraron archivos que coincidan con "{busquedaDoc}".
+                      </div>
+                    ) : (
+                      <>
+                        <div className="table-responsive">
+                          <table className="table table-hover align-middle mb-0">
+                            <thead className="table-light">
+                              <tr>
+                                <th className="ps-4 small text-muted fw-semibold">Archivo</th>
+                                <th className="small text-muted fw-semibold">Subido por</th>
+                                <th className="small text-muted fw-semibold">Fecha</th>
+                                <th className="pe-4 small text-muted fw-semibold text-end">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {documentosPagina.map(doc => (
+                                <FilaDocumento key={doc.id} doc={doc} puedeEliminar={puedeSubir}
+                                  onDescargar={handleDescargar} onEliminar={handleEliminar} eliminando={eliminando} />
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 px-1">
+                          <span className="text-muted small">
+                            Mostrando {inicio + 1}–{Math.min(inicio + porPaginaDoc, documentosFiltrados.length)} de {documentosFiltrados.length}
+                          </span>
+                          <div className="d-flex align-items-center gap-2">
+                            <button className="btn btn-sm btn-outline-secondary" disabled={paginaSegura <= 1}
+                              onClick={() => setPaginaDoc(p => Math.max(1, p - 1))}>
+                              <i className="bi bi-chevron-left" />
+                            </button>
+                            <span className="small text-muted">Página {paginaSegura} de {totalPaginas}</span>
+                            <button className="btn btn-sm btn-outline-secondary" disabled={paginaSegura >= totalPaginas}
+                              onClick={() => setPaginaDoc(p => Math.min(totalPaginas, p + 1))}>
+                              <i className="bi bi-chevron-right" />
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
