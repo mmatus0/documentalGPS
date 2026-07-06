@@ -141,7 +141,7 @@ function App() {
       return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial={filtroEstadoInicial} />;
 
     if (vistaActual === 'documentos-finales')  // HU-28
-      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial="8" soloTerminados />;
+      return <ExpedientesListado usuario={usuario} onVerDetalle={handleVerExpedienteDetalle} filtroEstadoInicial="Terminado" soloTerminados />;
 
     if (vistaActual === 'expediente-detalle' && expedienteSeleccionado)
       return <ExpedienteDetalle expedienteId={expedienteSeleccionado.id} usuario={usuario} onVolver={handleVolverAExpedientes} />;

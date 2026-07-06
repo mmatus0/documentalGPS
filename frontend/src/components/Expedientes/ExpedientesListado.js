@@ -113,7 +113,7 @@ const FilaExpediente = ({ exp, onAbrir, mostrarArea }) => {
 };
 
 // ─── Componente principal ──────────────────────────────────────────────────────
-const ExpedientesListado = ({ usuario, onVerDetalle, filtroEstadoInicial }) => {
+const ExpedientesListado = ({ usuario, onVerDetalle, filtroEstadoInicial, soloTerminados }) => {
   const [expedientes,    setExpedientes]    = useState([]);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState(null);
@@ -169,9 +169,9 @@ const ExpedientesListado = ({ usuario, onVerDetalle, filtroEstadoInicial }) => {
               <i className="bi bi-folder2-open" style={{ fontSize: 26, color: 'var(--primary)' }} />
             </div>
             <div className="flex-grow-1">
-              <h4 className="fw-bold mb-1">Expedientes</h4>
+              <h4 className="fw-bold mb-1">{soloTerminados ? 'Documentos Finales' : 'Expedientes'}</h4>
               <p className="text-muted small mb-0">
-                {esAdmin ? 'Todos los expedientes del sistema' : 'Expedientes de tus unidades organizativas'}
+                {soloTerminados ? 'Expedientes terminados con sus documentos finales' : esAdmin ? 'Todos los expedientes del sistema' : 'Expedientes de tus unidades organizativas'}
               </p>
             </div>
             {!loading && (
@@ -183,8 +183,8 @@ const ExpedientesListado = ({ usuario, onVerDetalle, filtroEstadoInicial }) => {
         </div>
       </div>
 
-      {/* Dashboard de contadores (HU-16) */}
-      {!loading && !error && <DashboardContadores expedientes={expedientes} filtroEstado={filtroEstado} onFiltrarEstado={setFiltroEstado} />}
+      {/* Dashboard de contadores (HU-16) — no aplica en Documentos Finales */}
+      {!soloTerminados && !loading && !error && <DashboardContadores expedientes={expedientes} filtroEstado={filtroEstado} onFiltrarEstado={setFiltroEstado} />}
 
       {/* Filtros */}
       <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 10 }}>
